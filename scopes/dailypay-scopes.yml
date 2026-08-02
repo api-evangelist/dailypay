@@ -1,0 +1,89 @@
+generated: '2026-08-01'
+method: searched
+source: openapi/dailypay-rest-openapi-original.yml
+docs: https://developer.dailypay.com/products/rest/guides/auth
+discovery: https://auth.dailypay.com/.well-known/openid-configuration
+notes: >-
+  DailyPay scopes are not self-serve. The auth guide states that DailyPay provides the application's
+  configuration values — including "scope: a list of scopes your application can request, which may
+  include offline_access and openid" — during partner registration, so the set of scopes a given
+  client may request is provisioned per application rather than published as a catalogue. The
+  API-resource scopes below are the ones declared in the OpenAPI security schemes and applied to
+  operations; the OIDC scopes below are advertised by the live authorization-server discovery
+  document. No standalone scopes/permissions reference page is published.
+schemes:
+- name: oauth_client_credentials_token
+  source: openapi/dailypay-rest-openapi-original.yml
+  audience: server-to-server / partner application
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://auth.dailypay.com/oauth2/token
+  docs: https://developer.dailypay.com/products/rest/guides/auth/client-credentials-flow
+- name: oauth_user_token
+  source: openapi/dailypay-rest-openapi-original.yml
+  audience: end user (employee) acting through the partner application
+  pkce: true
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://auth.dailypay.com/oauth2/auth
+    tokenUrl: https://auth.dailypay.com/oauth2/token
+  docs: https://developer.dailypay.com/products/rest/guides/auth/authorization-code-flow
+  refresh: https://developer.dailypay.com/products/rest/guides/auth/refresh-token
+scopes:
+- scope: client:admin
+  description: >-
+    Application-level administrative access. Applied as the default client-credentials requirement
+    at the document level and on the read operations reachable with an application token.
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+- scope: client:lookup
+  description: Read access to resources necessary to find a person by known identifiers.
+  flows:
+  - clientCredentials
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+- scope: health:read
+  description: >-
+    Read access to the API health endpoint (GET /rest/health). Declared on the operation's security
+    requirement; not enumerated in either scheme's flow scopes map.
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+- scope: user:read
+  description: >-
+    Read access to all relevant objects for a non-application user, including accounts, jobs,
+    people, transfers, and paychecks.
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+- scope: user:read_write
+  description: >-
+    Read and write access to all relevant objects for a non-application user, including accounts,
+    jobs, people, transfers, and paychecks. Required for createTransfer, createAccount,
+    deleteAccount, updateJob and updatePerson.
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+oidc_scopes:
+  source: https://auth.dailypay.com/.well-known/openid-configuration
+  supported:
+  - scope: openid
+    description: Standard OIDC scope; requests an ID token.
+  - scope: offline_access
+    description: Requests a refresh token so the application can refresh the user access token.
+  - scope: offline
+    description: Legacy alias advertised alongside offline_access by the authorization server.
+granularity:
+  note: >-
+    Scope granularity is coarse. There is no per-resource scope family — a single user:read_write
+    scope grants write access to accounts, jobs, people and transfers alike, which means a token
+    obtained to add a bank account also carries the authority to move money. This is reflected in
+    agentic-access/dailypay-agentic-access.yml, where createTransfer is classified as
+    physical-consequence under the same scope as low-risk profile updates.
+coverage:
+  api_scopes: 5
+  oidc_scopes: 3
+  schemes: 2

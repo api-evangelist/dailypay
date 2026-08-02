@@ -1,0 +1,136 @@
+generated: '2026-08-01'
+method: searched
+source: >-
+  openapi/dailypay-rest-openapi-original.yml +
+  https://developer.dailypay.com/products/rest/guides/auth +
+  https://www.dailypay.com/security/ +
+  https://auth.dailypay.com/.well-known/openid-configuration
+standards:
+- id: jsonapi
+  name: 'json:api v1.x'
+  conforms: true
+  evidence: >-
+    All responses are application/vnd.api+json json:api documents — typed resource objects with
+    id/type/attributes/relationships/links, an errors[] error envelope, filter[] query parameters
+    and the include relationship-expansion parameter. The SDK page states the API "is also
+    compatible with json:api client libraries".
+  docs: https://developer.dailypay.com/products/rest/sdks
+- id: oauth2
+  name: OAuth 2.0 (RFC 6749)
+  conforms: true
+  evidence: >-
+    Two oauth2 securitySchemes in the OpenAPI — clientCredentials and authorizationCode — with
+    tokenUrl https://auth.dailypay.com/oauth2/token. Docs state "DailyPay adheres to the OAuth 2.0
+    RFC 6749 ... specification".
+  docs: https://developer.dailypay.com/products/rest/guides/auth
+- id: oauth2-pkce
+  name: PKCE (RFC 7636)
+  conforms: true
+  evidence: >-
+    oauth_user_token declares x-usePkce true; the OIDC discovery document advertises
+    code_challenge_methods_supported [plain, S256].
+- id: openid-connect
+  name: OpenID Connect Core 1.0
+  conforms: true
+  evidence: >-
+    Live discovery document at https://auth.dailypay.com/.well-known/openid-configuration with
+    issuer, authorization/token/userinfo/jwks/revocation/end_session endpoints, openid scope, RS256
+    id_token signing, private_key_jwt client auth, front- and back-channel logout, and signed
+    request objects. Docs explicitly cite the OpenID Connect Core specification.
+  docs: https://developer.dailypay.com/products/rest/guides/auth
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: true
+  evidence: >-
+    www.dailypay.com and developer.dailypay.com both serve
+    /.well-known/oauth-authorization-server; www.dailypay.com additionally serves
+    /.well-known/oauth-protected-resource (RFC 9728) for its MCP endpoint.
+- id: saml2
+  name: SAML 2.0
+  conforms: true
+  evidence: >-
+    The developer portal advertises "Flexible authentication options: OAuth, OIDC, SAML" and a
+    Trust Relationship Authentication guide covering OIDC and SAML federation for Elements and
+    partner integrations.
+  docs: https://developer.dailypay.com/products/rest/guides/auth/trust-relationship
+- id: pci-dss
+  name: PCI DSS (Level 1)
+  conforms: true
+  evidence: >-
+    DailyPay's security page lists PCI DSS Level 1 attested by A-Lign. The card-tokenization
+    endpoint (createGenericCardToken, POST /cards/generic) is documented as "a PCI compliant
+    endpoint" and the payments guide states "The Payments server is DailyPay's only PCI compliant
+    API."
+  docs: https://www.dailypay.com/security/
+- id: soc2-type2
+  name: SOC 2 Type 2
+  conforms: true
+  evidence: DailyPay's security page lists SOC 2 Type 2 (AICPA SOC).
+  docs: https://www.dailypay.com/security/
+- id: iso-27001
+  name: ISO/IEC 27001
+  conforms: true
+  evidence: DailyPay's security page lists ISO 27001 certification by A-Lign.
+  docs: https://www.dailypay.com/security/
+- id: rfc9457-problem-details
+  name: RFC 9457 Problem Details
+  conforms: false
+  evidence: >-
+    Errors use the json:api errors[] envelope with application/vnd.api+json, not
+    application/problem+json. No type/title/instance members.
+- id: rfc8594-sunset
+  name: RFC 8594 Sunset header
+  conforms: false
+  evidence: No Sunset or Deprecation header is declared in the OpenAPI or documented.
+- id: rfc9116-security-txt
+  name: RFC 9116 security.txt
+  conforms: false
+  evidence: /.well-known/security.txt returned 404 on every DailyPay host probed.
+- id: idempotency-key
+  name: Idempotency-Key header (draft-ietf-httpapi-idempotency-key-header)
+  conforms: true
+  evidence: >-
+    A required Idempotency-Key header (uuid) on transfer creation, with documented replay semantics
+    and dedicated 400 INVALID_IDEMPOTENCY_KEY / 409 IDEMPOTENCY_KEY_LOCKED error codes.
+- id: openapi-3-1
+  name: OpenAPI 3.1.0
+  conforms: true
+  evidence: >-
+    A first-party bundled OpenAPI 3.1.0 document is published at
+    https://developer.dailypay.com/_bundle/products/rest/reference/index.yaml with 18 operations,
+    95 component schemas and full securityScheme definitions.
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: >-
+    No event, streaming or webhook surface is documented; the OpenAPI declares no webhooks object.
+    Not applicable rather than deficient.
+- id: fapi
+  name: FAPI (Financial-grade API)
+  conforms: false
+  evidence: >-
+    No FAPI profile claim, no mutualTLS or private_key_jwt requirement on the API's own security
+    schemes (private_key_jwt is offered by the authorization server but not mandated), no
+    proof-of-possession / DPoP.
+- id: fdx
+  name: Financial Data Exchange (FDX)
+  conforms: false
+  evidence: No FDX claim or FDX-shaped resources; DailyPay's data model is EWA-specific, not FDX.
+compliance_program:
+  published: true
+  url: https://www.dailypay.com/en-us/legal/compliance/
+  security_url: https://www.dailypay.com/security/
+  trust_center: https://trust.dailypay.com/
+  certifications:
+  - PCI DSS Level 1
+  - SOC 2 Type 2
+  - ISO 27001
+  auditor: A-Lign
+regulatory_context:
+  domain: earned wage access / on-demand pay (United States)
+  note: >-
+    The API surfaces regulatory artefacts directly: a signed Wage Disclosure is a precondition for
+    transfers (400 DISCLOSURE_REQUIRED) and the person's state_of_residence is required before a
+    transfer can be requested (400 MISSING_STATE_OF_RESIDENCE) — both reflect state-level EWA
+    disclosure regimes. DailyPay Elements are marketed as "kept up to date with the latest
+    regulatory requirements for all supported jurisdictions".

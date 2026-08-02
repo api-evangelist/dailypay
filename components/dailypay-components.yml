@@ -1,0 +1,94 @@
+generated: '2026-08-01'
+method: searched
+source: https://developer.dailypay.com/products/rest/elements
+docs: https://developer.dailypay.com/products/rest/elements/catalog
+summary: >-
+  DailyPay Elements are hosted, drop-in UI components that embed on-demand pay into a partner
+  application. They are not a JavaScript element library: each Element is a DailyPay-hosted web
+  page rendered inside an iframe or platform web view, and the host application communicates with
+  it over cross-origin postMessage events. There is no loader script and no npm package — the
+  integration surface is an iframe URL plus an event contract.
+delivery_model:
+  mechanism: hosted iframe / web view
+  loader_library: none
+  communication: cross-origin postMessage (events)
+  event_payload: JSON — delivered as an object in browsers and as a JSON string on Android and iOS
+  origins:
+    production: https://elements.dailypay.com
+    uat: https://elements.uat.dailypay.com
+  url_pattern: '<origin>/v1/<element>?client_id=<client_id>&implementation_id=<implementation_id>'
+  required_query_params:
+  - client_id
+  - implementation_id
+  web_view_requirements:
+  - JavaScript enabled
+  - Web Storage (DOM Storage) enabled
+authentication:
+  model: same as the REST API — OAuth 2.0 authorization-code flow
+  handoff: >-
+    An Element that needs auth emits an event when it loads signalling that it is ready for a
+    token; the host completes the authorization-code flow and posts ONLY the access token back to
+    the Element (never the id token or refresh token). Example event type from the web guide is
+    GIVE_TOKEN with a { "token": "" } payload.
+  optional_for:
+  - call-to-action
+  - debit-card-tokenization
+  enhancements: OIDC and SAML trust-relationship configurations can reduce the user's auth burden
+  docs: https://developer.dailypay.com/products/rest/guides/auth/trust-relationship
+families:
+- family: Elements
+  components:
+  - name: Available Earnings Element
+    slug: available-earnings
+    path: /v1/available-earnings
+    docs: https://developer.dailypay.com/products/rest/elements/available-earnings
+    description: >-
+      Displays a user's currently available earnings with a link to initiate a transfer in the
+      DailyPay web or mobile app. If authentication is unavailable or the user is unknown it falls
+      back automatically to the Call to Action enrolment element.
+    requires_auth: true
+    rest_alternative: listAccounts filtered by filter[account_type]=EARNINGS_BALANCE
+  - name: Call to Action Element
+    slug: call-to-action
+    aliases:
+    - cta
+    docs: https://developer.dailypay.com/products/rest/elements/call-to-action
+    description: >-
+      Intranet-focused advertisement for On-Demand Pay to help HR and IT teams promote DailyPay,
+      with a dynamic sign-up button that routes users to the correct landing page.
+    requires_auth: false
+  - name: Debit Card Tokenization Element
+    slug: debit-card-tokenization
+    aliases:
+    - tokenization
+    docs: https://developer.dailypay.com/products/rest/elements/debit-card-tokenization
+    description: >-
+      Secure embeddable form for collecting debit-card details. Handles input, validation and
+      transmission to a DailyPay backend that performs tokenization with the payment gateway; only
+      the token and non-sensitive metadata are returned to the host, so no card data is ever
+      exposed to or stored by the host application.
+    requires_auth: false
+    rest_alternative: createGenericCardToken (POST /cards/generic)
+    downstream: the returned token is used with createAccount to add a CARD account
+platform_guides:
+- platform: web
+  docs: https://developer.dailypay.com/products/rest/elements/developer-guide/browser
+  host_component: HTML iframe + window.postMessage
+- platform: android
+  docs: https://developer.dailypay.com/products/rest/elements/developer-guide/android
+- platform: ios
+  docs: https://developer.dailypay.com/products/rest/elements/developer-guide/ios
+- platform: react-native
+  docs: https://developer.dailypay.com/products/rest/elements/developer-guide/react-native
+positioning:
+  claims:
+  - Time to market — low-code, minimal roadmap impact
+  - Out-of-the-box compliance — kept current with regulatory requirements for all supported jurisdictions
+  - Best practices built in
+  relationship_to_api: >-
+    Elements may be used on their own or combined with the REST API. Two of the three have a direct
+    REST equivalent (available earnings via listAccounts, card tokenization via
+    createGenericCardToken), so the choice is a build-vs-embed decision rather than a capability gap.
+coverage:
+  components: 3
+  platforms: 4

@@ -1,0 +1,281 @@
+generated: '2026-08-01'
+method: generated
+source: openapi/dailypay-rest-openapi-original.yml
+description: Recommended x-agentic-access execution contracts, classified heuristically from
+  the OpenAPI. A governance starting point for exposing this API to AI agents — review and bind
+  audience per deployment. See research/curity/agentic-governance/.
+summary:
+  operations: 18
+  by_action_class:
+    connected: 12
+    acting: 6
+  by_consequence:
+    read: 12
+    write: 5
+    physical: 1
+  human_in_the_loop_required: 0
+operations:
+- path: /rest/jobs/{job_id}
+  method: get
+  operationId: readJob
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    - client:lookup
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/jobs/{job_id}
+  method: patch
+  operationId: updateJob
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    scope:
+    - user:read_write
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /rest/jobs
+  method: get
+  operationId: listJobs
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    - client:lookup
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/accounts/{account_id}
+  method: get
+  operationId: readAccount
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    - client:lookup
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/accounts/{account_id}
+  method: delete
+  operationId: deleteAccount
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    scope:
+    - user:read_write
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /rest/accounts
+  method: get
+  operationId: listAccounts
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    - client:lookup
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/accounts
+  method: post
+  operationId: createAccount
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    scope:
+    - user:read_write
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /rest/transfers/{transfer_id}
+  method: get
+  operationId: readTransfer
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/transfers
+  method: get
+  operationId: listTransfers
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/transfers
+  method: post
+  operationId: createTransfer
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    scope:
+    - user:read_write
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /rest/paychecks/{paycheck_id}
+  method: get
+  operationId: readPaycheck
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/paychecks
+  method: get
+  operationId: listPaychecks
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/organizations/{organization_id}
+  method: get
+  operationId: readOrganization
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/organizations
+  method: get
+  operationId: listOrganizations
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/people/{person_id}
+  method: get
+  operationId: readPerson
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - client:admin
+    - user:read
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /rest/people/{person_id}
+  method: patch
+  operationId: updatePerson
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    scope:
+    - user:read_write
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /cards/generic
+  method: post
+  operationId: createGenericCardToken
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+    scope:
+    - client:admin
+    - user:read
+- path: /rest/health
+  method: get
+  operationId: getHealth
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    scope:
+    - health:read
+    token:
+      max-ttl: 3600
+    audit: none

@@ -1,0 +1,156 @@
+generated: '2026-08-01'
+method: searched
+source: openapi/dailypay-rest-openapi-original.yml
+docs: https://developer.dailypay.com/products/rest/reference
+summary: >-
+  The DailyPay REST API is a json:api implementation. Every resource is a typed, UUID-identified
+  json:api resource object with attributes, relationships and links; every error is a json:api
+  errors[] member. Requests are versioned by a header, transfers require an idempotency key, and
+  list endpoints are filtered with json:api-style filter[] query parameters. The API declares
+  itself compatible with generic json:api client libraries for languages DailyPay does not ship an
+  SDK for.
+specification:
+  standard: json:api
+  media_type: application/vnd.api+json
+  docs: https://jsonapi.org/
+  note: >-
+    The SDK page explicitly states "the DailyPay REST API is also compatible with json:api client
+    libraries" for unsupported languages.
+authentication:
+  style: oauth2-bearer
+  header: 'Authorization: Bearer <access_token>'
+  flows:
+  - clientCredentials
+  - authorizationCode
+  pkce: required on the authorization-code flow (x-usePkce true on oauth_user_token)
+  authorization_server: https://auth.dailypay.com
+  openid_connect: true
+  discovery: https://auth.dailypay.com/.well-known/openid-configuration
+  additional: >-
+    OIDC signed requests via a partner-supplied JWKS, and SAML/OIDC trust-relationship
+    authentication, are available for Elements and partner integrations.
+  artifact: authentication/dailypay-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  format: uuid
+  required: true
+  scope: transfer creation (createTransfer)
+  semantics: >-
+    "An idempotency key is a unique string that you provide to ensure a request is only processed
+    once. Any number of requests with the same idempotency key and payload will return an identical
+    response." Reusing a key with a DIFFERENT payload is rejected with 400
+    INVALID_IDEMPOTENCY_KEY; a concurrent in-flight request holding the same key is rejected with
+    409 IDEMPOTENCY_KEY_LOCKED, which the spec states is safe to retry.
+  retention: not published
+  source: components.parameters.idempotency_key
+  operations:
+  - createTransfer
+versioning:
+  scheme: request-header
+  header: DailyPay-API-Version
+  type: integer
+  current: 3
+  default_behavior: >-
+    If the header is not provided, the latest version of the API is used. Requesting an unsupported
+    version returns 400 INVALID_VERSION_HEADER.
+  spec_version: 3.0.0-beta.117
+  source: components.parameters.apiversion
+  docs: https://developer.dailypay.com/products/rest/reference/versioning
+pagination:
+  documented: false
+  note: >-
+    No page[] / cursor / limit / offset parameters are declared anywhere in the OpenAPI, and no
+    pagination reference page is published. List endpoints (listJobs, listAccounts, listTransfers,
+    listPaychecks, listOrganizations) return json:api data[] arrays constrained by filters rather
+    than by a documented paging contract.
+filtering:
+  style: json:api filter family
+  syntax: 'filter[<field>]=<value>, with dotted relationship paths and comparison suffixes'
+  docs: https://developer.dailypay.com/products/rest/reference/filtering
+  examples:
+  - 'filter[account_type]=EARNINGS_BALANCE'
+  - 'filter[person.id]=b9fae0ef-4a19-4356-9e82-47b25bbe2f3a'
+  - 'filter[external_identifiers.employee_id]'
+  - 'filter[submitted_at__gt]'
+  - 'filter[deposit_expected_at__gte] / filter[deposit_expected_at__lt]'
+  - 'filter[pay_period_starts_at__gte] / filter[pay_period_ends_at__lt]'
+  operators:
+  - __gt
+  - __gte
+  - __lt
+  deprecated: >-
+    The bare `filter` query parameter is marked deprecated in the spec in favour of the
+    filter[<field>] form.
+  errors:
+  - INVALID_FILTER_QUERY
+  - INVALID_FILTER_FIELD
+  - INVALID_FILTER_VALUE
+  - INVALID_FIELD_OPERATION
+expansion:
+  supported: true
+  style: json:api include
+  parameter: include
+  syntax: comma-separated list of relationship paths
+  example: 'include=estimated_funding_sources,final_funding_sources'
+  scope: transfers (readTransfer, listTransfers)
+  source: components.parameters.transferIncludes
+sparse_fieldsets:
+  documented: false
+metadata:
+  customer_defined: false
+  note: >-
+    There is no writable metadata bag on DailyPay resources. Partner-side identity is instead
+    carried on jobs via the read-side attribute external_identifiers
+    (primary_identifier, employee_id, group), which is also filterable.
+request_tracing:
+  request_id_field: errors[].meta.request_id
+  trace_id_field: errors[].meta.trace_id
+  format: 'request_id is a UUID; trace_id is a numeric trace identifier'
+  note: >-
+    Tracing identifiers are surfaced on the error envelope. No request-id response header is
+    declared in the OpenAPI (components.headers is empty).
+error_envelope:
+  standard: json:api errors[]
+  rfc9457: false
+  media_type: application/vnd.api+json
+  fields:
+  - status
+  - code
+  - detail
+  - source.parameter
+  - source.pointer
+  - source.header
+  - links.about
+  - meta.request_id
+  - meta.trace_id
+  open_enum: true
+  guidance: >-
+    Branch on `code`, never on `detail` — the spec states detail "may change" and advises against
+    programmatic use. Treat `code` as an open enum and handle unknown values.
+  artifact: errors/dailypay-problem-types.yml
+rate_limiting:
+  documented: false
+  note: >-
+    No rate-limit headers, 429 responses, or published quota policy were found in the OpenAPI or
+    the developer docs. No 429 appears in any operation's responses.
+environments:
+  production: https://api.dailypay.com/rest
+  uat: https://api.dailypayuat.com/rest
+  server_template: 'https://api.{environment}.com with environment in [dailypay, dailypayuat]'
+  docs: https://developer.dailypay.com/products/rest/reference/environments
+  artifact: sandbox/dailypay-sandbox.yml
+money:
+  representation: minor units (integer) plus an ISO 4217 currency code
+  example: 'balances.available = 12000 with currency USD means $120.00'
+  schemas:
+  - components.schemas.Amount
+  - components.schemas.Currency
+related:
+  authentication: authentication/dailypay-authentication.yml
+  scopes: scopes/dailypay-scopes.yml
+  errors: errors/dailypay-problem-types.yml
+  decline_codes: errors/dailypay-decline-codes.yml
+  lifecycle: lifecycle/dailypay-lifecycle.yml
+  data_model: data-model/dailypay-data-model.yml
+  sandbox: sandbox/dailypay-sandbox.yml

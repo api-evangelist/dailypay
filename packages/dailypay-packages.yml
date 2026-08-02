@@ -1,0 +1,79 @@
+generated: '2026-08-01'
+method: searched
+source: https://developer.dailypay.com/products/rest/sdks + https://github.com/dailypay
+docs: https://developer.dailypay.com/products/rest/sdks
+notes: >-
+  DailyPay publishes four official, Speakeasy-generated client SDKs from the DailyPay REST OpenAPI,
+  plus a fifth (Java) that the SDK page states is available to select partners only and is not
+  published in the public GitHub org. Notably, none of the public SDKs are distributed through a
+  language package registry — npm, NuGet, pkg.go.dev and Maven Central were all probed and the
+  install path documented in every README is a direct Git/GitHub reference. The `dailypay` name on
+  npm is an unrelated security-holding placeholder (0.0.1-security), not a DailyPay package.
+  DailyPay also documents that, for unsupported languages, the API is compatible with generic
+  json:api client libraries.
+packages:
+- language: typescript
+  registry: github
+  name: '@dailypay/dailypay'
+  url: https://github.com/dailypay/dailypay-typescript-sdk
+  install: npm add https://github.com/dailypay/dailypay-typescript-sdk
+  official: true
+  generator: speakeasy
+  license: MIT
+  notes: >-
+    Node.js and browser; includes React hooks via TanStack Query and standalone tree-shakable
+    functions. Not published to the npm registry — installed from the Git URL.
+- language: go
+  registry: github
+  name: github.com/dailypay/dailypay-go-sdk
+  url: https://github.com/dailypay/dailypay-go-sdk
+  install: go get github.com/dailypay/dailypay-go-sdk
+  official: true
+  generator: speakeasy
+  license: MIT
+- language: csharp
+  registry: github
+  name: DailyPay.SDK.DotNet9
+  url: https://github.com/dailypay/dailypay-dotnet9-sdk
+  install: reference the repository directly — no NuGet package is published
+  official: true
+  generator: speakeasy
+  license: MIT
+  notes: For .NET 9 applications.
+- language: csharp
+  registry: github
+  name: DailyPay.SDK.DotNet8
+  url: https://github.com/dailypay/dailypay-dotnet8-sdk
+  install: reference the repository directly — no NuGet package is published
+  official: true
+  generator: speakeasy
+  license: MIT
+  notes: For .NET 8 applications.
+- language: java
+  registry: none
+  name: DailyPay Java SDK
+  url: https://developer.dailypay.com/products/rest/sdks
+  official: true
+  availability: restricted
+  notes: >-
+    Listed on the DailyPay SDK page as "Official Java SDK" with the note "Only available for select
+    partners. See your developer representative." No public repository or registry artifact found.
+registries_probed:
+- registry: npm
+  result: no first-party package (the `dailypay` name is a 0.0.1-security placeholder)
+- registry: nuget
+  result: no first-party package
+- registry: pypi
+  result: no first-party package
+- registry: pkg.go.dev
+  result: module is consumed directly from github.com/dailypay/dailypay-go-sdk
+- registry: maven-central
+  result: no first-party package (Java SDK is partner-gated)
+coverage:
+  official_sdks: 4
+  official_sdks_public: 4
+  languages:
+  - typescript
+  - go
+  - csharp
+  - java

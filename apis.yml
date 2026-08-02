@@ -1,18 +1,68 @@
 aid: dailypay
 name: DailyPay
-description: 'DailyPay is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'DailyPay is an on-demand pay (earned wage access) platform that lets
+  employees access wages they have already earned before the scheduled payday. The
+  company sells to employers across healthcare, retail, restaurants, manufacturing,
+  hospitality and the public sector, and integrates with 180+ HCM, payroll and time-management
+  systems. Its developer surface — the DailyPay REST API — is a json:api-shaped OAuth
+  2.0 / OpenID Connect API covering people, jobs, organizations, paychecks, accounts
+  (including the EARNINGS_BALANCE account that carries available earnings), transfers
+  and PCI-scoped debit-card tokenization, complemented by DailyPay Elements, a set
+  of hosted drop-in iframe components for embedding on-demand pay into partner applications.'
 url: https://raw.githubusercontent.com/api-evangelist/dailypay/refs/heads/main/apis.yml
+image: https://developer.dailypay.com/static/svgs/dp_text.svg
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment-pipeline
 specificationVersion: '0.20'
 created: '2026-08-01'
 modified: '2026-08-01'
+x-enrichment:
+  date: '2026-08-01'
+  status: enriched
+  artifacts_added: 30
+  pass: local-v1
 tags:
 - Company
-apis: []
+- Payments
+- Payroll
+- Human Resources
+- Earned Wage Access
+- On-Demand Pay
+- Financial Services
+- Fintech
+- Money Transfer
+- Benefits
+apis:
+- aid: dailypay:dailypay-rest-api
+  name: DailyPay Rest API
+  description: >-
+    Embed DailyPay and On Demand Pay features into your application. A json:api-compliant
+    REST API covering jobs, accounts, transfers, paychecks, organizations, people and
+    debit-card tokenization, secured with OAuth 2.0 client-credentials and authorization-code
+    (PKCE) flows, versioned by the DailyPay-API-Version header and requiring an
+    Idempotency-Key on transfer creation.
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Jobs
+  - Accounts
+  - Transfers
+  - Paychecks
+  - Organizations
+  - People
+  - Card Tokenization
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-rest-openapi-original.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+  - type: Overlay
+    url: overlays/dailypay-rest-overlay.yaml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -20,4 +70,82 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
-  url: https://forgeglobal.com/dailypay_stock/
+  url: https://www.dailypay.com/
+- type: DeveloperPortal
+  url: https://developer.dailypay.com/
+- type: Documentation
+  url: https://developer.dailypay.com/products/rest
+- type: APIReference
+  url: https://developer.dailypay.com/products/rest/reference
+- type: GettingStarted
+  url: https://developer.dailypay.com/products/rest/guides/auth
+- type: Authentication
+  url: authentication/dailypay-authentication.yml
+- type: OAuthScopes
+  url: scopes/dailypay-scopes.yml
+- type: OpenIDConnect
+  url: https://auth.dailypay.com/.well-known/openid-configuration
+- type: Support
+  url: https://www.dailypay.com/contact/
+- type: HelpCenter
+  url: https://www.dailypay.com/help/
+- type: Blog
+  url: https://www.dailypay.com/resource-center/blog/
+- type: BlogRSS
+  url: https://www.dailypay.com/resource-center/blog/feed/
+- type: GitHubOrganization
+  url: https://github.com/dailypay
+- type: SignUp
+  url: https://dailypay.app.link/vYyj0iSlyTb
+- type: Login
+  url: https://account.dailypay.com/
+- type: TermsOfService
+  url: https://www.dailypay.com/en-us/legal/terms-of-service/
+- type: PrivacyPolicy
+  url: https://www.dailypay.com/en-us/legal/privacy/
+- type: Compliance
+  url: https://www.dailypay.com/en-us/legal/compliance/
+- type: TrustCenter
+  url: security/dailypay-trust-center.yml
+- type: Security
+  url: https://www.dailypay.com/security/vulnerability-disclosure-program/
+- type: VulnerabilityDisclosure
+  url: security/dailypay-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/dailypay-domain-security.yml
+- type: StatusPage
+  url: https://status.dailypay.com/
+- type: Lifecycle
+  url: lifecycle/dailypay-lifecycle.yml
+- type: Packages
+  url: packages/dailypay-packages.yml
+- type: SDKs
+  url: packages/dailypay-packages.yml
+- type: Conventions
+  url: conventions/dailypay-conventions.yml
+- type: Idempotency
+  url: conventions/dailypay-conventions.yml
+- type: ErrorCatalog
+  url: errors/dailypay-problem-types.yml
+- type: DeclineCodes
+  url: errors/dailypay-decline-codes.yml
+- type: DataModel
+  url: data-model/dailypay-data-model.yml
+- type: Conformance
+  url: conformance/dailypay-conformance.yml
+- type: Sandbox
+  url: sandbox/dailypay-sandbox.yml
+- type: Components
+  url: components/dailypay-components.yml
+- type: WellKnown
+  url: well-known/dailypay-well-known.yml
+- type: MCPServer
+  url: mcp/dailypay-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/dailypay-tool-crosswalk.yml
+- type: LLMsTxt
+  url: llms/dailypay-llms.txt
+- type: AgenticAccess
+  url: agentic-access/dailypay-agentic-access.yml
+- type: AgentSkill
+  url: skills/_index.yml

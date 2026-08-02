@@ -1,0 +1,53 @@
+generated: '2026-08-01'
+method: searched
+probe: true
+source: https://www.dailypay.com/security/
+url: https://trust.dailypay.com/
+security_page: https://www.dailypay.com/security/
+compliance_page: https://www.dailypay.com/en-us/legal/compliance/
+certifications:
+- SOC 2
+- ISO 27001
+- PCI DSS
+certification_detail:
+- name: PCI DSS Level 1
+  auditor: A-Lign
+  source: https://www.dailypay.com/security/
+- name: SOC 2 Type 2
+  framework: AICPA SOC
+  source: https://www.dailypay.com/security/
+- name: ISO 27001
+  auditor: A-Lign
+  source: https://www.dailypay.com/security/
+trust_center:
+  url: https://trust.dailypay.com/
+  http_status: 200
+  platform: HyperComply
+  note: >-
+    trust.dailypay.com resolves to a HyperComply-hosted trust center. The page renders client-side,
+    so the document inventory behind it (SOC 2 report, ISO certificate, pen-test summaries,
+    security questionnaires) could not be enumerated anonymously — access to those artefacts is
+    typically request- or NDA-gated.
+pci_scope:
+  note: >-
+    DailyPay states that its Payments (card tokenization) server is its ONLY PCI-compliant API, and
+    that DailyPay handles card data only during encryption and tokenization. The corresponding
+    operation is createGenericCardToken (POST /cards/generic); the Debit Card Tokenization Element
+    is the no-code equivalent.
+  source: https://developer.dailypay.com/products/rest/guides/payments
+vulnerability_disclosure: security/dailypay-vulnerability-disclosure.yml
+evidence:
+- source: https://www.dailypay.com/security/
+  http_status: 200
+  fetched: '2026-08-01'
+  keywords:
+  - soc 2
+  - iso 27001
+  - pci dss
+  - a-lign
+- source: https://trust.dailypay.com/
+  http_status: 200
+  fetched: '2026-08-01'
+  keywords:
+  - trust center
+  - hypercomply

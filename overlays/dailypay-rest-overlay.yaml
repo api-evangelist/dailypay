@@ -1,0 +1,47 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for DailyPay Rest API
+  version: 1.0.0
+extends: openapi/dailypay-rest-openapi-original.yml
+x-generated: '2026-08-01'
+x-method: generated
+x-source: https://developer.dailypay.com/_bundle/products/rest/reference/index.yaml
+actions:
+- target: $.info
+  update:
+    x-apievangelist-profiled: '2026-08-01'
+    x-apievangelist-slug: dailypay
+    x-apievangelist-artifacts:
+      authentication: authentication/dailypay-authentication.yml
+      scopes: scopes/dailypay-scopes.yml
+      conventions: conventions/dailypay-conventions.yml
+      errors: errors/dailypay-problem-types.yml
+      decline_codes: errors/dailypay-decline-codes.yml
+      data_model: data-model/dailypay-data-model.yml
+      lifecycle: lifecycle/dailypay-lifecycle.yml
+      sandbox: sandbox/dailypay-sandbox.yml
+      conformance: conformance/dailypay-conformance.yml
+      skills: skills/_index.yml
+- target: $.info
+  update:
+    x-api-evangelist-conventions:
+      media_type: application/vnd.api+json
+      spec: json:api
+      idempotency_header: Idempotency-Key
+      version_header: DailyPay-API-Version
+      error_envelope: errors[]
+      trace_fields:
+      - meta.request_id
+      - meta.trace_id
+- target: $.servers
+  update:
+  - url: https://api.dailypay.com
+    description: Production (resolved from the templated server URL; documented in the troubleshooting
+      guide as https://api.dailypay.com/rest)
+  - url: https://api.dailypayuat.com
+    description: UAT / sandbox (documented as https://api.dailypayuat.com/rest)
+- target: $.tags
+  update:
+  - name: Errors
+    description: json:api errors[] envelope; codes are an open enum. Catalogued in errors/dailypay-problem-types.yml
+      and errors/dailypay-decline-codes.yml.

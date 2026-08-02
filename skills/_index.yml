@@ -1,0 +1,51 @@
+generated: '2026-08-01'
+method: generated
+source: openapi/dailypay-rest-openapi-original.yml
+notes: >-
+  Packaged Agent Skills for the DailyPay REST API. Every step is grounded in an operationId that
+  exists verbatim in the OpenAPI; every error code quoted is taken from the spec's
+  x-enumDescriptions. DailyPay publishes no AGENTS.md or first-party skill files, so these are
+  generated from the spec plus the developer guides. No first-party MCP server fronts these
+  operations — see mcp/dailypay-mcp.yml.
+skills:
+- file: dailypay-authenticate.md
+  name: Authenticate against the DailyPay REST API
+  api: openapi/dailypay-rest-openapi-original.yml
+  operations:
+  - getHealth
+  - listOrganizations
+  - readOrganization
+- file: dailypay-check-available-earnings.md
+  name: Check a worker's available DailyPay earnings
+  api: openapi/dailypay-rest-openapi-original.yml
+  operations:
+  - listAccounts
+  - readAccount
+  - readPerson
+- file: dailypay-add-payout-account.md
+  name: Add a payout account (bank or debit card)
+  api: openapi/dailypay-rest-openapi-original.yml
+  operations:
+  - createGenericCardToken
+  - createAccount
+  - listAccounts
+  - deleteAccount
+  - readJob
+  - updateJob
+- file: dailypay-request-transfer.md
+  name: Request an on-demand pay transfer
+  api: openapi/dailypay-rest-openapi-original.yml
+  operations:
+  - listAccounts
+  - createTransfer
+  - readTransfer
+  - listTransfers
+coverage:
+  skills: 4
+  operations_covered: 14
+  operations_total: 18
+  uncovered:
+  - listJobs
+  - listPaychecks
+  - readPaycheck
+  - updatePerson

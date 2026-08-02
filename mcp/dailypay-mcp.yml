@@ -1,0 +1,85 @@
+generated: '2026-08-01'
+method: probed
+status: published
+source: >-
+  https://www.dailypay.com/.well-known/oauth-protected-resource +
+  https://developer.dailypay.com/.well-known/oauth-authorization-server
+notes: >-
+  DailyPay fronts TWO live MCP endpoints, both discovered through /.well-known/ OAuth metadata and
+  both authentication-gated. Neither is a wrapper over the DailyPay REST API's money-movement
+  operations: one serves the developer documentation (Redocly's built-in docs MCP) and the other
+  serves the WordPress marketing site. tools/list was POSTed anonymously to both and both returned
+  an authentication challenge, so the live tool schemas could not be introspected. No tool list is
+  published in llms.txt either, so no tool inventory is recorded here — recording invented tool
+  names would be fabrication. Retrieving the real tools requires completing the OAuth flow each
+  server advertises.
+servers:
+- name: dailypay-developer-docs
+  transport: http
+  url: https://developer.dailypay.com/mcp
+  vendor: Redocly (developer portal built-in MCP)
+  scope: developer documentation and API reference for the DailyPay REST API
+  auth:
+    gated: true
+    challenge: 'HTTP 401 {"error":"unauthorized","message":"Authentication required"}'
+    authorization_server: https://auth.cloud.redocly.com
+    metadata: https://developer.dailypay.com/.well-known/oauth-authorization-server
+    authorization_endpoint: https://developer.dailypay.com/_mcp/oauth2/auth
+    token_endpoint: https://developer.dailypay.com/_mcp/oauth2/token-portal
+    registration_endpoint: https://developer.dailypay.com/_mcp/register
+    dynamic_client_registration: true
+    scopes:
+    - openid
+    - profile
+    - email
+    - offline_access
+    grant_types:
+    - authorization_code
+    - refresh_token
+    - client_credentials
+    pkce: S256
+  tools_list:
+    probed: '2026-08-01'
+    method: POST tools/list (jsonrpc 2.0, anonymous)
+    http_status: 401
+    result: auth-gated — tool schemas require an authenticated introspection
+- name: dailypay-wordpress
+  transport: http
+  url: https://www.dailypay.com/wp-json/mcp/mcp-oauth-server
+  vendor: WordPress MCP plugin
+  scope: dailypay.com marketing site content
+  auth:
+    gated: true
+    challenge: 'HTTP 401 {"code":"mcp_unauthorized","message":"MCP authentication required."}'
+    authorization_server: https://www.dailypay.com
+    metadata: https://www.dailypay.com/.well-known/oauth-authorization-server
+    protected_resource_metadata: https://www.dailypay.com/.well-known/oauth-protected-resource
+    authorization_endpoint: https://www.dailypay.com/oauth/authorize
+    token_endpoint: https://www.dailypay.com/oauth/token
+    revocation_endpoint: https://www.dailypay.com/oauth/revoke
+    dynamic_client_registration: false
+    client_id_metadata_document_supported: true
+    scopes:
+    - mcp
+    grant_types:
+    - authorization_code
+    - refresh_token
+    pkce: S256
+    bearer_methods:
+    - header
+    allowed_methods:
+    - POST
+    - GET
+    - DELETE
+  tools_list:
+    probed: '2026-08-01'
+    method: POST tools/list (jsonrpc 2.0, anonymous)
+    http_status: 401
+    result: auth-gated — tool schemas require an authenticated introspection
+tools: []
+gaps:
+- >-
+  There is NO published MCP server in front of the DailyPay REST API itself. The 18 REST operations
+  (jobs, accounts, transfers, paychecks, organizations, people, card tokenization) have no
+  first-party agent-callable tool surface. See mcp/dailypay-tool-crosswalk.yml for what a REST-backed
+  tool surface would cover and where the current MCP endpoints diverge from it.

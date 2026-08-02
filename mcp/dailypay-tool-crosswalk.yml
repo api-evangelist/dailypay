@@ -1,0 +1,138 @@
+generated: '2026-08-01'
+method: derived
+source:
+- openapi/dailypay-rest-openapi-original.yml
+- mcp/dailypay-mcp.yml
+summary: DailyPay has both an OpenAPI and live MCP endpoints, but they do not overlap. The two MCP servers
+  DailyPay fronts serve developer documentation (Redocly) and marketing-site content (WordPress); neither
+  is a projection of the DailyPay REST API. Both are OAuth-gated, so tools/list could not be introspected
+  anonymously and no tool names are known. The result is a crosswalk with zero bound rows and complete
+  rest_only coverage — an honest record of a real surface divergence, not a mapping gap to be papered
+  over.
+surfaces:
+  openapi:
+    file: openapi/dailypay-rest-openapi-original.yml
+    title: DailyPay Rest API
+    version: 3.0.0-beta.117
+    operations: 18
+    gated: false
+    reference: https://developer.dailypay.com/products/rest/reference
+  graphql:
+    present: false
+    note: No GraphQL surface found on any DailyPay host.
+  mcp:
+  - url: https://developer.dailypay.com/mcp
+    gated: true
+    scope: developer documentation
+    tools_list_http_status: 401
+  - url: https://www.dailypay.com/wp-json/mcp/mcp-oauth-server
+    gated: true
+    scope: marketing site content
+    tools_list_http_status: 401
+crosswalk: []
+mcp_only:
+- tool: unknown (developer.dailypay.com/mcp)
+  reason: Docs-search MCP served by the Redocly developer portal. Tool list is OAuth-gated; no public
+    REST operation backs documentation retrieval.
+- tool: unknown (www.dailypay.com/wp-json/mcp/mcp-oauth-server)
+  reason: WordPress content MCP for the marketing site. Tool list is OAuth-gated; the DailyPay REST API
+    exposes no marketing-content operations.
+rest_only:
+- capability: Accounts
+  operations:
+  - operationId: createAccount
+    method: POST
+    path: /rest/accounts
+    summary: Create an Account object
+  - operationId: deleteAccount
+    method: DELETE
+    path: /rest/accounts/{account_id}
+    summary: Delete an Account
+  - operationId: listAccounts
+    method: GET
+    path: /rest/accounts
+    summary: Get a list of Account objects
+  - operationId: readAccount
+    method: GET
+    path: /rest/accounts/{account_id}
+    summary: Get an Account object
+- capability: Card Tokenization
+  operations:
+  - operationId: createGenericCardToken
+    method: POST
+    path: /cards/generic
+    summary: Obtain a card token
+- capability: Health
+  operations:
+  - operationId: getHealth
+    method: GET
+    path: /rest/health
+    summary: Verify the status of the API
+- capability: Jobs
+  operations:
+  - operationId: listJobs
+    method: GET
+    path: /rest/jobs
+    summary: Get a list of job objects
+  - operationId: readJob
+    method: GET
+    path: /rest/jobs/{job_id}
+    summary: Get a job object
+  - operationId: updateJob
+    method: PATCH
+    path: /rest/jobs/{job_id}
+    summary: Update paycheck settings or deactivate a job
+- capability: Organizations
+  operations:
+  - operationId: listOrganizations
+    method: GET
+    path: /rest/organizations
+    summary: List organizations
+  - operationId: readOrganization
+    method: GET
+    path: /rest/organizations/{organization_id}
+    summary: Get an organization
+- capability: Paychecks
+  operations:
+  - operationId: listPaychecks
+    method: GET
+    path: /rest/paychecks
+    summary: Get a list of paycheck objects
+  - operationId: readPaycheck
+    method: GET
+    path: /rest/paychecks/{paycheck_id}
+    summary: Get a Paycheck object
+- capability: People
+  operations:
+  - operationId: readPerson
+    method: GET
+    path: /rest/people/{person_id}
+    summary: Get a person object
+  - operationId: updatePerson
+    method: PATCH
+    path: /rest/people/{person_id}
+    summary: Update a person
+- capability: Transfers
+  operations:
+  - operationId: createTransfer
+    method: POST
+    path: /rest/transfers
+    summary: Request a transfer
+  - operationId: listTransfers
+    method: GET
+    path: /rest/transfers
+    summary: Get a list of transfers
+  - operationId: readTransfer
+    method: GET
+    path: /rest/transfers/{transfer_id}
+    summary: Get a transfer object
+coverage:
+  tools_named: 0
+  tools_bound: 0
+  mcp_only: 2
+  rest_operations_total: 18
+  rest_operations_with_tool: 0
+  binding_rate: 0.0
+next_step: Authenticate against either MCP authorization server and re-run tools/list to replace the unknown
+  mcp_only rows with the real tool names and inputSchemas. If DailyPay ships a REST-backed MCP server,
+  bind each tool to the operationIds listed under rest_only.

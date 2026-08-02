@@ -1,0 +1,102 @@
+generated: '2026-08-01'
+method: searched
+source: openapi/dailypay-rest-openapi-original.yml
+docs: https://developer.dailypay.com/products/rest/guides/auth
+discovery: https://auth.dailypay.com/.well-known/openid-configuration
+summary:
+  types:
+  - oauth2
+  - openIdConnect
+  oauth2_flows:
+  - authorizationCode
+  - clientCredentials
+  api_key_in: []
+  bearer: 'Authorization: Bearer <access_token>'
+  authorization_server: https://auth.dailypay.com
+  self_serve: false
+statement: >-
+  "DailyPay adheres to the OAuth 2.0 RFC 6749 and OpenID Connect specifications." Two token
+  acquisition paths are supported: authorization code (when the operation acts on behalf of an
+  employee and requires their consent) and client credentials (for server-to-server operations such
+  as reading connected employer organizations).
+schemes:
+- name: oauth_client_credentials_token
+  type: oauth2
+  audience: partner application (server-to-server)
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://auth.dailypay.com/oauth2/token
+    scopes: 1
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+  docs: https://developer.dailypay.com/products/rest/guides/auth/client-credentials-flow
+- name: oauth_user_token
+  type: oauth2
+  audience: employee (resource owner) via the partner application
+  pkce: true
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://auth.dailypay.com/oauth2/auth
+    tokenUrl: https://auth.dailypay.com/oauth2/token
+    scopes: 2
+  sources:
+  - openapi/dailypay-rest-openapi-original.yml
+  docs: https://developer.dailypay.com/products/rest/guides/auth/authorization-code-flow
+openid_connect:
+  supported: true
+  issuer: https://auth.dailypay.com
+  discovery: https://auth.dailypay.com/.well-known/openid-configuration
+  jwks_uri: https://auth.dailypay.com/.well-known/jwks.json
+  userinfo_endpoint: https://auth.dailypay.com/userinfo
+  revocation_endpoint: https://auth.dailypay.com/oauth2/revoke
+  end_session_endpoint: https://auth.dailypay.com/oauth2/sessions/logout
+  id_token_signing: [RS256]
+  code_challenge_methods:
+  - S256
+  - plain
+  token_endpoint_auth_methods:
+  - client_secret_post
+  - client_secret_basic
+  - private_key_jwt
+  - none
+  grant_types:
+  - authorization_code
+  - implicit
+  - client_credentials
+  - refresh_token
+  signed_request_objects: true
+  request_uri_registration_required: true
+  logout:
+    backchannel: true
+    frontchannel: true
+federation:
+  saml2: true
+  oidc_trust_relationship: true
+  docs: https://developer.dailypay.com/products/rest/guides/auth/trust-relationship
+  note: >-
+    DailyPay supports a "trust relationship" configuration in which the partner's own IdP asserts
+    the user, reducing the consent burden when embedding Elements. Partners may supply a JWKS or
+    JWKS URL so DailyPay can verify signed OIDC requests.
+refresh:
+  supported: true
+  scope_required: offline_access
+  docs: https://developer.dailypay.com/products/rest/guides/auth/refresh-token
+onboarding:
+  self_serve: false
+  process: >-
+    A DailyPay contact registers the application. The partner supplies a callback URL for the
+    authorization-code flow, links to its privacy policy and terms of service, and optionally a
+    logo for the consent screen and a JWKS for signed OIDC requests. DailyPay returns client_id,
+    client_secret (when applicable), the permitted scope list, and the registered redirect_uri.
+  registration_page: https://www.dailypay.com/developer/
+errors:
+  '401':
+  - INVALID_TOKEN
+  - UNAUTHORIZED
+  '403':
+  - FORBIDDEN
+  artifact: errors/dailypay-problem-types.yml
+related:
+  scopes: scopes/dailypay-scopes.yml
+  conventions: conventions/dailypay-conventions.yml
+  well_known: well-known/dailypay-well-known.yml

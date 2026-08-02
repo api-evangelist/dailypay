@@ -1,0 +1,463 @@
+generated: '2026-08-01'
+method: derived
+source: openapi/dailypay-rest-openapi-original.yml
+docs: https://developer.dailypay.com/products/rest/guides/troubleshooting
+format: json:api-errors
+rfc9457: false
+notes: 'DailyPay does not use RFC 9457 application/problem+json. Errors are returned as application/vnd.api+json
+  in the json:api errors[] envelope: each member carries status, a machine-readable code, detail, source
+  (parameter/pointer/header), links.about and meta.request_id + meta.trace_id for tracing. The spec states
+  code is an OPEN enum — new codes may be added over time — so clients must handle unknown codes.'
+envelope:
+  container: errors[]
+  media_type: application/vnd.api+json
+  fields:
+  - status
+  - code
+  - detail
+  - source.parameter
+  - source.pointer
+  - source.header
+  - links.about
+  - meta.request_id
+  - meta.trace_id
+  machine_readable_field: code
+  human_readable_field: detail
+  trace_fields:
+  - meta.request_id
+  - meta.trace_id
+  open_enum: true
+related:
+  decline_codes: errors/dailypay-decline-codes.yml
+  conventions: conventions/dailypay-conventions.yml
+coverage:
+  problem_codes: 41
+  http_statuses:
+  - 400
+  - 401
+  - 403
+  - 404
+  - 409
+  - 500
+problems:
+- status: 400
+  code: ACCOUNT_SUBTYPE_INVALID
+  title: Provided subtype is not one of CHECKING SAVINGS DEBIT
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: ACCOUNT_TYPE_INVALID
+  title: Provided account type is not one of DEPOSITORY or CARD
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: ACCOUNT_TYPE_SUBTYPE_MISMATCH
+  title: The provided account subtype is not supported on the provided account type
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: ACTIVE_JOB_REQUIRED
+  title: This job must have status ACTIVATED before setting a default bank or debit
+  response_description: Bad Request
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorJobUpdateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+- status: 400
+  code: BANK_ACCOUNT_CREATION_BLOCKED
+  title: Bank account creation blocked for accounts with this routing number and first four digits of
+    account number
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: DEBIT_CARD_CREATION_BLOCKED
+  title: Debit card creation blocked for this bin number
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: DISCLOSURE_REQUIRED
+  title: A signed Wage Disclosure is required before requesting the transfer.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: DUPLICATE_ACCOUNT
+  title: Provided input matches an already existing account
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: DUPLICATE_TRANSFER
+  title: Another recent advance with the same amount and destination was detected.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: EARNINGS_BALANCE_EXCEEDED
+  title: The requested transfer amount was greater than the origin account's available balance.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INELIGIBLE_ORIGIN
+  title: The origin specified is not eligible for transfers at this time.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_CARD_TOKEN
+  title: Provided card token is invalid
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: INVALID_DEBIT_CARD
+  title: Provided debit card is invalid
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: INVALID_DESTINATION
+  title: The provided destination relationship must reference an existing transfer account.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_DIRECT_DEPOSIT_STATUS
+  title: Transfers from this origin account are unavailable unless `direct_deposit_status` is `SETUP_COMPLETE`
+    on one or more associated jobs.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_FIELDS
+  title: One or more fields have an invalid format
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: INVALID_IDEMPOTENCY_KEY
+  title: Idempotency key was used for a dissimilar request. Request payloads must be identical when reusing
+    an idempotency key.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_PARAMETERS
+  title: Missing or invalid request parameters provided. See the `details` field for specifics.
+  response_description: Bad Request
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorJobUpdateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_RESOURCE_LINK
+  title: The target resource URI is missing or invalid.
+  response_description: Bad Request
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorJobUpdateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: INVALID_RESOURCE_STATE
+  title: Unable to process the transfer due to another resource in an invalid state. See the embedding
+    guide for more information.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_TRANSFER_SCHEDULE
+  title: The provided schedule is invalid for the selected destination account.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_USER_INPUT
+  title: The server was unable to understand the request. Check for syntax or structural errors.
+  response_description: Bad Request
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorJobUpdateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: INVALID_VERSION_HEADER
+  title: Request contained an API version header that is not supported
+  response_description: Bad Request
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorJobUpdateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: MAXIMUM_AMOUNT_EXCEEDED
+  title: The requested transfer amount was greater than the maximum allowed for a single transfer.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: MAXIMUM_FEE_EXCEEDED
+  title: Requesting this transfer would incur more fees than is permitted.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: MINIMUM_AMOUNT_SUBCEEDED
+  title: The requested transfer amount was less than the minimum amount set for this provider. Generally
+    $5.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: MISSING_DEFAULT_DEPOSITORY_ACCOUNT
+  title: A default bank account must be set for all jobs related to the owner of the selected origin account.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: MISSING_REQUIRED_FIELD
+  title: Required field was not provided
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorAccountCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+- status: 400
+  code: MISSING_STATE_OF_RESIDENCE
+  title: The `state_of_residence` attribute on the related person is required before requesting the transfer.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: OVERPAYMENT_RESOLUTION_REQUIRED
+  title: The origin specified may have been previously subject to an overpayment and a resolution has
+    not been selected.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: OVERPAYMENT_RESOLVING
+  title: An overpayment from a previous transfer is being resolved and transfers are currently disabled.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: TRANSFERS_DISABLED
+  title: Transfers are disabled from the selected origin account.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: TRANSFER_AMOUNT_LIMIT_EXCEEDED
+  title: The amount requested within the last 24 hours exceeded the daily limit for associated person.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 400
+  code: TRANSFER_LIMIT_EXCEEDED
+  title: The number of transfers requested within the last 24 hours exceeded the daily transfer limit
+    for associated person.
+  response_description: The request contained an error
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorTransferCreateError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 401
+  code: INVALID_TOKEN
+  title: Provided token is missing, expired, revoked, or otherwise invalid.
+  response_description: Invalid authentication credentials
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorUnauthorizedError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#readJob
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#listJobs
+  - openapi/dailypay-rest-openapi-original.yml#readAccount
+  - openapi/dailypay-rest-openapi-original.yml#deleteAccount
+  - openapi/dailypay-rest-openapi-original.yml#listAccounts
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+  - openapi/dailypay-rest-openapi-original.yml#readTransfer
+  - openapi/dailypay-rest-openapi-original.yml#listTransfers
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+  - openapi/dailypay-rest-openapi-original.yml#readPaycheck
+  - openapi/dailypay-rest-openapi-original.yml#listPaychecks
+  - openapi/dailypay-rest-openapi-original.yml#readOrganization
+  - openapi/dailypay-rest-openapi-original.yml#listOrganizations
+  - openapi/dailypay-rest-openapi-original.yml#readPerson
+  - openapi/dailypay-rest-openapi-original.yml#updatePerson
+  - openapi/dailypay-rest-openapi-original.yml#getHealth
+- status: 401
+  code: UNAUTHORIZED
+  title: Authentication has not been provided or is invalid.
+  response_description: Invalid authentication credentials
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorUnauthorizedError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#readJob
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#listJobs
+  - openapi/dailypay-rest-openapi-original.yml#readAccount
+  - openapi/dailypay-rest-openapi-original.yml#deleteAccount
+  - openapi/dailypay-rest-openapi-original.yml#listAccounts
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+  - openapi/dailypay-rest-openapi-original.yml#readTransfer
+  - openapi/dailypay-rest-openapi-original.yml#listTransfers
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+  - openapi/dailypay-rest-openapi-original.yml#readPaycheck
+  - openapi/dailypay-rest-openapi-original.yml#listPaychecks
+  - openapi/dailypay-rest-openapi-original.yml#readOrganization
+  - openapi/dailypay-rest-openapi-original.yml#listOrganizations
+  - openapi/dailypay-rest-openapi-original.yml#readPerson
+  - openapi/dailypay-rest-openapi-original.yml#updatePerson
+  - openapi/dailypay-rest-openapi-original.yml#getHealth
+- status: 403
+  code: FORBIDDEN
+  title: Requester is not allowed to access this resource or endpoint
+  response_description: Not authorized to perform this operation
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorForbiddenError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#readJob
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#listJobs
+  - openapi/dailypay-rest-openapi-original.yml#readAccount
+  - openapi/dailypay-rest-openapi-original.yml#deleteAccount
+  - openapi/dailypay-rest-openapi-original.yml#listAccounts
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+  - openapi/dailypay-rest-openapi-original.yml#readTransfer
+  - openapi/dailypay-rest-openapi-original.yml#listTransfers
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+  - openapi/dailypay-rest-openapi-original.yml#readPaycheck
+  - openapi/dailypay-rest-openapi-original.yml#listPaychecks
+  - openapi/dailypay-rest-openapi-original.yml#readOrganization
+  - openapi/dailypay-rest-openapi-original.yml#listOrganizations
+  - openapi/dailypay-rest-openapi-original.yml#readPerson
+  - openapi/dailypay-rest-openapi-original.yml#updatePerson
+- status: 404
+  code: NOT_FOUND
+  title: Could not find resources matching the query parameters
+  response_description: Resource was not found
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorNotFoundError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#readJob
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#readAccount
+  - openapi/dailypay-rest-openapi-original.yml#deleteAccount
+  - openapi/dailypay-rest-openapi-original.yml#readTransfer
+  - openapi/dailypay-rest-openapi-original.yml#readPaycheck
+  - openapi/dailypay-rest-openapi-original.yml#readOrganization
+  - openapi/dailypay-rest-openapi-original.yml#readPerson
+  - openapi/dailypay-rest-openapi-original.yml#updatePerson
+- status: 404
+  code: RECORD_NOT_FOUND
+  title: Could not find a record with the provided ID
+  response_description: Resource was not found
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorNotFoundError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#readJob
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#readAccount
+  - openapi/dailypay-rest-openapi-original.yml#deleteAccount
+  - openapi/dailypay-rest-openapi-original.yml#readTransfer
+  - openapi/dailypay-rest-openapi-original.yml#readPaycheck
+  - openapi/dailypay-rest-openapi-original.yml#readOrganization
+  - openapi/dailypay-rest-openapi-original.yml#readPerson
+  - openapi/dailypay-rest-openapi-original.yml#updatePerson
+- status: 409
+  code: IDEMPOTENCY_KEY_LOCKED
+  title: The provided idempotency key is currently being used by another request.  This can happen if
+    there are multiple simultaneous requests with the same idempotency key. It is safe to retry the request.
+  response_description: A conflict occurred with the current state of the resource
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorConflictError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+- status: 500
+  code: UNEXPECTED_ERROR
+  title: This one is on us. Something unexpected went wrong
+  response_description: Unexpected error occured
+  media_type: application/vnd.api+json
+  response_schema: components.schemas.ErrorUnexpectedError
+  source_operations:
+  - openapi/dailypay-rest-openapi-original.yml#readJob
+  - openapi/dailypay-rest-openapi-original.yml#updateJob
+  - openapi/dailypay-rest-openapi-original.yml#listJobs
+  - openapi/dailypay-rest-openapi-original.yml#readAccount
+  - openapi/dailypay-rest-openapi-original.yml#deleteAccount
+  - openapi/dailypay-rest-openapi-original.yml#listAccounts
+  - openapi/dailypay-rest-openapi-original.yml#createAccount
+  - openapi/dailypay-rest-openapi-original.yml#readTransfer
+  - openapi/dailypay-rest-openapi-original.yml#listTransfers
+  - openapi/dailypay-rest-openapi-original.yml#createTransfer
+  - openapi/dailypay-rest-openapi-original.yml#readPaycheck
+  - openapi/dailypay-rest-openapi-original.yml#listPaychecks
+  - openapi/dailypay-rest-openapi-original.yml#readOrganization
+  - openapi/dailypay-rest-openapi-original.yml#listOrganizations
+  - openapi/dailypay-rest-openapi-original.yml#readPerson
+  - openapi/dailypay-rest-openapi-original.yml#updatePerson
+  - openapi/dailypay-rest-openapi-original.yml#getHealth

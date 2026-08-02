@@ -1,0 +1,132 @@
+generated: '2026-08-01'
+method: searched
+source: live probes of every DailyPay host on 2026-08-01
+notes: >-
+  Probed /.well-known/security.txt, /openid-configuration, /oauth-authorization-server,
+  /api-catalog, /ai-plugin.json, /agent-card.json and /agent.json against every host in
+  apis.yml and every OpenAPI servers[] host. account.dailypay.com is a single-page app whose
+  catch-all answers HTTP 200 with an HTML shell for EVERY /.well-known/* path — all of those
+  responses were rejected as false positives and are recorded below as html-catchall.
+hosts:
+- host: https://auth.dailypay.com
+  role: OAuth 2.0 / OpenID Connect authorization server
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    content_type: application/json
+    file: dailypay-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://www.dailypay.com
+  role: marketing site (WordPress) — also fronts a WordPress MCP server
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    file: dailypay-oauth-authorization-server.json
+    note: >-
+      Advertises a single scope, "mcp", and points at the WordPress MCP OAuth endpoints
+      (/oauth/authorize, /oauth/token, /oauth/revoke). Separate from the API's auth.dailypay.com
+      authorization server.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: application/json
+    file: dailypay-oauth-protected-resource.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://developer.dailypay.com
+  role: developer portal (Redocly) — also fronts the docs MCP server at /mcp
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    file: dailypay-developer-oauth-authorization-server.json
+    note: >-
+      Issuer is https://auth.cloud.redocly.com; the authorization/token/registration endpoints are
+      proxied under /_mcp on the DailyPay docs host. This is the docs-portal MCP auth server, not
+      the DailyPay API auth server.
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://api.dailypay.com
+  role: production REST API host
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://api.dailypayuat.com
+  role: UAT REST API host
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://account.dailypay.com
+  role: consumer web app (single-page app)
+  documents:
+  - path: /.well-known/*
+    status: 200
+    content_type: text/html
+    result: html-catchall
+    note: >-
+      Every probed /.well-known/* path returned the same 8,856-byte SPA HTML shell. None of these
+      are real discovery documents; all were rejected. No agent card exists on this host.
+findings:
+  security_txt: false
+  openid_configuration: true
+  oauth_authorization_server: true
+  api_catalog: false
+  ai_plugin: false
+  agent_card: false

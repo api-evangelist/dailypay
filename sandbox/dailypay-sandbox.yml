@@ -1,0 +1,88 @@
+generated: '2026-08-01'
+method: searched
+source: >-
+  https://developer.dailypay.com/products/rest/guides/troubleshooting +
+  https://developer.dailypay.com/products/rest/reference/environments +
+  https://developer.dailypay.com/products/rest/elements/developer-guide/browser
+docs: https://developer.dailypay.com/products/rest/reference/environments
+summary: >-
+  DailyPay separates test from live at the HOSTNAME, not at the key prefix: UAT runs on a wholly
+  separate domain (dailypayuat.com) with its own API host, its own Elements host and its own
+  credentials. There is no self-serve sandbox — UAT API credentials are issued by a DailyPay
+  developer representative during partner onboarding, and DailyPay explicitly instructs partners to
+  scrub employee PII before sending anything to UAT.
+separation:
+  model: separate-host
+  test_live_key_prefixes: false
+  note: >-
+    Test and live are distinguished by base URL and by which client_id/client_secret pair you were
+    issued. No documented test/live token prefix convention exists.
+environments:
+- name: production
+  api_base_url: https://api.dailypay.com/rest
+  elements_origin: https://elements.dailypay.com
+  auth_server: https://auth.dailypay.com
+  server_variable: dailypay
+- name: uat
+  api_base_url: https://api.dailypayuat.com/rest
+  elements_origin: https://elements.uat.dailypay.com
+  server_variable: dailypayuat
+  purpose: >-
+    "Test your integration in the sandbox environment to troubleshoot and debug without affecting
+    live production data."
+credentials:
+  self_serve: false
+  how_to_obtain: >-
+    A UAT API key / client credentials are issued by your DailyPay developer representative. The
+    troubleshooting guide's prerequisite for calling UAT from the developer portal is "Ensure you
+    have a UAT API key."
+  registration_inputs:
+  - OAuth callback (redirect_uri) URL
+  - links to your privacy policy and terms of service
+  - optional logo for the OAuth consent screen
+  - optionally a JWKS or JWKS URL for signed OIDC requests
+  source: https://developer.dailypay.com/products/rest/guides/auth
+data_handling_rules:
+- >-
+  "Scrub any data containing employee phone, email, and direct deposit information" before sending
+  it to UAT.
+- '"Use non-production data."'
+test_values:
+  published: false
+  note: >-
+    DailyPay publishes NO magic test values — no test card numbers, no test routing/account
+    numbers, no test person or job identifiers, no simulated decline triggers, and no time/clock
+    simulation tooling. UUID values that appear in the docs and SDK READMEs (for example the
+    account id 45298626-591f-4f55-ab31-49d3b8e5760c and the person id
+    b9fae0ef-4a19-4356-9e82-47b25bbe2f3a) are illustrative payload examples, not working sandbox
+    fixtures, and are recorded here as examples only — do not treat them as credentials.
+  example_identifiers_from_docs:
+  - context: available-earnings guide response example
+    account_id: 45298626-591f-4f55-ab31-49d3b8e5760c
+    person_id: b9fae0ef-4a19-4356-9e82-47b25bbe2f3a
+    balance_available: 12000
+    currency: USD
+  - context: Idempotency-Key parameter example
+    value: e2736aa1-78c4-4cc6-b0a6-848e733f232a
+simulation:
+  test_clocks: false
+  decline_triggers: false
+  fixture_tooling: false
+  note: >-
+    Transfer rejection reasons are documented as an error-code enum (see
+    errors/dailypay-decline-codes.yml) but no documented mechanism exists to force any of them in
+    UAT.
+elements_testing:
+  origin: https://elements.uat.dailypay.com
+  url_pattern: 'https://elements.uat.dailypay.com/v1/<element>?client_id=...&implementation_id=...'
+  required_params:
+  - client_id
+  - implementation_id
+  note: >-
+    The web Elements guide uses the UAT Elements origin in its worked example, with
+    REPLACE_WITH_YOUR_CLIENT_ID / REPLACE_WITH_YOUR_IMPLEMENTATION_ID placeholders — DailyPay does
+    not publish a shared demo client_id.
+gaps:
+- No self-serve sandbox signup; UAT access is gated behind a partner relationship.
+- No published test cards, test bank accounts, or magic identifiers.
+- No time simulation or event/fixture triggering tooling.

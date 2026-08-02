@@ -1,0 +1,91 @@
+generated: '2026-08-01'
+method: searched
+source: >-
+  https://developer.dailypay.com/products/rest/reference +
+  https://status.dailypay.com/api/v2/summary.json
+versioning:
+  scheme: request-header
+  header: DailyPay-API-Version
+  current: 3
+  spec_version: 3.0.0-beta.117
+  default: latest version when the header is omitted
+  unsupported_version_error: 400 INVALID_VERSION_HEADER
+  docs: https://developer.dailypay.com/products/rest/reference/versioning
+deprecation:
+  policy_url: https://developer.dailypay.com/products/rest/reference/versioning
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  note: >-
+    No RFC 8594 Sunset/Deprecation header support is declared anywhere in the OpenAPI, and no
+    standalone deprecation-policy page is published. Deprecation is signalled inside the spec
+    itself: the bare `filter` query parameter carries deprecated: true. The header-based version
+    negotiation (DailyPay-API-Version) is the published mechanism for surviving breaking changes.
+  deprecated_operations: []
+  deprecated_parameters:
+  - parameter: filter
+    location: query
+    scope: list endpoints
+    replacement: 'filter[<field>] json:api filter family'
+    source: openapi/dailypay-rest-openapi-original.yml#components.parameters.filter
+status_page:
+  url: https://status.dailypay.com/
+  provider: Atlassian Statuspage
+  api: https://status.dailypay.com/api/v2/summary.json
+  rss: https://status.dailypay.com/history.rss
+  api_component_tracked: true
+  components:
+  - DailyPay API
+  - Data Exchange
+  - Partner Portal
+  - Instant Bank Account Transfers
+  - Instant Debit Card Transfers
+  - Next Day Transfers
+  - Direct Deposit
+  - Add Bank Account
+  - Add Debit Card
+  - Account Management
+  - Web App
+  - Mobile App
+  - DailyPay Card
+  - DailyPay Website
+  - 2FA
+  - Automatic Savings
+  - Weekly Pay
+  - CYCLE
+  - REWARD
+  - Chat Support
+  - Phone Support
+  - DailyPay Chat Widget
+  - Email Notifications
+  - Push Notifications
+  - Text Notifications
+  observed:
+    date: '2026-08-01'
+    indicator: none
+    description: All Systems Operational
+health_endpoint:
+  operationId: getHealth
+  path: /rest/health
+  method: GET
+  description: Verify the status of the API
+  docs: https://developer.dailypay.com/products/rest/reference/health
+sla:
+  published: false
+  note: No public uptime SLA or availability target was found on the developer portal or the status page.
+changelog:
+  published: false
+  note: >-
+    No dated changelog or release-notes page is published on developer.dailypay.com. The only
+    version signal is the OpenAPI info.version (3.0.0-beta.117), which changes as the bundled spec
+    is regenerated.
+support:
+  developer_contact: https://developer.dailypay.com
+  contact_name: DailyPay Developer Support
+  general_contact: https://www.dailypay.com/contact/
+  troubleshooting: https://developer.dailypay.com/products/rest/guides/troubleshooting
+maturity:
+  spec_label: beta
+  note: >-
+    info.version carries a -beta.117 pre-release suffix while the API itself is documented as
+    version 3 and is in production use across DailyPay's 180+ HCM/payroll integrations.

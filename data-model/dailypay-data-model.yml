@@ -1,0 +1,162 @@
+generated: '2026-08-01'
+method: derived
+source: openapi/dailypay-rest-openapi-original.yml
+docs: https://developer.dailypay.com/products/rest/reference
+shape: json:api
+notes: Entity graph derived from the json:api resource objects and their relationships blocks in the DailyPay
+  OpenAPI. Every resource is identified by a UUID and typed by the json:api "type" member; relationships
+  are traversable via the include query parameter where the operation supports it (transfers exposes include=estimated_funding_sources,final_funding_sources).
+id_convention:
+  format: uuid
+  no_prefix: true
+  example: aa860051-c411-4709-9685-c1b716df611b
+  note: DailyPay uses bare UUIDs — there are no typed id prefixes; the resource type is carried in the
+    json:api "type" member instead.
+core_flow: An organization employs a person; the person holds one or more jobs; a job produces paychecks;
+  a paycheck credits the person's EARNINGS_BALANCE account; a transfer moves value from that EARNINGS_BALANCE
+  account (origin) to a DEPOSITORY or CARD account (destination), funded by one or more paychecks recorded
+  as funding sources.
+entities:
+- entity: jobs
+  schema: components.schemas.JobResource
+  id_format: uuid
+  attributes:
+  - activation_status
+  - department
+  - direct_deposit_status
+  - external_identifiers
+  - first_name
+  - last_name
+  - location
+  - title
+  - wage_rate
+- entity: accounts
+  schema: components.schemas.AccountResource
+  id_format: uuid
+  attributes: []
+- entity: transfers
+  schema: components.schemas.TransferResource
+  id_format: uuid
+  attributes:
+  - amount
+  - currency
+  - fee
+  - preview
+  - resolved_at
+  - schedule
+  - status
+  - submitted_at
+- entity: paychecks
+  schema: components.schemas.PaycheckResource
+  id_format: uuid
+  attributes:
+  - currency
+  - deposit_expected_at
+  - employer_withholdings
+  - gross_earnings
+  - net_earnings
+  - pay_period_ends_at
+  - pay_period_starts_at
+  - status
+  - total_debited
+- entity: people
+  schema: components.schemas.PersonResource
+  id_format: uuid
+  attributes:
+  - disallow_reason
+  - products
+  - state_of_residence
+- entity: organizations
+  schema: components.schemas.OrganizationResource
+  id_format: uuid
+  attributes:
+  - name
+  - products
+- entity: funding_sources
+  schema: components.schemas.FundingSourceResource
+  id_format: uuid
+  attributes:
+  - amount
+  - currency
+relationships:
+- from: jobs
+  name: person
+  to: people
+  cardinality: belongs_to
+  via: relationships.person
+  requirement: required
+- from: jobs
+  name: organization
+  to: organizations
+  cardinality: belongs_to
+  via: relationships.organization
+  requirement: required
+- from: jobs
+  name: direct_deposit_default_depository
+  to: accounts
+  cardinality: has_one
+  via: relationships.direct_deposit_default_depository
+  requirement: optional
+- from: jobs
+  name: direct_deposit_default_card
+  to: accounts
+  cardinality: has_one
+  via: relationships.direct_deposit_default_card
+  requirement: optional
+- from: accounts
+  name: person
+  to: people
+  cardinality: belongs_to
+  via: relationships.person
+  requirement: required
+- from: paychecks
+  name: person
+  to: people
+  cardinality: belongs_to
+  via: relationships.person
+  requirement: required
+- from: paychecks
+  name: job
+  to: jobs
+  cardinality: belongs_to
+  via: relationships.job
+  requirement: required
+- from: transfers
+  name: person
+  to: people
+  cardinality: belongs_to
+  via: relationships.person
+  requirement: required
+- from: transfers
+  name: origin
+  to: accounts|paychecks
+  cardinality: belongs_to
+  via: relationships.origin
+  requirement: required
+- from: transfers
+  name: destination
+  to: accounts
+  cardinality: belongs_to
+  via: relationships.destination
+  requirement: required
+- from: transfers
+  name: estimated_funding_sources
+  to: funding-sources
+  cardinality: has_many
+  via: relationships.estimated_funding_sources
+  requirement: required
+- from: transfers
+  name: final_funding_sources
+  to: funding-sources
+  cardinality: has_many
+  via: relationships.final_funding_sources
+  requirement: required
+account_types:
+  EARNINGS_BALANCE: DailyPay available-earnings balance; the only valid transfer origin for user-created
+    transfers
+  DEPOSITORY: Bank account (CHECKING or SAVINGS)
+  CARD: Debit or pay card (DEBIT)
+coverage:
+  entities: 7
+  relationships: 12
+  schemas_in_spec: 95

@@ -1,0 +1,130 @@
+generated: '2026-08-01'
+method: derived
+source: openapi/dailypay-rest-openapi-original.yml
+docs: https://developer.dailypay.com/products/rest/reference/transfers/createtransfer
+description: Money-movement rejection codes for the DailyPay REST API. DailyPay is not a card acquirer,
+  so these are not card-network decline codes; they are the reasons an earned-wage-access transfer or
+  a funding-account creation is refused. Returned on HTTP 400 in the json:api errors[].code field.
+envelope_field: errors[].code
+http_status: 400
+open_enum: true
+masked_to_end_user: unspecified — DailyPay documents detail as non-programmatic and subject to change;
+  surface code, not detail, to users
+decline_codes:
+- code: DISCLOSURE_REQUIRED
+  meaning: A signed Wage Disclosure is required before requesting the transfer.
+  category: transfer-create
+- code: DUPLICATE_TRANSFER
+  meaning: Another recent advance with the same amount and destination was detected.
+  category: transfer-create
+- code: EARNINGS_BALANCE_EXCEEDED
+  meaning: The requested transfer amount was greater than the origin account's available balance.
+  category: transfer-create
+- code: INELIGIBLE_ORIGIN
+  meaning: The origin specified is not eligible for transfers at this time.
+  category: transfer-create
+- code: INVALID_DESTINATION
+  meaning: The provided destination relationship must reference an existing transfer account.
+  category: transfer-create
+- code: INVALID_DIRECT_DEPOSIT_STATUS
+  meaning: Transfers from this origin account are unavailable unless `direct_deposit_status` is `SETUP_COMPLETE`
+    on one or more associated jobs.
+  category: transfer-create
+- code: INVALID_IDEMPOTENCY_KEY
+  meaning: Idempotency key was used for a dissimilar request. Request payloads must be identical when
+    reusing an idempotency key.
+  category: transfer-create
+- code: INVALID_PARAMETERS
+  meaning: Missing or invalid request parameters provided. See the `details` field for specifics.
+  category: transfer-create
+- code: INVALID_RESOURCE_STATE
+  meaning: Unable to process the transfer due to another resource in an invalid state. See the embedding
+    guide for more information.
+  category: transfer-create
+- code: INVALID_TRANSFER_SCHEDULE
+  meaning: The provided schedule is invalid for the selected destination account.
+  category: transfer-create
+- code: INVALID_USER_INPUT
+  meaning: The server was unable to understand the request. Check for syntax or structural errors.
+  category: transfer-create
+- code: MAXIMUM_AMOUNT_EXCEEDED
+  meaning: The requested transfer amount was greater than the maximum allowed for a single transfer.
+  category: transfer-create
+- code: MAXIMUM_FEE_EXCEEDED
+  meaning: Requesting this transfer would incur more fees than is permitted.
+  category: transfer-create
+- code: MINIMUM_AMOUNT_SUBCEEDED
+  meaning: The requested transfer amount was less than the minimum amount set for this provider. Generally
+    $5.
+  category: transfer-create
+- code: MISSING_DEFAULT_DEPOSITORY_ACCOUNT
+  meaning: A default bank account must be set for all jobs related to the owner of the selected origin
+    account.
+  category: transfer-create
+- code: MISSING_STATE_OF_RESIDENCE
+  meaning: The `state_of_residence` attribute on the related person is required before requesting the
+    transfer.
+  category: transfer-create
+- code: OVERPAYMENT_RESOLUTION_REQUIRED
+  meaning: The origin specified may have been previously subject to an overpayment and a resolution has
+    not been selected.
+  category: transfer-create
+- code: OVERPAYMENT_RESOLVING
+  meaning: An overpayment from a previous transfer is being resolved and transfers are currently disabled.
+  category: transfer-create
+- code: TRANSFERS_DISABLED
+  meaning: Transfers are disabled from the selected origin account.
+  category: transfer-create
+- code: TRANSFER_AMOUNT_LIMIT_EXCEEDED
+  meaning: The amount requested within the last 24 hours exceeded the daily limit for associated person.
+  category: transfer-create
+- code: TRANSFER_LIMIT_EXCEEDED
+  meaning: The number of transfers requested within the last 24 hours exceeded the daily transfer limit
+    for associated person.
+  category: transfer-create
+- code: ACCOUNT_SUBTYPE_INVALID
+  meaning: Provided subtype is not one of CHECKING SAVINGS DEBIT
+  category: account-create
+- code: ACCOUNT_TYPE_INVALID
+  meaning: Provided account type is not one of DEPOSITORY or CARD
+  category: account-create
+- code: ACCOUNT_TYPE_SUBTYPE_MISMATCH
+  meaning: The provided account subtype is not supported on the provided account type
+  category: account-create
+- code: BANK_ACCOUNT_CREATION_BLOCKED
+  meaning: Bank account creation blocked for accounts with this routing number and first four digits of
+    account number
+  category: account-create
+- code: DEBIT_CARD_CREATION_BLOCKED
+  meaning: Debit card creation blocked for this bin number
+  category: account-create
+- code: DUPLICATE_ACCOUNT
+  meaning: Provided input matches an already existing account
+  category: account-create
+- code: INVALID_CARD_TOKEN
+  meaning: Provided card token is invalid
+  category: account-create
+- code: INVALID_DEBIT_CARD
+  meaning: Provided debit card is invalid
+  category: account-create
+- code: INVALID_FIELDS
+  meaning: One or more fields have an invalid format
+  category: account-create
+- code: INVALID_PARAMETERS
+  meaning: Missing or invalid request parameters provided. See the `details` field for specifics.
+  category: account-create
+- code: INVALID_RESOURCE_LINK
+  meaning: The target resource URI is missing or invalid.
+  category: account-create
+- code: INVALID_USER_INPUT
+  meaning: The server was unable to understand the request. Check for syntax or structural errors.
+  category: account-create
+- code: INVALID_VERSION_HEADER
+  meaning: Request contained an API version header that is not supported
+  category: account-create
+- code: MISSING_REQUIRED_FIELD
+  meaning: Required field was not provided
+  category: account-create
+coverage:
+  transfer_create: 21
+  account_create: 14
