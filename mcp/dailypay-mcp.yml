@@ -1,18 +1,14 @@
 generated: '2026-08-01'
 method: probed
 status: published
-source: >-
-  https://www.dailypay.com/.well-known/oauth-protected-resource +
-  https://developer.dailypay.com/.well-known/oauth-authorization-server
-notes: >-
-  DailyPay fronts TWO live MCP endpoints, both discovered through /.well-known/ OAuth metadata and
-  both authentication-gated. Neither is a wrapper over the DailyPay REST API's money-movement
-  operations: one serves the developer documentation (Redocly's built-in docs MCP) and the other
-  serves the WordPress marketing site. tools/list was POSTed anonymously to both and both returned
-  an authentication challenge, so the live tool schemas could not be introspected. No tool list is
-  published in llms.txt either, so no tool inventory is recorded here — recording invented tool
-  names would be fabrication. Retrieving the real tools requires completing the OAuth flow each
-  server advertises.
+source: https://www.dailypay.com/.well-known/oauth-protected-resource + https://developer.dailypay.com/.well-known/oauth-authorization-server
+notes: 'DailyPay fronts TWO live MCP endpoints, both discovered through /.well-known/ OAuth metadata and
+  both authentication-gated. Neither is a wrapper over the DailyPay REST API''s money-movement operations:
+  one serves the developer documentation (Redocly''s built-in docs MCP) and the other serves the WordPress
+  marketing site. tools/list was POSTed anonymously to both and both returned an authentication challenge,
+  so the live tool schemas could not be introspected. No tool list is published in llms.txt either, so
+  no tool inventory is recorded here — recording invented tool names would be fabrication. Retrieving
+  the real tools requires completing the OAuth flow each server advertises.'
 servers:
 - name: dailypay-developer-docs
   transport: http
@@ -21,7 +17,7 @@ servers:
   scope: developer documentation and API reference for the DailyPay REST API
   auth:
     gated: true
-    challenge: 'HTTP 401 {"error":"unauthorized","message":"Authentication required"}'
+    challenge: HTTP 401 {"error":"unauthorized","message":"Authentication required"}
     authorization_server: https://auth.cloud.redocly.com
     metadata: https://developer.dailypay.com/.well-known/oauth-authorization-server
     authorization_endpoint: https://developer.dailypay.com/_mcp/oauth2/auth
@@ -50,7 +46,7 @@ servers:
   scope: dailypay.com marketing site content
   auth:
     gated: true
-    challenge: 'HTTP 401 {"code":"mcp_unauthorized","message":"MCP authentication required."}'
+    challenge: HTTP 401 {"code":"mcp_unauthorized","message":"MCP authentication required."}
     authorization_server: https://www.dailypay.com
     metadata: https://www.dailypay.com/.well-known/oauth-authorization-server
     protected_resource_metadata: https://www.dailypay.com/.well-known/oauth-protected-resource
@@ -78,8 +74,14 @@ servers:
     result: auth-gated — tool schemas require an authenticated introspection
 tools: []
 gaps:
-- >-
-  There is NO published MCP server in front of the DailyPay REST API itself. The 18 REST operations
-  (jobs, accounts, transfers, paychecks, organizations, people, card tokenization) have no
-  first-party agent-callable tool surface. See mcp/dailypay-tool-crosswalk.yml for what a REST-backed
-  tool surface would cover and where the current MCP endpoints diverge from it.
+- There is NO published MCP server in front of the DailyPay REST API itself. The 18 REST operations (jobs,
+  accounts, transfers, paychecks, organizations, people, card tokenization) have no first-party agent-callable
+  tool surface. See mcp/dailypay-tool-crosswalk.yml for what a REST-backed tool surface would cover and
+  where the current MCP endpoints diverge from it.
+deployment:
+  mode: remote
+  endpoint: https://developer.dailypay.com/mcp
+  verified: probed
+  probe: gated
+  checked: '2026-08-12'
+  source: catalog MCP census
