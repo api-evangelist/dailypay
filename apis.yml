@@ -30,6 +30,17 @@ tags:
 - Human Resources
 - Earned Wage Access
 - On-Demand Pay
+- Financial-Services
+- Fintech
+- Money Transfer
+- Benefits
+tags_raw:
+- Company
+- Payments
+- Payroll
+- Human Resources
+- Earned Wage Access
+- On-Demand Pay
 - Financial Services
 - Fintech
 - Money Transfer
@@ -46,6 +57,15 @@ apis:
   humanURL: https://developer.dailypay.com/products/rest/reference
   baseURL: https://api.dailypay.com/rest
   tags:
+  - Job
+  - Account
+  - Transfers
+  - Paychecks
+  - Organization
+  - People
+  - Card Tokenization
+  - Health
+  tags_raw:
   - Jobs
   - Accounts
   - Transfers
