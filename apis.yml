@@ -46,49 +46,168 @@ tags_raw:
 - Money Transfer
 - Benefits
 apis:
-- aid: dailypay:dailypay-rest-api
-  name: DailyPay Rest API
+- aid: dailypay:dailypay-accounts-api
+  name: DailyPay Accounts API
   description: >-
-    Embed DailyPay and On Demand Pay features into your application. A json:api-compliant
-    REST API covering jobs, accounts, transfers, paychecks, organizations, people and
-    debit-card tokenization, secured with OAuth 2.0 client-credentials and authorization-code
-    (PKCE) flows, versioned by the DailyPay-API-Version header and requiring an
-    Idempotency-Key on transfer creation.
+    The _accounts_ endpoint provides comprehensive information about money
+
+    accounts. You can retrieve account details, including the
+
+    account's unique ID, a link to the account holder, type, subtype,
+
+    verification status, balance details, transfer capabilities, and
+
+    user-specific information such as names, routing numbers, and partial
+
+    account numbers.
+
+
+
+    **Functionality:** Access detailed user account information, verify
+
+    account balances, view transfer capabilities, and access user-specific
+
+    details associated with each account.
   humanURL: https://developer.dailypay.com/products/rest/reference
   baseURL: https://api.dailypay.com/rest
   tags:
-  - Job
-  - Account
-  - Transfers
-  - Paychecks
-  - Organization
-  - People
-  - Card Tokenization
-  - Health
-  tags_raw:
-  - Jobs
   - Accounts
-  - Transfers
-  - Paychecks
-  - Organizations
-  - People
-  - Card Tokenization
-  - Health
   properties:
   - type: OpenAPI
-    url: openapi/dailypay-rest-openapi-original.yml
+    url: openapi/dailypay-accounts-api-openapi.yml
   - type: Documentation
     url: https://developer.dailypay.com/products/rest
   - type: APIReference
     url: https://developer.dailypay.com/products/rest/reference
-  - type: Overlay
-    url: overlays/dailypay-rest-overlay.yaml
+- aid: dailypay:dailypay-card-tokenization-api
+  name: DailyPay Card Tokenization API
+  description: Securely tokenize personal cards for use in the accounts API.
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Card Tokenization
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-card-tokenization-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+- aid: dailypay:dailypay-health-api
+  name: DailyPay Health API
+  description: "The _health_ endpoint provides a simple health check for the API. \n\n**Functionality:**\
+    \ Check the status of the API to ensure it is functioning\ncorrectly."
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-health-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+- aid: dailypay:dailypay-jobs-api
+  name: DailyPay Jobs API
+  description: "The _jobs_ endpoint provides access to comprehensive information \nabout a person's employment.\
+    \ It enables you to retrieve details about\nindividual jobs, including information about the organization\n\
+    they work for, status, wage rate, job title, location,\npaycheck settings, and related links to associated\
+    \ accounts."
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-jobs-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+- aid: dailypay:dailypay-organizations-api
+  name: DailyPay Organizations API
+  description: "The _organizations_ endpoint provides details about a business entity, \nsuch as an employer,\
+    \ or a group of people, such as a division.\n\nThe response includes the organization name and ID\
+    \ which can be used to\nmake subsequent endpoint calls related to the organization and its\nemployees."
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Organizations
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-organizations-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+- aid: dailypay:dailypay-paychecks-api
+  name: DailyPay Paychecks API
+  description: "The _paychecks_ endpoint provides detailed information about paychecks. \nYou can retrieve\
+    \ individual paycheck details, including the\nperson and job associated with the paycheck, its status,\
+    \ pay period,\nexpected deposit date, total debited amount, withholdings, earnings, and\ncurrency.\n\
+    \n**Functionality:** Retrieve specific paycheck details, including payee and\njob information, and\
+    \ monitor the status and financial details of each\npaycheck."
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Paychecks
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-paychecks-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+- aid: dailypay:dailypay-people-api
+  name: DailyPay People API
+  description: "The _people_ endpoint allows you to see information related to who owns \nresources such\
+    \ as jobs and accounts.\n\n**Functionality:** Retrieve limited details about a person, including\n\
+    their name, global status, and state of residence."
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - People
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-people-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
+- aid: dailypay:dailypay-transfers-api
+  name: DailyPay Transfers API
+  description: >-
+    The _transfers_ endpoint allows you to initiate and track money movement.  You can access transfer
+    details, including the transfer's unique ID, amount, currency, status, schedule, submission and resolution
+    times, fees, and related links to the involved parties.
+
+
+    **Functionality** Retrieve transfer information, monitor transfer statuses, view transfer schedules,
+    and access relevant links for the source, destination, and origin of the transfer.
+
+
+    **Important** - Account origin: a user initiated movement of money from one account to another - Paycheck
+    origin: an automatic (system-generated) movement of money as part of payroll
+  humanURL: https://developer.dailypay.com/products/rest/reference
+  baseURL: https://api.dailypay.com/rest
+  tags:
+  - Transfers
+  properties:
+  - type: OpenAPI
+    url: openapi/dailypay-transfers-api-openapi.yml
+  - type: Documentation
+    url: https://developer.dailypay.com/products/rest
+  - type: APIReference
+    url: https://developer.dailypay.com/products/rest/reference
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/dailypay-rest-overlay.yaml
 - type: Website
   url: https://www.dailypay.com/
 - type: DeveloperPortal
