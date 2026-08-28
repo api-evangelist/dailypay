@@ -10,6 +10,18 @@ description: 'DailyPay is an on-demand pay (earned wage access) platform that le
   and PCI-scoped debit-card tokenization, complemented by DailyPay Elements, a set
   of hosted drop-in iframe components for embedding on-demand pay into partner applications.'
 url: https://raw.githubusercontent.com/api-evangelist/dailypay/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://developer.dailypay.com/static/svgs/dp_text.svg
 x-type: company
 x-source: harvest:secondary-market
