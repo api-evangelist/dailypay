@@ -1,0 +1,37 @@
+slug: dailypay
+provider: DailyPay
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Banking & Capital Markets
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 2
+edges:
+- tag: Transfers
+  spec_file: dailypay-transfers-api-openapi.yml
+  capability_id: BC-1340.10
+  capability_id_l1: BC-1340
+  capability_name: Payment Initiation Management
+  confidence: 0.75
+  evidence: POST /rest/transfers createTransfer 'Request a transfer'; schemas FundingSourceIdentifier,
+    FundingSourceAttributes, Amount, PaycheckRelationship, TransferCreateAttributes
+  reason: Operations capture and submit a money-movement instruction of a stated Amount from a paycheck
+    to a funding source, i.e. payment instruction capture and initiation. Confidence held below 0.8 because
+    the API only initiates and reads transfers, giving no visibility into downstream processing or settlement,
+    and an earned-wage-access framing could also be argued as payroll advance servicing.
+- tag: Paychecks
+  spec_file: dailypay-paychecks-api-openapi.yml
+  capability_id: BC-300.70
+  capability_id_l1: BC-300
+  capability_name: HR Operations Management
+  confidence: 0.72
+  evidence: GET /rest/paychecks/{paycheck_id} 'Get a Paycheck object'; schemas PaycheckAttributes, PersonRelationship,
+    JobRelationship
+  reason: Exposes paycheck records tied to a person and job on an earned-wage-access/payroll platform
+    — payroll administration within HR operations.
