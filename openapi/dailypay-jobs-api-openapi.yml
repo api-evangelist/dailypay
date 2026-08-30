@@ -1,0 +1,908 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Jobs API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Jobs
+  description: "The _jobs_ endpoint provides access to comprehensive information \nabout a person's employment. It enables you to retrieve details about\nindividual jobs, including information about the organization\nthey work for, status, wage rate, job title, location,\npaycheck settings, and related links to associated accounts.\n"
+paths:
+  /rest/jobs/{job_id}:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    get:
+      tags:
+      - Jobs
+      summary: Get a job object
+      description: Returns details about a person's employment.
+      operationId: readJob
+      security:
+      - oauth_client_credentials_token:
+        - client:lookup
+        - client:admin
+      - oauth_user_token:
+        - user:read
+      parameters:
+      - $ref: '#/components/parameters/job_id'
+      responses:
+        '200':
+          $ref: '#/components/responses/Job200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadJobRequest req = new ReadJobRequest() {\n    JobId = \"aa860051-c411-4709-9685-c1b716df611b\",\n};\n\nvar res = await sdk.Jobs.ReadAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadJobRequest;\nimport com.dailypay.sdk.models.operations.ReadJobResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadJobRequest req = ReadJobRequest.builder()\n                .jobId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .build();\n\n        ReadJobResponse res = sdk.jobs().read()\n                .request(req)\n                .call();\n\n        if (res.jobData().isPresent()) {\n            System.out.println(res.jobData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Jobs.Read(ctx, operations.ReadJobRequest{\n        JobID: \"aa860051-c411-4709-9685-c1b716df611b\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.JobData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.jobs.read({\n    jobId: \"aa860051-c411-4709-9685-c1b716df611b\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: readJob
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadJobRequest req = new ReadJobRequest() {\n    JobId = \"aa860051-c411-4709-9685-c1b716df611b\",\n};\n\nvar res = await sdk.Jobs.ReadAsync(req);\n\n// handle response"
+      - lang: java
+        label: readJob
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadJobRequest;\nimport com.dailypay.sdk.models.operations.ReadJobResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadJobRequest req = ReadJobRequest.builder()\n                .jobId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .build();\n\n        ReadJobResponse res = sdk.jobs().read()\n                .request(req)\n                .call();\n\n        if (res.jobData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+    patch:
+      tags:
+      - Jobs
+      summary: Update paycheck settings or deactivate a job
+      description: "Update this job to set where pay should be deposited for paychecks related to this job,  or deactivate on-demand pay for this job. \nReturns the job object if the update succeeded. Returns an error if update parameters are invalid.\n"
+      operationId: updateJob
+      security:
+      - oauth_user_token:
+        - user:read_write
+      parameters:
+      - name: job_id
+        description: Unique ID of the job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+      requestBody:
+        $ref: '#/components/requestBodies/JobUpdate'
+      responses:
+        '200':
+          description: Returns the updated Job object
+          $ref: '#/components/responses/Job200'
+        '400':
+          $ref: '#/components/responses/JobUpdate400'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nUpdateJobRequest req = new UpdateJobRequest() {\n    JobId = \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n    JobUpdateData = new JobUpdateData() {\n        JobUpdateResource = new JobUpdateResource() {\n            Id = \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n            JobUpdateRelationships = new JobUpdateRelationships() {\n                DirectDepositDefaultDepository = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"123e4567-e89b-12d3-a456-426614174000\",\n                    },\n                },\n                DirectDepositDefaultCard = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"223e4567-e89b-12d3-a456-426614174001\",\n                    },\n                },\n            },\n        },\n    },\n};\n\nvar res = await sdk.Jobs.UpdateAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.UpdateJobRequest;\nimport com.dailypay.sdk.models.operations.UpdateJobResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws JobUpdateError, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        UpdateJobRequest req = UpdateJobRequest.builder()\n                .jobId(\"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\")\n                .jobUpdateData(JobUpdateData.builder()\n                    .jobUpdateResource(JobUpdateResource.builder()\n                        .id(\"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\")\n                        .jobUpdateRelationships(JobUpdateRelationships.builder()\n                            .directDepositDefaultDepository(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"123e4567-e89b-12d3-a456-426614174000\")\n                                    .build())\n                                .build())\n                            .directDepositDefaultCard(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"223e4567-e89b-12d3-a456-426614174001\")\n                                    .build())\n                                .build())\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        UpdateJobResponse res = sdk.jobs().update()\n                .request(req)\n                .call();\n\n        if (res.jobData().isPresent()) {\n            System.out.println(res.jobData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Jobs.Update(ctx, operations.UpdateJobRequest{\n        JobID: \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n        JobUpdateData: components.JobUpdateData{\n            JobUpdateResource: components.JobUpdateResource{\n                ID: \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n                JobUpdateRelationships: &components.JobUpdateRelationships{\n                    DirectDepositDefaultDepository: &components.AccountRelationship{\n                        Data: components.AccountIdentifier{\n                            ID: \"123e4567-e89b-12d3-a456-426614174000\",\n                        },\n                    },\n                    DirectDepositDefaultCard: &components.AccountRelationship{\n                        Data: components.AccountIdentifier{\n                            ID: \"223e4567-e89b-12d3-a456-426614174001\",\n                        },\n                    },\n                },\n            },\n        },\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.JobData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.jobs.update({\n    jobId: \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n    jobUpdateData: {\n      jobUpdateResource: {\n        type: \"jobs\",\n        id: \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n        jobUpdateRelationships: {\n          directDepositDefaultDepository: {\n            data: {\n              type: \"accounts\",\n              id: \"123e4567-e89b-12d3-a456-426614174000\",\n            },\n          },\n          directDepositDefaultCard: {\n            data: {\n              type: \"accounts\",\n              id: \"223e4567-e89b-12d3-a456-426614174001\",\n            },\n          },\n        },\n      },\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: updateJob
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nUpdateJobRequest req = new UpdateJobRequest() {\n    JobId = \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n    JobUpdateData = new JobUpdateData() {\n        JobUpdateResource = new JobUpdateResource() {\n            Id = \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n            JobUpdateRelationships = new JobUpdateRelationships() {\n                DirectDepositDefaultDepository = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"123e4567-e89b-12d3-a456-426614174000\",\n                    },\n                },\n                DirectDepositDefaultCard = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"223e4567-e89b-12d3-a456-426614174001\",\n                    },\n                },\n            },\n        },\n    },\n};\n\nvar res = await sdk.Jobs.UpdateAsync(req);\n\n// handle response"
+      - lang: java
+        label: updateJob
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.UpdateJobRequest;\nimport com.dailypay.sdk.models.operations.UpdateJobResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws JobUpdateError, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        UpdateJobRequest req = UpdateJobRequest.builder()\n                .jobId(\"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\")\n                .jobUpdateData(JobUpdateData.builder()\n                    .data(Data.builder()\n                        .id(\"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\")\n                        .attributes(JobAttributesInput.builder()\n                            .activationStatus(ActivationStatus.DEACTIVATED)\n                            .build())\n                        .relationships(JobRelationshipsInput.builder()\n                            .directDepositDefaultDepository(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                                    .build())\n                                .build())\n                            .directDepositDefaultCard(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                                    .build())\n                                .build())\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        UpdateJobResponse res = sdk.jobs().update()\n                .request(req)\n                .call();\n\n        if (res.jobData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  /rest/jobs:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/filter.external_identifiers.primary_identifier'
+    - $ref: '#/components/parameters/filter.external_identifiers.employee_id'
+    - $ref: '#/components/parameters/filter.external_identifiers.group'
+    - $ref: '#/components/parameters/filter.person.id'
+    - $ref: '#/components/parameters/filter.organization.id'
+    - $ref: '#/components/parameters/filter'
+    get:
+      tags:
+      - Jobs
+      summary: Get a list of job objects
+      description: 'Returns a collection of job objects. This object represents a person''s employment details.
+
+        '
+      operationId: listJobs
+      security:
+      - oauth_client_credentials_token:
+        - client:lookup
+        - client:admin
+      - oauth_user_token:
+        - user:read
+      responses:
+        '200':
+          $ref: '#/components/responses/Jobs200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nListJobsRequest req = new ListJobsRequest() {\n    FilterExternalIdentifiersPrimaryIdentifier = \"PRIMARY_ID_98765\",\n    FilterExternalIdentifiersEmployeeId = \"EMP123456\",\n    FilterExternalIdentifiersGroup = \"12345\",\n    FilterPersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n    FilterOrganizationId = \"f0b30634-108c-439c-a8c1-c6a91197f022\",\n};\n\nvar res = await sdk.Jobs.ListAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListJobsRequest;\nimport com.dailypay.sdk.models.operations.ListJobsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListJobsRequest req = ListJobsRequest.builder()\n                .filterExternalIdentifiersPrimaryIdentifier(\"PRIMARY_ID_98765\")\n                .filterExternalIdentifiersEmployeeId(\"EMP123456\")\n                .filterExternalIdentifiersGroup(\"12345\")\n                .filterPersonId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .filterOrganizationId(\"f0b30634-108c-439c-a8c1-c6a91197f022\")\n                .build();\n\n        ListJobsResponse res = sdk.jobs().list()\n                .request(req)\n                .call();\n\n        if (res.jobsData().isPresent()) {\n            System.out.println(res.jobsData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Jobs.List(ctx, operations.ListJobsRequest{\n        FilterExternalIdentifiersPrimaryIdentifier: dailypay.Pointer(\"PRIMARY_ID_98765\"),\n        FilterExternalIdentifiersEmployeeID: dailypay.Pointer(\"EMP123456\"),\n        FilterExternalIdentifiersGroup: dailypay.Pointer(\"12345\"),\n        FilterPersonID: dailypay.Pointer(\"aa860051-c411-4709-9685-c1b716df611b\"),\n        FilterOrganizationID: dailypay.Pointer(\"f0b30634-108c-439c-a8c1-c6a91197f022\"),\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.JobsData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.jobs.list({\n    filterExternalIdentifiersPrimaryIdentifier: \"PRIMARY_ID_98765\",\n    filterExternalIdentifiersEmployeeId: \"EMP123456\",\n    filterExternalIdentifiersGroup: \"12345\",\n    filterPersonId: \"aa860051-c411-4709-9685-c1b716df611b\",\n    filterOrganizationId: \"f0b30634-108c-439c-a8c1-c6a91197f022\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: listJobs
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nListJobsRequest req = new ListJobsRequest() {\n    FilterExternalIdentifiersPrimaryIdentifier = \"PRIMARY_ID_98765\",\n    FilterExternalIdentifiersEmployeeId = \"EMP123456\",\n    FilterExternalIdentifiersGroup = \"12345\",\n    FilterPersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n    FilterOrganizationId = \"f0b30634-108c-439c-a8c1-c6a91197f022\",\n};\n\nvar res = await sdk.Jobs.ListAsync(req);\n\n// handle response"
+      - lang: java
+        label: listJobs
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListJobsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListJobsResponse res = sdk.jobs().list()\n                .call();\n\n        if (res.jobsData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  schemas:
+    OrganizationRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/OrganizationIdentifier'
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    Amount:
+      type: integer
+      minimum: 0
+      example: 2500
+      description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.'
+    AccountRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountIdentifier'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    JobLink:
+      type: string
+      format: uri
+      example: https://api.dailypay.com/rest/jobs/e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    JobUpdateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: object
+          x-go-type-name: JobUpdateResource
+          x-speakeasy-name-override: JobUpdateResource
+          description: A job describes the financial relationship between a person and an organization.
+          required:
+          - type
+          - id
+          properties:
+            type:
+              type: string
+              const: jobs
+            id:
+              type: string
+              format: uuid
+              example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+            relationships:
+              type: object
+              x-go-type-name: JobUpdateRelationships
+              x-speakeasy-name-override: JobUpdateRelationships
+              description: The relationships between the job and other resources, including the accounts to which paychecks from this job are deposited.
+              properties:
+                direct_deposit_default_depository:
+                  description: The `DEPOSITORY` account to which paychecks from this job will attempt to be deposited.
+                  allOf:
+                  - $ref: '#/components/schemas/AccountRelationship'
+                direct_deposit_default_card:
+                  description: The `CARD` account to which paychecks from this job will attempt to be deposited, if the `DEPOSITORY` account fails.
+                  allOf:
+                  - $ref: '#/components/schemas/AccountRelationship'
+            attributes:
+              type: object
+              x-go-type-name: JobUpdateAttributes
+              x-speakeasy-name-override: JobUpdateAttributes
+              properties:
+                activation_status:
+                  type: string
+                  enum:
+                  - DEACTIVATED
+                  - DEACTIVATION_PENDING
+                  - ACTIVATION_REQUIRED
+                  - ACTIVATION_UNDER_REVIEW
+                  - ACTIVATED
+                  examples:
+                  - DEACTIVATED
+                  - ACTIVATED
+                  x-enumDescriptions:
+                    DEACTIVATED: Job is no longer activated for DailyPay.
+                    DEACTIVATION_PENDING: Job is no longer activated for DailyPay, and deactivation is pending.
+                    ACTIVATION_REQUIRED: Job data is available but a person has not activated this Job for a DailyPay account.
+                    ACTIVATION_UNDER_REVIEW: Job data is available but a manual review step is underway.
+                    ACTIVATED: Job data is available and ready for use with DailyPay. A remainder pay account may still need to be configured by setting `default_paycheck_destinations`.
+                  description: 'Activation is the process of verifying that data is available for a Job,  and that a person has verified their identity as the Person associated with the Job. Only paychecks from Jobs with `activated` status will contribute to an earnings balance account.
+
+
+                    To deactivate a job, update activation_status to `DEACTIVATED`.
+
+                    '
+    JobData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/JobResource'
+    ErrorJobUpdateError:
+      allOf:
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+            example: INVALID_PARAMETERS
+            type: string
+            x-go-type: string
+            x-enumDescriptions:
+              ACTIVE_JOB_REQUIRED: This job must have status ACTIVATED before setting a default bank or debit
+              INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+              INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+              INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+              INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+      - $ref: '#/components/schemas/Error'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
+    JobsData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobResource'
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    JobResource:
+      type: object
+      description: A job describes the financial relationship between a person and an organization.
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - attributes
+      - relationships
+      properties:
+        type:
+          type: string
+          const: jobs
+        id:
+          type: string
+          format: uuid
+          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+        attributes:
+          $ref: '#/components/schemas/JobAttributes'
+        links:
+          $ref: '#/components/schemas/JobLinks'
+        relationships:
+          $ref: '#/components/schemas/JobRelationships'
+    JobAttributes:
+      type: object
+      required:
+      - wage_rate
+      - direct_deposit_status
+      - activation_status
+      properties:
+        external_identifiers:
+          type: object
+          description: Holds unique identifiers for the employee or job defined by external organizations.
+          additionalProperties:
+            type: string
+          examples:
+          - primary_identifier: 0123456789
+        first_name:
+          description: The first name of the person as it is listed in their employee profile.
+          example: Edith
+          type: string
+        last_name:
+          description: The last name of the person as it is listed in their employee profile.
+          example: Clarke
+          type: string
+        activation_status:
+          type: string
+          enum:
+          - DEACTIVATED
+          - DEACTIVATION_PENDING
+          - ACTIVATION_REQUIRED
+          - ACTIVATION_UNDER_REVIEW
+          - ACTIVATED
+          examples:
+          - DEACTIVATED
+          - ACTIVATED
+          x-enumDescriptions:
+            DEACTIVATED: Job is no longer activated for DailyPay.
+            DEACTIVATION_PENDING: Job is no longer activated for DailyPay, and deactivation is pending.
+            ACTIVATION_REQUIRED: Job data is available but a person has not activated this Job for a DailyPay account.
+            ACTIVATION_UNDER_REVIEW: Job data is available but a manual review step is underway.
+            ACTIVATED: Job data is available and ready for use with DailyPay. A remainder pay account may still need to be configured by setting `default_paycheck_destinations`.
+          description: 'Activation is the process of verifying that data is available for a Job,  and that a person has verified their identity as the Person associated with the Job. Only paychecks from Jobs with `activated` status will contribute to an earnings balance account.
+
+
+            To deactivate a job, update activation_status to `DEACTIVATED`.
+
+            '
+        wage_rate:
+          type: object
+          x-go-type-name: WageRate
+          required:
+          - amount
+          - currency
+          - frequency
+          properties:
+            amount:
+              $ref: '#/components/schemas/Amount'
+            currency:
+              $ref: '#/components/schemas/Currency'
+            frequency:
+              type: string
+              enum:
+              - HOURLY
+              - WEEKLY
+              - BIWEEKLY
+              - TWICE_MONTHLY
+              - MONTHLY
+              - ANNUALLY
+              example: HOURLY
+        title:
+          type:
+          - string
+          - 'null'
+          example: Computer
+        department:
+          type:
+          - string
+          - 'null'
+          example: Finance
+        location:
+          type: string
+          example: New York, New York
+        direct_deposit_status:
+          type: string
+          enum:
+          - SETUP_REQUIRED
+          - SETUP_PENDING
+          - SETUP_COMPLETE
+          example: SETUP_COMPLETE
+          description: '- `SETUP_REQUIRED` Direct deposit is not set up for this Job. Update this resource''s relationships to set up direct deposit.
+
+            - `SETUP_PENDING` A system action is still pending.
+
+            - `SETUP_COMPLETE` Direct deposit is set up for this Job.
+
+            '
+    JobRelationships:
+      type: object
+      description: The relationships between the job and other resources, including the accounts to which paychecks from this job are deposited.
+      required:
+      - person
+      - organization
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+        organization:
+          $ref: '#/components/schemas/OrganizationRelationship'
+        direct_deposit_default_depository:
+          description: The `DEPOSITORY` account to which paychecks from this job will attempt to be deposited.
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        direct_deposit_default_card:
+          description: The `CARD` account to which paychecks from this job will attempt to be deposited, if the `DEPOSITORY` account fails.
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+    JobUpdateError:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorJobUpdateError'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    OrganizationIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: organizations
+        id:
+          type: string
+          format: uuid
+          example: f0b30634-108c-439c-a8c1-c6a91197f022
+    JobLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/JobLink'
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+    AccountIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: accounts
+        id:
+          type: string
+          format: uuid
+          examples:
+          - 2bc7d781-3247-46f6-b60f-4090d214936a
+          - 410ae962-51e1-4f44-b0a0-a0fd230a4dc5
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Job200:
+      description: Returns the job object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/JobData'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    JobUpdate400:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/JobUpdateError'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Jobs200:
+      description: Returns a list of job objects.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/JobsData'
+  parameters:
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    filter.external_identifiers.primary_identifier:
+      name: filter[external_identifiers.primary_identifier]
+      in: query
+      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      required: false
+      schema:
+        type: string
+        example: PRIMARY_ID_98765
+    filter.person.id:
+      name: filter[person.id]
+      in: query
+      description: Limit the results to documents related to a specific person
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: aa860051-c411-4709-9685-c1b716df611b
+    filter.organization.id:
+      name: filter[organization.id]
+      in: query
+      description: _Not yet supported_ Limit the results to documents related to a specific organization
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: f0b30634-108c-439c-a8c1-c6a91197f022
+    job_id:
+      name: job_id
+      description: Unique ID of the job
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: aa860051-c411-4709-9685-c1b716df611b
+    filter.external_identifiers.employee_id:
+      name: filter[external_identifiers.employee_id]
+      in: query
+      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      required: false
+      schema:
+        type: string
+        example: EMP123456
+    filter.external_identifiers.group:
+      name: filter[external_identifiers.group]
+      in: query
+      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      required: false
+      schema:
+        type: string
+        example: '12345'
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+  requestBodies:
+    JobUpdate:
+      required: true
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/JobUpdateData'
+          examples:
+            DirectDeposit:
+              summary: Set where paychecks should be deposited for this job
+              value:
+                data:
+                  type: jobs
+                  id: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+                  relationships:
+                    direct_deposit_default_depository:
+                      data:
+                        type: accounts
+                        id: 123e4567-e89b-12d3-a456-426614174000
+                    direct_deposit_default_card:
+                      data:
+                        type: accounts
+                        id: 223e4567-e89b-12d3-a456-426614174001
+            Deactivate:
+              summary: Deactivate on-demand pay for this job
+              value:
+                data:
+                  type: jobs
+                  id: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+                  attributes:
+                    activation_status: DEACTIVATED
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

@@ -1,0 +1,694 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Paychecks API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Paychecks
+  description: "The _paychecks_ endpoint provides detailed information about paychecks. \nYou can retrieve individual paycheck details, including the\nperson and job associated with the paycheck, its status, pay period,\nexpected deposit date, total debited amount, withholdings, earnings, and\ncurrency.\n\n**Functionality:** Retrieve specific paycheck details, including payee and\njob information, and monitor the status and financial details of each\npaycheck.\n"
+paths:
+  /rest/paychecks/{paycheck_id}:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/paycheck_id'
+    get:
+      tags:
+      - Paychecks
+      summary: Get a Paycheck object
+      description: Returns details about a paycheck object.
+      operationId: readPaycheck
+      security:
+      - oauth_user_token:
+        - user:read
+      responses:
+        '200':
+          $ref: '#/components/responses/Paycheck200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nReadPaycheckRequest req = new ReadPaycheckRequest() {\n    PaycheckId = \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n};\n\nvar res = await sdk.Paychecks.ReadAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadPaycheckRequest;\nimport com.dailypay.sdk.models.operations.ReadPaycheckResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        ReadPaycheckRequest req = ReadPaycheckRequest.builder()\n                .paycheckId(\"3fa85f64-5717-4562-b3fc-2c963f66afa6\")\n                .build();\n\n        ReadPaycheckResponse res = sdk.paychecks().read()\n                .request(req)\n                .call();\n\n        if (res.paycheckData().isPresent()) {\n            System.out.println(res.paycheckData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Paychecks.Read(ctx, operations.ReadPaycheckRequest{\n        PaycheckID: \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.PaycheckData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.paychecks.read({\n    paycheckId: \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: readPaycheck
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nReadPaycheckRequest req = new ReadPaycheckRequest() {\n    PaycheckId = \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n};\n\nvar res = await sdk.Paychecks.ReadAsync(req);\n\n// handle response"
+      - lang: java
+        label: readPaycheck
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadPaycheckRequest;\nimport com.dailypay.sdk.models.operations.ReadPaycheckResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadPaycheckRequest req = ReadPaycheckRequest.builder()\n                .paycheckId(\"3fa85f64-5717-4562-b3fc-2c963f66afa6\")\n                .build();\n\n        ReadPaycheckResponse res = sdk.paychecks().read()\n                .request(req)\n                .call();\n\n        if (res.paycheckData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  /rest/paychecks:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    get:
+      tags:
+      - Paychecks
+      summary: Get a list of paycheck objects
+      description: 'Returns a collection of paycheck objects. This object details a person''s pay and pay period.
+
+        '
+      operationId: listPaychecks
+      security:
+      - oauth_user_token:
+        - user:read
+      parameters:
+      - $ref: '#/components/parameters/filter.job.id'
+      - $ref: '#/components/parameters/filter.paycheck_status'
+      - $ref: '#/components/parameters/filter.deposit_expected_at__gte'
+      - $ref: '#/components/parameters/filter.deposit_expected_at__lt'
+      - $ref: '#/components/parameters/filter.pay_period_ends_at__gte'
+      - $ref: '#/components/parameters/filter.pay_period_ends_at__lt'
+      - $ref: '#/components/parameters/filter.pay_period_starts_at__gte'
+      - $ref: '#/components/parameters/filter.pay_period_starts_at__lt'
+      - $ref: '#/components/parameters/filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/Paychecks200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\nusing System;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nListPaychecksRequest req = new ListPaychecksRequest() {\n    FilterJobId = \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n    FilterStatus = FilterPaycheckStatus.Deposited,\n    FilterDepositExpectedAtGte = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterDepositExpectedAtLt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodEndsAtGte = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodEndsAtLt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodStartsAtGte = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodStartsAtLt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n};\n\nvar res = await sdk.Paychecks.ListAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.FilterPaycheckStatus;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListPaychecksRequest;\nimport com.dailypay.sdk.models.operations.ListPaychecksResponse;\nimport java.lang.Exception;\nimport java.time.OffsetDateTime;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        ListPaychecksRequest req = ListPaychecksRequest.builder()\n                .filterJobId(\"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\")\n                .filterStatus(FilterPaycheckStatus.DEPOSITED)\n                .filterDepositExpectedAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterDepositExpectedAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodEndsAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodEndsAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodStartsAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodStartsAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .build();\n\n        ListPaychecksResponse res = sdk.paychecks().list()\n                .request(req)\n                .call();\n\n        if (res.paychecksData().isPresent()) {\n            System.out.println(res.paychecksData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/types\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Paychecks.List(ctx, operations.ListPaychecksRequest{\n        FilterJobID: dailypay.Pointer(\"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\"),\n        FilterStatus: components.FilterPaycheckStatusDeposited.ToPointer(),\n        FilterDepositExpectedAtGte: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n        FilterDepositExpectedAtLt: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n        FilterPayPeriodEndsAtGte: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n        FilterPayPeriodEndsAtLt: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n        FilterPayPeriodStartsAtGte: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n        FilterPayPeriodStartsAtLt: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.PaychecksData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.paychecks.list({\n    filterJobId: \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n    filterStatus: \"DEPOSITED\",\n    filterDepositExpectedAtGte: new Date(\"2023-03-15T04:00:00Z\"),\n    filterDepositExpectedAtLt: new Date(\"2023-03-15T04:00:00Z\"),\n    filterPayPeriodEndsAtGte: new Date(\"2023-03-15T04:00:00Z\"),\n    filterPayPeriodEndsAtLt: new Date(\"2023-03-15T04:00:00Z\"),\n    filterPayPeriodStartsAtGte: new Date(\"2023-03-15T04:00:00Z\"),\n    filterPayPeriodStartsAtLt: new Date(\"2023-03-15T04:00:00Z\"),\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: listPaychecks
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\nusing System;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nListPaychecksRequest req = new ListPaychecksRequest() {\n    FilterJobId = \"e9d84b0d-92ba-43c9-93bf-7c993313fa6f\",\n    FilterStatus = FilterPaycheckStatus.Deposited,\n    FilterDepositExpectedAtGte = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterDepositExpectedAtLt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodEndsAtGte = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodEndsAtLt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodStartsAtGte = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n    FilterPayPeriodStartsAtLt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n};\n\nvar res = await sdk.Paychecks.ListAsync(req);\n\n// handle response"
+      - lang: java
+        label: listPaychecks
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListPaychecksRequest;\nimport com.dailypay.sdk.models.operations.ListPaychecksResponse;\nimport java.lang.Exception;\nimport java.time.OffsetDateTime;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListPaychecksRequest req = ListPaychecksRequest.builder()\n                .filterDepositExpectedAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterDepositExpectedAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodEndsAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodEndsAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodStartsAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodStartsAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .build();\n\n        ListPaychecksResponse res = sdk.paychecks().list()\n                .request(req)\n                .call();\n\n        if (res.paychecksData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Paycheck200:
+      description: Returns the paycheck object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/PaycheckData'
+    Paychecks200:
+      description: Returns the paycheck object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/PaychecksData'
+  parameters:
+    filter.job.id:
+      name: filter[job.id]
+      in: query
+      description: Limit the results to documents related to a specific job
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+    filter.deposit_expected_at__gte:
+      name: filter[deposit_expected_at__gte]
+      in: query
+      description: Limit the results to paychecks with deposit_expected_at greater than or equal to the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.deposit_expected_at__lt:
+      name: filter[deposit_expected_at__lt]
+      in: query
+      description: Limit the results to paychecks with deposit_expected_at less than the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    filter.pay_period_starts_at__gte:
+      name: filter[pay_period_starts_at__gte]
+      in: query
+      description: Limit the results to paychecks with pay_period_starts_at greater than or equal to the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.pay_period_ends_at__lt:
+      name: filter[pay_period_ends_at__lt]
+      in: query
+      description: Limit the results to paychecks with pay_period_ends_at less than the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    paycheck_id:
+      name: paycheck_id
+      description: Unique ID of the paycheck
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    filter.pay_period_starts_at__lt:
+      name: filter[pay_period_starts_at__lt]
+      in: query
+      description: Limit the results to paychecks with pay_period_starts_at less than the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.pay_period_ends_at__gte:
+      name: filter[pay_period_ends_at__gte]
+      in: query
+      description: Limit the results to paychecks with pay_period_ends_at greater than or equal to the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.paycheck_status:
+      name: filter[status]
+      in: query
+      description: Limit the results to paychecks with the specified status
+      required: false
+      schema:
+        type: string
+        enum:
+        - ESTIMATED
+        - PROCESSING
+        - IN_TRANSIT
+        - DEPOSITED
+        example: DEPOSITED
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+  schemas:
+    PaycheckData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PaycheckResource'
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    PaycheckLink:
+      type: string
+      format: uri
+      readOnly: true
+      example: https://api.dailypay.com/rest/paychecks/f4e2fd6c-b567-447c-a003-b7315b8d22d2
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    PaycheckLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/PaycheckLink'
+    PaychecksData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaycheckResource'
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
+    PaycheckAttributes:
+      type: object
+      required:
+      - status
+      - pay_period_ends_at
+      - pay_period_starts_at
+      - deposit_expected_at
+      - total_debited
+      - gross_earnings
+      - employer_withholdings
+      - net_earnings
+      - currency
+      properties:
+        status:
+          type: string
+          enum:
+          - ESTIMATED
+          - PROCESSING
+          - IN_TRANSIT
+          - DEPOSITED
+          description: A paycheck expected for an open pay period will have the status ESTIMATED. At the end of the pay period, the paycheck will begin PROCESSING. When it is sent, it will become IN_TRANSIT. Finally, once deposited in an account it will have the status DEPOSITED.
+        pay_period_ends_at:
+          description: An ISO 8601 timestamp denoting the ending day of a paycheck's pay period. For example, a pay period that ends during the day of March 15 will have a value of 2023-03-15T04:00:00Z.
+          type: string
+          example: '2023-03-15T04:00:00Z'
+          format: date-time
+        pay_period_starts_at:
+          description: An ISO 8601 timestamp denoting the first day of a paycheck's pay period. For example, a pay period that starts during the day of March 15 will have a value of 2023-03-15T04:00:00Z.
+          type: string
+          example: '2023-03-15T04:00:00Z'
+          format: date-time
+        deposit_expected_at:
+          description: An ISO 8601 timestamp denoting the day the paycheck is scheduled to be delivered.
+          type: string
+          example: '2023-03-15T04:00:00Z'
+          format: date-time
+        total_debited:
+          description: 'The amount debited and settled from this paycheck prior to the end of the pay period. Debits are settled during a pay period in order to cover withdrawals from an earnings balance account. This amount is given as a monetary quantity expressed in units of the lowest denomination in the associated currency. For example, { total_debited: 7050 } with currency USD resolves to $70.50.'
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          example: 0
+        gross_earnings:
+          description: 'The total earnings for this paycheck before any deductions are applied. This amount is given as a monetary quantity expressed in units of the lowest denomination in the associated currency. For example, { gross_earnings: 55370 } with currency USD resolves to $553.70'
+          type: integer
+          example: 0
+        employer_withholdings:
+          description: 'The amount withheld from this paycheck by the employer, usually for taxes. This amount is given as a monetary quantity expressed in units of the lowest denomination in the associated currency. For example, { withholdings: 5000 } with currency USD resolves to $50.00.'
+          type:
+          - integer
+          - 'null'
+          example: 0
+        net_earnings:
+          description: 'The net earnings for the paycheck once settled given in a monetary quantity expressed in units of the lowest denomination in the associated currency. For example, { earnings: 50370 } with currency USD resolves to $503.70.'
+          type:
+          - integer
+          - 'null'
+          example: 0
+        currency:
+          $ref: '#/components/schemas/Currency'
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    JobRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/JobIdentifier'
+    PaycheckResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - relationships
+      properties:
+        type:
+          type: string
+          const: paychecks
+        id:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        attributes:
+          $ref: '#/components/schemas/PaycheckAttributes'
+        links:
+          $ref: '#/components/schemas/PaycheckLinks'
+        relationships:
+          $ref: '#/components/schemas/PaycheckRelationships'
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    PaycheckRelationships:
+      type: object
+      required:
+      - person
+      - job
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+        job:
+          $ref: '#/components/schemas/JobRelationship'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    JobIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: jobs
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

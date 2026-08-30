@@ -1,0 +1,204 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Card Tokenization API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Card Tokenization
+  description: Securely tokenize personal cards for use in the accounts API.
+paths:
+  /cards/generic:
+    post:
+      summary: Obtain a card token
+      servers:
+      - url: https://payments.dailypay.com/v2
+      description: Obtain a PCI DSS Compliant card token. This token must be used in order to add a card to a user’s DailyPay account.
+      operationId: createGenericCardToken
+      security: []
+      tags:
+      - Card Tokenization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - first_name
+              - last_name
+              - card_number
+              - expiration_year
+              - expiration_month
+              - address_line_one
+              - address_city
+              - address_state
+              - address_zip_code
+              - address_country
+              properties:
+                first_name:
+                  type: string
+                  description: The first name or given name of the cardholder.
+                  example: Edith
+                last_name:
+                  type: string
+                  description: The last name or surname of the cardholder.
+                  example: Clarke
+                card_number:
+                  type: string
+                  description: The full card number without spaces or hyphenation.
+                  example: '4007589999999912'
+                expiration_year:
+                  type: string
+                  description: The four-digit year of expiration for the card.
+                  example: '2027'
+                expiration_month:
+                  type: string
+                  description: The two-digit month of the expiration date for the card.
+                  example: '02'
+                cvv:
+                  type:
+                  - string
+                  - 'null'
+                  description: The CVV card code.
+                  example: '123'
+                address_line_one:
+                  type: string
+                  description: The first line of the address associated with the card.
+                  example: 123 Kebly Street
+                address_line_two:
+                  type:
+                  - string
+                  - 'null'
+                  description: The second line of the address associated with the card.
+                  example: Unit C
+                address_city:
+                  type: string
+                  description: The city component of the address associated with the card.
+                  example: Fort Lee
+                address_state:
+                  type: string
+                  description: The two-letter state component of the address associated with the card.
+                  example: NJ
+                address_zip_code:
+                  type: string
+                  description: The 5 digit zip-code component of the address associated with the card.
+                  example: '07237'
+                address_country:
+                  type: string
+                  description: The two-letter ISO 3166 country code component of the address associated with the card.
+                  example: US
+      responses:
+        '200':
+          description: 'Returns an opaque string representing the card details.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - token
+                properties:
+                  token:
+                    type: string
+                    description: "This token should be supplied in the `generic_token` field when creating a TransferAccount with \n`transfer_account_type` of DebitCard using the Extend API \"Create a transfer account\" endpoint.\n"
+                    example: eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkExMjhHQ00ifQ.ZR3Eq5MAuS_03RopT9QWK1MUiFFIOoZoDgwkiDWzz-7S6Zeda0JdvzwI51lHxuvi6EFdXLi7-1thIpPt49JMiLtzZgcf7UCJrVOZTf88JhIL5X5rvmnpO2NADfR9PVzrSV2AwxLCRy6vRfgCHGJZy1o5AZzwaaMLCRzqb3vdCaXn9gKvGPmvHKg9PkR-Zrfs9XDsRHeCVtfvu8PBzMNO5r_Dfo-fo3l3cyV4pKFtbvjlJXm--Ko5XiJPxffnBofmlYabXHku5yuo6IsVTnd9ETksMu1tnfr4T9AC14fiZew0FJetIayf_-kmiR1t7_aU3Q_A8Uwy7kTmxrFTvu6Cgw.yT7WptQfjKXswG_N.DY77q22ZGV5efeh6LNI6bWRmhZikY0dLAyIDVrK7nite1B7T_4IL9XdM7Luf9BOpXHTscu9y6Zqun-687bclLnzOYB7nNpV_DZM-5stWz2MuQeLiokqTfrF5jfXtpLDaDEiwAY9HHTBrKoD91Wkp5aX1CsB4jFBTfFDES0BQbTrRXqLTMIItZqKFbh5btqFCskfl7JKtozo3UgMNj__HnNiF5GUN-QgiOrYZKn7d2hXPpUABPmYGFkpXSXTnnCRGTVoZHoyh5L-4Apr8yVRUxUX1rrMFjOurr8VqmQPg-9-2Z7zxmwp5joms19JdgV2FhgJnbKilwFY4IQrYbhfLdfuApHgpptvrODLdPB5DJnT6tAfsJM_-LuFC7cg9kg6Xm6G-8jGEuO56sd-Og3cvK-jnhSR6Vu9O6nSGKZ1X3H0O_EHgMhHV-WTtf8KfrUHdVsSBIZvA6J_5gmOAB53KPaCPy8AU8XQBUgPVBt35h9J4HLuWq3HGRKEw5nHNNdSSjgWXfpC9X8OXgric1540nZz5A-zBP3XNOZuD26yPNDg2g7jCzVZs1TfRgX9DXqZHUkugPuyXN82FMT3bxKAZzH5OsmVSnir8f75OAx18hVG-jheEBTYzbx4yh6YwlaWKkekKKwGAAdEnUg5cQxNNmeOpTzQiSyMCnFOtQyn67qSk9I3e5ig9l5ElSoX-MhL9g2liAKbX6_fl4wJ1elvrhy0w6Xuf6V74UrwKP5deKxtGLbWoSVC-v0k5lrweP8SbD1R62DyfdcdgZSPDmiiSgF8YuHO_8fW96xQeOD_fJ59qf4-qvfuToM39X52s5vH7Qj53v5kp-Tg23Ki2C-ENPIqa6hKl0BaTHltIKwZt1ll4l7ho1vMxPdPVq47FmTzPyliB0JuK6VoQIaR4ej4CCSrQmRTXMohXnbIaVubm-kLyK5RebvnJFJr5J2YswT5ZnUuEb5MbkNaeqJ0CUaQ8Z_vRXI-UaZOuGI_BPYsuIDmBKsfihoGUHau6WBNqqCDBRQsHlLRc3pUBfLLWQyO8pdB2JHjco_8wh2SuxLrD9abLNwjt9NNNmQdW8Qzm-E7aG-DnLN0y6z1T1dTr-YiUO4TBw1sPNysVX6v2Pz5jN7xQ6ukZ59rXgJ4Rozci5ip0V28whvs5Aw8oiOY9Uo0qS9UEHjILCDdhPuBgt7v_v6ylsIPEy9ZL8Z0F-Dh_SqqJl9H4TSKVbalk4PJ8f2TGywbB7b2l5t5wHPZexuhkZZ1X_lChvi7nistQQ9952S6quPhT8OZntWqHe2X63THSVweupbe0D21tftdNsiZFP4rptJ6SfkmcEiS4CDA233CjCTy5sMALIYMsATL5dQxG5myUc3hiDQqpT_n7pIMhSuVrMcFi0bfpLSVYtLShmhQno8wqrm1p5aqahY1YQQmMM4VLT-05Fz53cTlJsEqnu6_2tg6v_j4cWYnHnP4IAvtJmw4BRQ.3yAMw37rs8X_gfRMqpYD1w
+        '500':
+          description: A server error has occurred.
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK();\n\nCreateGenericCardTokenRequest req = new CreateGenericCardTokenRequest() {\n    FirstName = \"Edith\",\n    LastName = \"Clarke\",\n    CardNumber = \"4007589999999912\",\n    ExpirationYear = \"2027\",\n    ExpirationMonth = \"02\",\n    Cvv = \"123\",\n    AddressLineOne = \"123 Kebly Street\",\n    AddressLineTwo = \"Unit C\",\n    AddressCity = \"Fort Lee\",\n    AddressState = \"NJ\",\n    AddressZipCode = \"07237\",\n    AddressCountry = \"US\",\n};\n\nvar res = await sdk.CardTokenization.CreateAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.operations.CreateGenericCardTokenRequest;\nimport com.dailypay.sdk.models.operations.CreateGenericCardTokenResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws Exception {\n\n        DailyPay sdk = DailyPay.builder()\n            .build();\n\n        CreateGenericCardTokenRequest req = CreateGenericCardTokenRequest.builder()\n                .firstName(\"Edith\")\n                .lastName(\"Clarke\")\n                .cardNumber(\"4007589999999912\")\n                .expirationYear(\"2027\")\n                .expirationMonth(\"02\")\n                .addressLineOne(\"123 Kebly Street\")\n                .addressCity(\"Fort Lee\")\n                .addressState(\"NJ\")\n                .addressZipCode(\"07237\")\n                .addressCountry(\"US\")\n                .cvv(\"123\")\n                .addressLineTwo(\"Unit C\")\n                .build();\n\n        CreateGenericCardTokenResponse res = sdk.cardTokenization().create()\n                .request(req)\n                .call();\n\n        if (res.object().isPresent()) {\n            System.out.println(res.object().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New()\n\n    res, err := s.CardTokenization.Create(ctx, operations.CreateGenericCardTokenRequest{\n        FirstName: \"Edith\",\n        LastName: \"Clarke\",\n        CardNumber: \"4007589999999912\",\n        ExpirationYear: \"2027\",\n        ExpirationMonth: \"02\",\n        Cvv: dailypay.Pointer(\"123\"),\n        AddressLineOne: \"123 Kebly Street\",\n        AddressLineTwo: dailypay.Pointer(\"Unit C\"),\n        AddressCity: \"Fort Lee\",\n        AddressState: \"NJ\",\n        AddressZipCode: \"07237\",\n        AddressCountry: \"US\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.Object != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK();\n\nasync function run() {\n  const result = await sdk.cardTokenization.create({\n    firstName: \"Edith\",\n    lastName: \"Clarke\",\n    cardNumber: \"4007589999999912\",\n    expirationYear: \"2027\",\n    expirationMonth: \"02\",\n    cvv: \"123\",\n    addressLineOne: \"123 Kebly Street\",\n    addressLineTwo: \"Unit C\",\n    addressCity: \"Fort Lee\",\n    addressState: \"NJ\",\n    addressZipCode: \"07237\",\n    addressCountry: \"US\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: createGenericCardToken
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK();\n\nCreateGenericCardTokenRequest req = new CreateGenericCardTokenRequest() {\n    FirstName = \"Edith\",\n    LastName = \"Clarke\",\n    CardNumber = \"4007589999999912\",\n    ExpirationYear = \"2027\",\n    ExpirationMonth = \"02\",\n    Cvv = \"123\",\n    AddressLineOne = \"123 Kebly Street\",\n    AddressLineTwo = \"Unit C\",\n    AddressCity = \"Fort Lee\",\n    AddressState = \"NJ\",\n    AddressZipCode = \"07237\",\n    AddressCountry = \"US\",\n};\n\nvar res = await sdk.CardTokenization.CreateAsync(req);\n\n// handle response"
+      - lang: java
+        label: createGenericCardToken
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.operations.CreateGenericCardTokenRequest;\nimport com.dailypay.sdk.models.operations.CreateGenericCardTokenResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws Exception {\n\n        DailyPay sdk = DailyPay.builder()\n            .build();\n\n        CreateGenericCardTokenRequest req = CreateGenericCardTokenRequest.builder()\n                .firstName(\"Edith\")\n                .lastName(\"Clarke\")\n                .cardNumber(\"4007589999999912\")\n                .expirationYear(\"2027\")\n                .expirationMonth(\"02\")\n                .addressLineOne(\"123 Kebly Street\")\n                .addressCity(\"Fort Lee\")\n                .addressState(\"NJ\")\n                .addressZipCode(\"07237\")\n                .addressCountry(\"US\")\n                .cvv(\"123\")\n                .addressLineTwo(\"Unit C\")\n                .build();\n\n        CreateGenericCardTokenResponse res = sdk.cards().create()\n                .request(req)\n                .call();\n\n        if (res.object().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

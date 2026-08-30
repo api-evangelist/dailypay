@@ -1,0 +1,584 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest People API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: People
+  description: "The _people_ endpoint allows you to see information related to who owns \nresources such as jobs and accounts.\n\n**Functionality:** Retrieve limited details about a person, including\ntheir name, global status, and state of residence.\n"
+paths:
+  /rest/people/{person_id}:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/person_id'
+    get:
+      tags:
+      - People
+      summary: Get a person object
+      description: Returns details about a person.
+      operationId: readPerson
+      security:
+      - oauth_client_credentials_token:
+        - client:admin
+      - oauth_user_token:
+        - user:read
+      responses:
+        '200':
+          $ref: '#/components/responses/Person200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadPersonRequest req = new ReadPersonRequest() {\n    PersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n};\n\nvar res = await sdk.People.ReadAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadPersonRequest;\nimport com.dailypay.sdk.models.operations.ReadPersonResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadPersonRequest req = ReadPersonRequest.builder()\n                .personId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .build();\n\n        ReadPersonResponse res = sdk.people().read()\n                .request(req)\n                .call();\n\n        if (res.personData().isPresent()) {\n            System.out.println(res.personData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.People.Read(ctx, operations.ReadPersonRequest{\n        PersonID: \"aa860051-c411-4709-9685-c1b716df611b\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.PersonData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.people.read({\n    personId: \"aa860051-c411-4709-9685-c1b716df611b\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: readPerson
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadPersonRequest req = new ReadPersonRequest() {\n    PersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n};\n\nvar res = await sdk.People.ReadAsync(req);\n\n// handle response"
+      - lang: java
+        label: readPerson
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadPersonRequest;\nimport com.dailypay.sdk.models.operations.ReadPersonResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadPersonRequest req = ReadPersonRequest.builder()\n                .personId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .build();\n\n        ReadPersonResponse res = sdk.people().read()\n                .request(req)\n                .call();\n\n        if (res.personData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+    patch:
+      tags:
+      - People
+      summary: Update a person
+      description: Update a person object.
+      operationId: updatePerson
+      security:
+      - oauth_user_token:
+        - user:read_write
+      requestBody:
+        $ref: '#/components/requestBodies/PersonUpdate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Person200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nUpdatePersonRequest req = new UpdatePersonRequest() {\n    PersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n    PersonUpdateData = new PersonUpdateData() {\n        PersonUpdateResource = new PersonUpdateResource() {\n            Id = \"aa860051-c411-4709-9685-c1b716df611b\",\n            PersonUpdateAttributes = new PersonUpdateAttributes() {\n                StateOfResidence = \"NY\",\n            },\n        },\n    },\n};\n\nvar res = await sdk.People.UpdateAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.UpdatePersonRequest;\nimport com.dailypay.sdk.models.operations.UpdatePersonResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        UpdatePersonRequest req = UpdatePersonRequest.builder()\n                .personId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .personUpdateData(PersonUpdateData.builder()\n                    .personUpdateResource(PersonUpdateResource.builder()\n                        .id(\"aa860051-c411-4709-9685-c1b716df611b\")\n                        .personUpdateAttributes(PersonUpdateAttributes.builder()\n                            .stateOfResidence(\"NY\")\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        UpdatePersonResponse res = sdk.people().update()\n                .request(req)\n                .call();\n\n        if (res.personData().isPresent()) {\n            System.out.println(res.personData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.People.Update(ctx, operations.UpdatePersonRequest{\n        PersonID: \"aa860051-c411-4709-9685-c1b716df611b\",\n        PersonUpdateData: components.PersonUpdateData{\n            PersonUpdateResource: components.PersonUpdateResource{\n                ID: \"aa860051-c411-4709-9685-c1b716df611b\",\n                PersonUpdateAttributes: components.PersonUpdateAttributes{\n                    StateOfResidence: \"NY\",\n                },\n            },\n        },\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.PersonData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.people.update({\n    personId: \"aa860051-c411-4709-9685-c1b716df611b\",\n    personUpdateData: {\n      personUpdateResource: {\n        type: \"people\",\n        id: \"aa860051-c411-4709-9685-c1b716df611b\",\n        personUpdateAttributes: {\n          stateOfResidence: \"NY\",\n        },\n      },\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: updatePerson
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nUpdatePersonRequest req = new UpdatePersonRequest() {\n    PersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n    PersonUpdateData = new PersonUpdateData() {\n        PersonUpdateResource = new PersonUpdateResource() {\n            Id = \"aa860051-c411-4709-9685-c1b716df611b\",\n            PersonUpdateAttributes = new PersonUpdateAttributes() {\n                StateOfResidence = \"NY\",\n            },\n        },\n    },\n};\n\nvar res = await sdk.People.UpdateAsync(req);\n\n// handle response"
+      - lang: java
+        label: updatePerson
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.UpdatePersonRequest;\nimport com.dailypay.sdk.models.operations.UpdatePersonResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        UpdatePersonRequest req = UpdatePersonRequest.builder()\n                .personId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .personData(PersonDataInput.builder()\n                    .data(PersonResourceInput.builder()\n                        .id(\"aa860051-c411-4709-9685-c1b716df611b\")\n                        .attributes(PersonAttributesInput.builder()\n                            .stateOfResidence(\"NY\")\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        UpdatePersonResponse res = sdk.people().update()\n                .request(req)\n                .call();\n\n        if (res.personData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Person200:
+      description: Returns the person object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/PersonData'
+  schemas:
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    PersonAttributes:
+      type: object
+      required:
+      - disallow_reason
+      - products
+      description: A person is a record of someone known to DailyPay. There will only ever be one person record per human being.
+      properties:
+        disallow_reason:
+          type:
+          - string
+          - 'null'
+          enum:
+          - INACTIVE
+          - DELINQUENT
+          - BANNED
+          - null
+          example: null
+          description: 'The statuses and required actions are:
+
+            - `null` The person has not been disallowed, and is free to use DailyPay.
+
+            - `INACTIVE` The person has not completed registration or account verification.
+
+            - `DELINQUENT` The person has an outstanding, unrecoverable balance with DailyPay, and should contact support.
+
+            - `BANNED` Access has been revoked.
+
+            '
+        state_of_residence:
+          type: string
+          description: 'The two-letter abbreviation for the state in which the person resides, if located in the United States.  This is used for regulatory compliance purposes.
+
+            '
+          maxLength: 2
+          example: NY
+        products:
+          type: object
+          x-go-type-name: PersonProducts
+          x-speakeasy-name-override: Products
+          description: 'Products that the person is enrolled in or eligible for. This data is refreshed nightly.
+
+            '
+          required:
+          - dailypay_card
+          properties:
+            dailypay_card:
+              type: object
+              x-go-type-name: DPCardProductEntitlement
+              x-speakeasy-name-override: DailyPayCardProductEntitlement
+              description: 'The DailyPay Visa®️ Prepaid Card program. A person can be either eligible or enrolled, but not both.
+
+                '
+              required:
+              - eligible
+              - enrolled
+              properties:
+                eligible:
+                  type: boolean
+                  example: true
+                  description: 'Whether the person is eligible to enroll in the DailyPay Visa®️ Prepaid Card program.
+
+                    '
+                enrolled:
+                  type: boolean
+                  description: 'Whether the person is enrolled in the DailyPay Visa®️ Prepaid Card program.
+
+                    '
+                  example: false
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    PersonUpdateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: object
+          x-go-type-name: PersonUpdateResource
+          x-speakeasy-name-override: PersonUpdateResource
+          required:
+          - type
+          - id
+          - attributes
+          properties:
+            type:
+              type: string
+              const: people
+            id:
+              type: string
+              format: uuid
+              example: aa860051-c411-4709-9685-c1b716df611b
+            attributes:
+              type: object
+              x-go-type-name: PersonUpdateAttributes
+              x-speakeasy-name-override: PersonUpdateAttributes
+              required:
+              - state_of_residence
+              description: A person is a record of someone known to DailyPay. There will only ever be one person record per human being.
+              properties:
+                state_of_residence:
+                  type: string
+                  description: 'The two-letter abbreviation for the state in which the person resides, if located in the United States.  This is used for regulatory compliance purposes.
+
+                    '
+                  maxLength: 2
+                  example: NY
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    PersonLink:
+      type: string
+      format: uri
+      description: The URI for the user
+      example: https://api.dailypay.com/rest/people/aa860051-c411-4709-9685-c1b716df611b
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    PersonLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/PersonLink'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    PersonResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      properties:
+        type:
+          type: string
+          const: people
+        id:
+          type: string
+          format: uuid
+          example: aa860051-c411-4709-9685-c1b716df611b
+        attributes:
+          $ref: '#/components/schemas/PersonAttributes'
+        links:
+          $ref: '#/components/schemas/PersonLinks'
+    PersonData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonResource'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+  parameters:
+    person_id:
+      name: person_id
+      description: Unique ID of the person
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: aa860051-c411-4709-9685-c1b716df611b
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+  requestBodies:
+    PersonUpdate:
+      required: true
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/PersonUpdateData'
+          examples:
+            StateOfResidence:
+              summary: Update the state of residence for the person
+              value:
+                data:
+                  type: people
+                  id: aa860051-c411-4709-9685-c1b716df611b
+                  attributes:
+                    state_of_residence: NY
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

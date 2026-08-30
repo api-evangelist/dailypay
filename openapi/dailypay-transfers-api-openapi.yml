@@ -1,0 +1,1054 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Transfers API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Transfers
+  description: 'The _transfers_ endpoint allows you to initiate and track money movement.  You can access transfer details, including the transfer''s unique ID, amount, currency, status, schedule, submission and resolution times, fees, and related links to the involved parties.
+
+
+    **Functionality** Retrieve transfer information, monitor transfer statuses, view transfer schedules, and access relevant links for the source, destination, and origin of the transfer.
+
+
+    **Important** - Account origin: a user initiated movement of money from one account to another - Paycheck origin: an automatic (system-generated) movement of money as part of payroll
+
+    '
+paths:
+  /rest/transfers/{transfer_id}:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/transferIncludes'
+    get:
+      tags:
+      - Transfers
+      summary: Get a transfer object
+      description: "Returns details about a transfer of money from one account to another. \n\nCreated when a person takes an advance against a future paycheck, or on a daily basis when available balance is updated based on current employment.\n"
+      operationId: readTransfer
+      security:
+      - oauth_user_token:
+        - user:read
+      parameters:
+      - $ref: '#/components/parameters/transfer_id'
+      responses:
+        '200':
+          $ref: '#/components/responses/Transfer200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nReadTransferRequest req = new ReadTransferRequest() {\n    Include = \"estimated_funding_sources,final_funding_sources\",\n    TransferId = \"aba332a2-24a2-46de-8257-5040e71ab210\",\n};\n\nvar res = await sdk.Transfers.ReadAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadTransferRequest;\nimport com.dailypay.sdk.models.operations.ReadTransferResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        ReadTransferRequest req = ReadTransferRequest.builder()\n                .transferId(\"aba332a2-24a2-46de-8257-5040e71ab210\")\n                .include(\"estimated_funding_sources,final_funding_sources\")\n                .build();\n\n        ReadTransferResponse res = sdk.transfers().read()\n                .request(req)\n                .call();\n\n        if (res.transferData().isPresent()) {\n            System.out.println(res.transferData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Transfers.Read(ctx, operations.ReadTransferRequest{\n        Include: dailypay.Pointer(\"estimated_funding_sources,final_funding_sources\"),\n        TransferID: \"aba332a2-24a2-46de-8257-5040e71ab210\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.TransferData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.transfers.read({\n    include: \"estimated_funding_sources,final_funding_sources\",\n    transferId: \"aba332a2-24a2-46de-8257-5040e71ab210\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: readTransfer
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nReadTransferRequest req = new ReadTransferRequest() {\n    Include = \"estimated_funding_sources,final_funding_sources\",\n    TransferId = \"aba332a2-24a2-46de-8257-5040e71ab210\",\n};\n\nvar res = await sdk.Transfers.ReadAsync(req);\n\n// handle response"
+      - lang: java
+        label: readTransfer
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadTransferRequest;\nimport com.dailypay.sdk.models.operations.ReadTransferResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadTransferRequest req = ReadTransferRequest.builder()\n                .transferId(\"aba332a2-24a2-46de-8257-5040e71ab210\")\n                .build();\n\n        ReadTransferResponse res = sdk.transfers().read()\n                .request(req)\n                .call();\n\n        if (res.transferData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  /rest/transfers:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/transferIncludes'
+    get:
+      tags:
+      - Transfers
+      summary: Get a list of transfers
+      description: 'Returns a list of transfer objects.
+
+        '
+      operationId: listTransfers
+      security:
+      - oauth_user_token:
+        - user:read
+      parameters:
+      - $ref: '#/components/parameters/filter.submitted_at__gt'
+      - $ref: '#/components/parameters/filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/Transfers200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\nusing System;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nListTransfersRequest req = new ListTransfersRequest() {\n    Include = \"estimated_funding_sources,final_funding_sources\",\n    FilterSubmittedAtGt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n};\n\nvar res = await sdk.Transfers.ListAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListTransfersRequest;\nimport com.dailypay.sdk.models.operations.ListTransfersResponse;\nimport java.lang.Exception;\nimport java.time.OffsetDateTime;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        ListTransfersRequest req = ListTransfersRequest.builder()\n                .include(\"estimated_funding_sources,final_funding_sources\")\n                .filterSubmittedAtGt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .build();\n\n        ListTransfersResponse res = sdk.transfers().list()\n                .request(req)\n                .call();\n\n        if (res.transfersData().isPresent()) {\n            System.out.println(res.transfersData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/types\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Transfers.List(ctx, operations.ListTransfersRequest{\n        Include: dailypay.Pointer(\"estimated_funding_sources,final_funding_sources\"),\n        FilterSubmittedAtGt: types.MustNewTimeFromString(\"2023-03-15T04:00:00Z\"),\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.TransfersData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.transfers.list({\n    include: \"estimated_funding_sources,final_funding_sources\",\n    filterSubmittedAtGt: new Date(\"2023-03-15T04:00:00Z\"),\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: listTransfers
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\nusing System;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nListTransfersRequest req = new ListTransfersRequest() {\n    Include = \"estimated_funding_sources,final_funding_sources\",\n    FilterSubmittedAtGt = System.DateTime.Parse(\"2023-03-15T04:00:00Z\").ToUniversalTime(),\n};\n\nvar res = await sdk.Transfers.ListAsync(req);\n\n// handle response"
+      - lang: java
+        label: listTransfers
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListTransfersResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListTransfersResponse res = sdk.transfers().list()\n                .call();\n\n        if (res.transfersData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+    post:
+      tags:
+      - Transfers
+      summary: Request a transfer
+      description: 'Request transfer of funds from an `EARNINGS_BALANCE` account to a
+
+        personal `DEPOSITORY` or `CARD` account.
+
+        '
+      operationId: createTransfer
+      security:
+      - oauth_user_token:
+        - user:read_write
+      x-speakeasy-usage-example:
+        title: Request a transfer
+        description: Initiate a transfer of funds from an earnings balance account to a personal depository or card account.
+        position: 2
+      parameters:
+      - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        $ref: '#/components/requestBodies/TransferCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Transfer200'
+        '400':
+          $ref: '#/components/responses/TransferCreate400'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nCreateTransferRequest req = new CreateTransferRequest() {\n    Include = \"estimated_funding_sources,final_funding_sources\",\n    IdempotencyKey = \"e2736aa1-78c4-4cc6-b0a6-848e733f232a\",\n    TransferCreateData = new TransferCreateData() {\n        Data = new TransferCreateResource() {\n            Attributes = new TransferCreateAttributes() {\n                Preview = true,\n                Amount = 15000,\n                Currency = \"USD\",\n                Schedule = TransferCreateAttributesSchedule.WithinThirtyMinutes,\n            },\n            Relationships = new TransferCreateRelationships() {\n                Origin = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"123e4567-e89b-12d3-a456-426614174000\",\n                    },\n                },\n                Destination = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"223e4567-e89b-12d3-a456-426614174001\",\n                    },\n                },\n                Person = new PersonRelationship() {\n                    Data = new PersonIdentifier() {\n                        Id = \"aa860051-c411-4709-9685-c1b716df611b\",\n                    },\n                },\n            },\n        },\n    },\n};\n\nvar res = await sdk.Transfers.CreateAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.CreateTransferRequest;\nimport com.dailypay.sdk.models.operations.CreateTransferResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws TransferCreateError, ErrorUnauthorized, ErrorForbidden, ErrorConflict, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        CreateTransferRequest req = CreateTransferRequest.builder()\n                .idempotencyKey(\"e2736aa1-78c4-4cc6-b0a6-848e733f232a\")\n                .transferCreateData(TransferCreateData.builder()\n                    .data(TransferCreateResource.builder()\n                        .attributes(TransferCreateAttributes.builder()\n                            .amount(15000L)\n                            .currency(\"USD\")\n                            .schedule(TransferCreateAttributesSchedule.WITHIN_THIRTY_MINUTES)\n                            .preview(true)\n                            .build())\n                        .relationships(TransferCreateRelationships.builder()\n                            .origin(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"123e4567-e89b-12d3-a456-426614174000\")\n                                    .build())\n                                .build())\n                            .destination(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"223e4567-e89b-12d3-a456-426614174001\")\n                                    .build())\n                                .build())\n                            .person(PersonRelationship.builder()\n                                .data(PersonIdentifier.builder()\n                                    .id(\"aa860051-c411-4709-9685-c1b716df611b\")\n                                    .build())\n                                .build())\n                            .build())\n                        .build())\n                    .build())\n                .include(\"estimated_funding_sources,final_funding_sources\")\n                .build();\n\n        CreateTransferResponse res = sdk.transfers().create()\n                .request(req)\n                .call();\n\n        if (res.transferData().isPresent()) {\n            System.out.println(res.transferData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Transfers.Create(ctx, operations.CreateTransferRequest{\n        Include: dailypay.Pointer(\"estimated_funding_sources,final_funding_sources\"),\n        IdempotencyKey: \"e2736aa1-78c4-4cc6-b0a6-848e733f232a\",\n        TransferCreateData: components.TransferCreateData{\n            Data: components.TransferCreateResource{\n                Attributes: components.TransferCreateAttributes{\n                    Preview: dailypay.Pointer(true),\n                    Amount: 15000,\n                    Currency: \"USD\",\n                    Schedule: components.TransferCreateAttributesScheduleWithinThirtyMinutes,\n                },\n                Relationships: components.TransferCreateRelationships{\n                    Origin: components.AccountRelationship{\n                        Data: components.AccountIdentifier{\n                            ID: \"123e4567-e89b-12d3-a456-426614174000\",\n                        },\n                    },\n                    Destination: &components.AccountRelationship{\n                        Data: components.AccountIdentifier{\n                            ID: \"223e4567-e89b-12d3-a456-426614174001\",\n                        },\n                    },\n                    Person: &components.PersonRelationship{\n                        Data: components.PersonIdentifier{\n                            ID: \"aa860051-c411-4709-9685-c1b716df611b\",\n                        },\n                    },\n                },\n            },\n        },\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.TransferData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.transfers.create({\n    include: \"estimated_funding_sources,final_funding_sources\",\n    idempotencyKey: \"e2736aa1-78c4-4cc6-b0a6-848e733f232a\",\n    transferCreateData: {\n      data: {\n        type: \"transfers\",\n        attributes: {\n          preview: true,\n          amount: 15000,\n          currency: \"USD\",\n          schedule: \"WITHIN_THIRTY_MINUTES\",\n        },\n        relationships: {\n          origin: {\n            data: {\n              type: \"accounts\",\n              id: \"123e4567-e89b-12d3-a456-426614174000\",\n            },\n          },\n          destination: {\n            data: {\n              type: \"accounts\",\n              id: \"223e4567-e89b-12d3-a456-426614174001\",\n            },\n          },\n          person: {\n            data: {\n              type: \"people\",\n              id: \"aa860051-c411-4709-9685-c1b716df611b\",\n            },\n          },\n        },\n      },\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: createTransfer
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nCreateTransferRequest req = new CreateTransferRequest() {\n    Include = \"estimated_funding_sources,final_funding_sources\",\n    IdempotencyKey = \"e2736aa1-78c4-4cc6-b0a6-848e733f232a\",\n    TransferCreateData = new TransferCreateData() {\n        Data = new TransferCreateResource() {\n            Attributes = new TransferCreateAttributes() {\n                Preview = true,\n                Amount = 15000,\n                Currency = \"USD\",\n                Schedule = TransferCreateAttributesSchedule.WithinThirtyMinutes,\n            },\n            Relationships = new TransferCreateRelationships() {\n                Origin = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"123e4567-e89b-12d3-a456-426614174000\",\n                    },\n                },\n                Destination = new AccountRelationship() {\n                    Data = new AccountIdentifier() {\n                        Id = \"223e4567-e89b-12d3-a456-426614174001\",\n                    },\n                },\n                Person = new PersonRelationship() {\n                    Data = new PersonIdentifier() {\n                        Id = \"aa860051-c411-4709-9685-c1b716df611b\",\n                    },\n                },\n            },\n        },\n    },\n};\n\nvar res = await sdk.Transfers.CreateAsync(req);\n\n// handle response"
+      - lang: java
+        label: createTransfer
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.CreateTransferRequest;\nimport com.dailypay.sdk.models.operations.CreateTransferResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws TransferCreateError, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        CreateTransferRequest req = CreateTransferRequest.builder()\n                .idempotencyKey(\"ea9f2225-403b-4e2c-93b0-0eda090ffa65\")\n                .transferCreateData(TransferCreateData.builder()\n                    .data(TransferCreateResource.builder()\n                        .attributes(TransferAttributesInput.builder()\n                            .amount(2500L)\n                            .currency(\"USD\")\n                            .schedule(TransferAttributesSchedule.WITHIN_THIRTY_MINUTES)\n                            .preview(true)\n                            .build())\n                        .relationships(TransferCreateRelationships.builder()\n                            .origin(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                                    .build())\n                                .build())\n                            .destination(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                                    .build())\n                                .build())\n                            .person(PersonRelationship.builder()\n                                .data(PersonIdentifier.builder()\n                                    .id(\"3fa8f641-5717-4562-b3fc-2c963f66afa6\")\n                                    .build())\n                                .build())\n                            .build())\n                        .id(\"aba332a2-24a2-46de-8257-5040e71ab210\")\n                        .build())\n                    .build())\n                .build();\n\n        CreateTransferResponse res = sdk.transfers().create()\n                .request(req)\n                .call();\n\n        if (res.transferData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    TransferCreate400:
+      description: The request contained an error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/TransferCreateError'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    Transfer200:
+      description: Returns the newly created transfer object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/TransferData'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Transfers200:
+      description: A list of transfer objects.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/TransfersData'
+    Conflict:
+      description: A conflict occurred with the current state of the resource
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorConflict'
+  schemas:
+    TransferLinks:
+      type: object
+      readOnly: true
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/TransferLink'
+    PaycheckRelationship:
+      type: object
+      readOnly: true
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PaycheckIdentifier'
+    TransferRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TransferIdentifier'
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    Amount:
+      type: integer
+      minimum: 0
+      example: 2500
+      description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.'
+    FundingSourceRelationships:
+      type: object
+      readOnly: true
+      required:
+      - source
+      - transfer
+      properties:
+        source:
+          $ref: '#/components/schemas/PaycheckRelationship'
+        transfer:
+          $ref: '#/components/schemas/TransferRelationship'
+    FundingSourceIdentifier:
+      type: object
+      readOnly: true
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: funding_sources
+        id:
+          type: string
+          readOnly: true
+          example: b5393c00b7c113fc2e5ae3e80c785bb2
+    AccountRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountIdentifier'
+    TransferLink:
+      type: string
+      format: uri
+      readOnly: true
+      example: https://api.dailypay.com/rest/transfers/aba332a2-24a2-46de-8257-5040e71ab210
+    TransferAttributes:
+      allOf:
+      - $ref: '#/components/schemas/TransferCreateAttributes'
+      - type: object
+        required:
+        - fee
+        - resolved_at
+        - status
+        - submitted_at
+        - preview
+        description: "An object representing a transfer of money from one account to another. \nCreated when a person takes an advance against a future paycheck, or on a daily basis \nwhen we update estimated earnings based on current employment.\n"
+        properties:
+          status:
+            type: string
+            enum:
+            - PENDING
+            - SETTLED
+            - FAILED
+            description: The status of the transfer.
+            x-enumDescriptions:
+              PENDING: The transfer is in process, or funds have been scheduled but a final status is not yet known.
+              SETTLED: Funds have been successfully transferred.
+              FAILED: The transfer has failed.
+          submitted_at:
+            description: An ISO 8601 timestamp denoting the receipt for the request.
+            type: string
+            example: '2021-04-21T21:30:58.051Z'
+            format: date-time
+          resolved_at:
+            type:
+            - string
+            - 'null'
+            description: An ISO 8601 date denoting a successful or unsuccessful resolution for the request.
+            example: '2021-04-21T21:30:58.051Z'
+            format: date-time
+          fee:
+            description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
+
+              If a transfer incurs a fee, the fee will be deducted from the amount of the transfer.'
+            type: integer
+            minimum: 0
+            example: 0
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    ErrorConflict:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorConflictError'
+    FundingSourceAttributes:
+      type: object
+      readOnly: true
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          description: 'The amount of money from the related paycheck allocated towards funding the related transfer.
+
+
+            A monetary quantity expressed in units of the lowest denomination in the
+
+            associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        currency:
+          $ref: '#/components/schemas/Currency'
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    TransfersData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransferResource'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/FundingSourceResource'
+    PaycheckIdentifier:
+      type: object
+      readOnly: true
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: paychecks
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    TransferCreateAttributes:
+      type: object
+      required:
+      - amount
+      - schedule
+      - currency
+      description: "An object representing a transfer of money from one account to another. \nCreated when a person takes an advance against a future paycheck, or on a daily basis \nwhen we update estimated earnings based on current employment.\n"
+      properties:
+        preview:
+          type: boolean
+          default: false
+          example: true
+          description: 'Include this field to preview a transfer without sending it, to see, for example, the fee that would be charged. This will return the same response as a typical transfer request.
+
+            When the preview field is true in the response to creating a transfer, that indicates no transfer was created.
+
+            '
+        amount:
+          description: 'The amount of funds requested to move from the origin account to the destination account. Any fees will be subtracted from this amount prior to landing in the destination account.
+
+
+            A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        schedule:
+          type: string
+          enum:
+          - WITHIN_THIRTY_MINUTES
+          - NEXT_BUSINESS_DAY
+          example: WITHIN_THIRTY_MINUTES
+          description: "Set the schedule for the transfer. If not set, the transfer will be processed immediately. \nA preview transfer will never send.\n"
+    TransferCreateRelationships:
+      type: object
+      required:
+      - origin
+      properties:
+        origin:
+          description: 'User-created transfers must originate from an Account with `account_type` `EARNINGS_BALANCE`.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        destination:
+          description: "The account to which funds are transferred. \n\nUser-created transfers should have a destination Account with `account_type` `DEPOSITORY` or `CARD`.\n"
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+    ErrorConflictError:
+      allOf:
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: IDEMPOTENCY_KEY_LOCKED
+            type: string
+            x-go-type: string
+            x-enumDescriptions:
+              IDEMPOTENCY_KEY_LOCKED: The provided idempotency key is currently being used by another request.  This can happen if there are multiple simultaneous requests with the same idempotency key. It is safe to retry the request.
+      - $ref: '#/components/schemas/Error'
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
+    TransferCreateResource:
+      type: object
+      required:
+      - type
+      - attributes
+      - relationships
+      properties:
+        type:
+          type: string
+          const: transfers
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the transfer. Any UUID version is valid, lower-cased.
+          example: aba332a2-24a2-46de-8257-5040e71ab210
+        attributes:
+          $ref: '#/components/schemas/TransferCreateAttributes'
+        relationships:
+          $ref: '#/components/schemas/TransferCreateRelationships'
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    TransferCreateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TransferCreateResource'
+    TransferData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TransferResource'
+        included:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/FundingSourceResource'
+    TransferCreateError:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorTransferCreateError'
+    TransferResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - relationships
+      properties:
+        type:
+          type: string
+          const: transfers
+        id:
+          type: string
+          format: uuid
+          example: aba332a2-24a2-46de-8257-5040e71ab210
+        attributes:
+          $ref: '#/components/schemas/TransferAttributes'
+        links:
+          $ref: '#/components/schemas/TransferLinks'
+        relationships:
+          $ref: '#/components/schemas/TransferRelationships'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
+    FundingSourceResource:
+      type: object
+      readOnly: true
+      required:
+      - id
+      - type
+      - attributes
+      - relationships
+      description: A source describes how transfers with an origin of EARNINGS_BALANCE account are funded.
+      properties:
+        id:
+          type: string
+          example: b5393c00b7c113fc2e5ae3e80c785bb2
+        type:
+          type: string
+          const: funding_sources
+        attributes:
+          $ref: '#/components/schemas/FundingSourceAttributes'
+        relationships:
+          $ref: '#/components/schemas/FundingSourceRelationships'
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    TransferIdentifier:
+      type: object
+      readOnly: true
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: transfers
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: aba332a2-24a2-46de-8257-5040e71ab210
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    FundingSourcesRelationship:
+      type: object
+      readOnly: true
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FundingSourceIdentifier'
+          minItems: 0
+    ErrorTransferCreateError:
+      allOf:
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+            example: INVALID_ORIGIN
+            type: string
+            x-go-type: string
+            x-enumDescriptions:
+              DISCLOSURE_REQUIRED: A signed Wage Disclosure is required before requesting the transfer.
+              DUPLICATE_TRANSFER: Another recent advance with the same amount and destination was detected.
+              EARNINGS_BALANCE_EXCEEDED: The requested transfer amount was greater than the origin account's available balance.
+              INELIGIBLE_ORIGIN: The origin specified is not eligible for transfers at this time.
+              INVALID_DESTINATION: The provided destination relationship must reference an existing transfer account.
+              INVALID_DIRECT_DEPOSIT_STATUS: Transfers from this origin account are unavailable unless `direct_deposit_status` is `SETUP_COMPLETE` on one or more associated jobs.
+              INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request. Request payloads must be identical when reusing an idempotency key.
+              INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+              INVALID_RESOURCE_STATE: Unable to process the transfer due to another resource in an invalid state. See the embedding guide for more information.
+              INVALID_TRANSFER_SCHEDULE: The provided schedule is invalid for the selected destination account.
+              INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+              MAXIMUM_AMOUNT_EXCEEDED: The requested transfer amount was greater than the maximum allowed for a single transfer.
+              MAXIMUM_FEE_EXCEEDED: Requesting this transfer would incur more fees than is permitted.
+              MINIMUM_AMOUNT_SUBCEEDED: The requested transfer amount was less than the minimum amount set for this provider. Generally $5.
+              MISSING_DEFAULT_DEPOSITORY_ACCOUNT: A default bank account must be set for all jobs related to the owner of the selected origin account.
+              MISSING_STATE_OF_RESIDENCE: The `state_of_residence` attribute on the related person is required before requesting the transfer.
+              OVERPAYMENT_RESOLVING: An overpayment from a previous transfer is being resolved and transfers are currently disabled.
+              OVERPAYMENT_RESOLUTION_REQUIRED: The origin specified may have been previously subject to an overpayment and a resolution has not been selected.
+              TRANSFER_AMOUNT_LIMIT_EXCEEDED: The amount requested within the last 24 hours exceeded the daily limit for associated person.
+              TRANSFER_LIMIT_EXCEEDED: The number of transfers requested within the last 24 hours exceeded the daily transfer limit for associated person.
+              TRANSFERS_DISABLED: Transfers are disabled from the selected origin account.
+      - $ref: '#/components/schemas/Error'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    TransferRelationships:
+      type: object
+      required:
+      - origin
+      - destination
+      - person
+      - estimated_funding_sources
+      - final_funding_sources
+      properties:
+        origin:
+          description: "Origin may be a reference to either a Paycheck or an Account.\n\nUser-created transfers always originate from an Account with `account_type` `EARNINGS_BALANCE`.\n\nA transfer that originates from a Paycheck is a  \nsystem-created record that describes a credit of earnings to an account with `account_type` `EARNINGS_BALANCE`.\n"
+          oneOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+          - $ref: '#/components/schemas/PaycheckRelationship'
+        destination:
+          description: "The account to which funds are transferred. \n\nUser-created transfers should have a destination Account with `account_type` `DEPOSITORY` or `CARD`.\n"
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+        estimated_funding_sources:
+          description: "On user-created transfers, details the paychecks that are likely to be used to reimburse this transfer. \n\nThe paychecks impacted, and final amount allocated from each paycheck is subject to change. \nSee `final_funding_sources` for the final allocations.\n"
+          allOf:
+          - $ref: '#/components/schemas/FundingSourcesRelationship'
+        final_funding_sources:
+          description: 'On user-created transfers, details the paychecks that were used to reimburse this transfer and the amount allocated from each paycheck.
+
+
+            If this relationship has members, its members and their values are immutable.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/FundingSourcesRelationship'
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+    AccountIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: accounts
+        id:
+          type: string
+          format: uuid
+          examples:
+          - 2bc7d781-3247-46f6-b60f-4090d214936a
+          - 410ae962-51e1-4f44-b0a0-a0fd230a4dc5
+  parameters:
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    filter.submitted_at__gt:
+      name: filter[submitted_at__gt]
+      in: query
+      description: Limit the results to documents submitted after this date.
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    transferIncludes:
+      name: include
+      in: query
+      description: "Add related resources to the response. \n\nThe value of the include parameter must be a comma-separated (U+002C COMMA, “,”) list of relationship paths.\n"
+      required: false
+      schema:
+        type: string
+        example: estimated_funding_sources,final_funding_sources
+    transfer_id:
+      name: transfer_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: aba332a2-24a2-46de-8257-5040e71ab210
+      description: Unique ID of the transfer
+    idempotency_key:
+      name: Idempotency-Key
+      in: header
+      schema:
+        type: string
+        format: uuid
+        example: e2736aa1-78c4-4cc6-b0a6-848e733f232a
+      required: true
+      description: 'An idempotency key is a unique string that you provide to ensure a request is only processed once.
+
+        Any number of requests with the same idempotency key and payload will return an identical response.
+
+        '
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+  requestBodies:
+    TransferCreate:
+      required: true
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/TransferCreateData'
+          examples:
+            Instant:
+              summary: Request a transfer for immediate delivery
+              value:
+                data:
+                  type: transfers
+                  attributes:
+                    amount: 15000
+                    currency: USD
+                    schedule: WITHIN_THIRTY_MINUTES
+                  relationships:
+                    origin:
+                      data:
+                        type: accounts
+                        id: 123e4567-e89b-12d3-a456-426614174000
+                    destination:
+                      data:
+                        type: accounts
+                        id: 223e4567-e89b-12d3-a456-426614174001
+                    person:
+                      data:
+                        type: people
+                        id: aa860051-c411-4709-9685-c1b716df611b
+            NextDay:
+              summary: Request a transfer for delivery within the next business day
+              value:
+                data:
+                  type: transfers
+                  attributes:
+                    amount: 15000
+                    currency: USD
+                    schedule: NEXT_BUSINESS_DAY
+                  relationships:
+                    origin:
+                      data:
+                        type: accounts
+                        id: 123e4567-e89b-12d3-a456-426614174000
+                    destination:
+                      data:
+                        type: accounts
+                        id: 223e4567-e89b-12d3-a456-426614174001
+                    person:
+                      data:
+                        type: people
+                        id: aa860051-c411-4709-9685-c1b716df611b
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

@@ -1,0 +1,513 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Organizations API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Organizations
+  description: "The _organizations_ endpoint provides details about a business entity, \nsuch as an employer, or a group of people, such as a division.\n\nThe response includes the organization name and ID which can be used to\nmake subsequent endpoint calls related to the organization and its\nemployees.\n"
+paths:
+  /rest/organizations/{organization_id}:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/organization_id'
+    get:
+      summary: Get an organization
+      description: Lookup organization by ID for a detailed view of single organization.
+      operationId: readOrganization
+      security:
+      - oauth_client_credentials_token:
+        - client:admin
+      tags:
+      - Organizations
+      responses:
+        '200':
+          $ref: '#/components/responses/Organization200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadOrganizationRequest req = new ReadOrganizationRequest() {\n    OrganizationId = \"123e4567-e89b-12d3-a456-426614174000\",\n};\n\nvar res = await sdk.Organizations.ReadAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadOrganizationRequest;\nimport com.dailypay.sdk.models.operations.ReadOrganizationResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadOrganizationRequest req = ReadOrganizationRequest.builder()\n                .organizationId(\"123e4567-e89b-12d3-a456-426614174000\")\n                .build();\n\n        ReadOrganizationResponse res = sdk.organizations().read()\n                .request(req)\n                .call();\n\n        if (res.organizationData().isPresent()) {\n            System.out.println(res.organizationData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Organizations.Read(ctx, operations.ReadOrganizationRequest{\n        OrganizationID: \"123e4567-e89b-12d3-a456-426614174000\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.OrganizationData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.organizations.read({\n    organizationId: \"123e4567-e89b-12d3-a456-426614174000\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: readOrganization
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadOrganizationRequest req = new ReadOrganizationRequest() {\n    OrganizationId = \"123e4567-e89b-12d3-a456-426614174000\",\n};\n\nvar res = await sdk.Organizations.ReadAsync(req);\n\n// handle response"
+      - lang: java
+        label: readOrganization
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadOrganizationRequest;\nimport com.dailypay.sdk.models.operations.ReadOrganizationResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadOrganizationRequest req = ReadOrganizationRequest.builder()\n                .organizationId(\"123e4567-e89b-12d3-a456-426614174000\")\n                .build();\n\n        ReadOrganizationResponse res = sdk.organizations().read()\n                .request(req)\n                .call();\n\n        if (res.organizationData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+  /rest/organizations:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/filter'
+    get:
+      summary: List organizations
+      description: Get organizations with an optional filter
+      operationId: listOrganizations
+      security:
+      - oauth_client_credentials_token:
+        - client:admin
+      tags:
+      - Organizations
+      responses:
+        '200':
+          $ref: '#/components/responses/Organizations200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nListOrganizationsRequest req = new ListOrganizationsRequest() {};\n\nvar res = await sdk.Organizations.ListAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListOrganizationsRequest;\nimport com.dailypay.sdk.models.operations.ListOrganizationsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListOrganizationsRequest req = ListOrganizationsRequest.builder()\n                .build();\n\n        ListOrganizationsResponse res = sdk.organizations().list()\n                .request(req)\n                .call();\n\n        if (res.organizationsData().isPresent()) {\n            System.out.println(res.organizationsData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Organizations.List(ctx, operations.ListOrganizationsRequest{})\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.OrganizationsData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.organizations.list({});\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: listOrganizations
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nListOrganizationsRequest req = new ListOrganizationsRequest() {};\n\nvar res = await sdk.Organizations.ListAsync(req);\n\n// handle response"
+      - lang: java
+        label: listOrganizations
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListOrganizationsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListOrganizationsResponse res = sdk.organizations().list()\n                .call();\n\n        if (res.organizationsData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Organization200:
+      description: Returns details about an organization.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/OrganizationData'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Organizations200:
+      description: Returns a list of organization objects that match the filter. If no organizations match the filter, the resulting collection will be empty. If no filter is provider, the resulting collection will include all accessible organizations.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/OrganizationsData'
+  schemas:
+    OrganizationsData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationResource'
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    OrganizationResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: organizations
+        id:
+          $ref: '#/components/schemas/OrganizationID'
+        attributes:
+          $ref: '#/components/schemas/OrganizationAttributes'
+        links:
+          $ref: '#/components/schemas/OrganizationLinks'
+    OrganizationAttributes:
+      type: object
+      properties:
+        name:
+          description: Organization's name
+          example: DailyPay
+          readOnly: true
+          type: string
+        products:
+          readOnly: true
+          description: List of the names of products available for this organization.
+          example:
+          - ODP
+          - DAILYPAY_CARD
+          type: array
+          items:
+            type: string
+            x-enumDescriptions:
+              ODP: On-Demand Pay (ODP) is a DailyPay product that allows employees to access their earned wages before payday. An organization with this product enabled will have on-demand pay available to its members; an account with type `EARNINGS_BALANCE` will automatically be created for each job associated with this organization.
+              DAILYPAY_CARD: An organization with this product enabled will have the DailyPay Visa®️ Prepaid Card program available to its members.
+              FRIDAY: _deprecated_. An organization with this product enabled will have the DailyPay Visa®️ Prepaid Card program available to its members.
+    OrganizationID:
+      description: String identifier that is unique to this organization. You can safely assume the identifier to never exceed 64 characters.
+      example: f0b30634-108c-439c-a8c1-c6a91197f022
+      readOnly: true
+      type: string
+      format: uuid
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    OrganizationLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/OrganizationLink'
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    OrganizationData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/OrganizationResource'
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    OrganizationLink:
+      type: string
+      format: uri
+      readOnly: true
+      example: https://api.dailypay.com/rest/organizations/f0b30634-108c-439c-a8c1-c6a91197f022
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+  parameters:
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    organization_id:
+      name: organization_id
+      in: path
+      required: true
+      description: Unique ID of the organization
+      schema:
+        description: String identifier that is unique across this resource. You can safely assume the identifier to never exceed 64 characters.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        readOnly: true
+        type: string
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

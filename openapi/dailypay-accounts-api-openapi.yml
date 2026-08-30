@@ -1,0 +1,1224 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Accounts API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Accounts
+  description: 'The _accounts_ endpoint provides comprehensive information about money
+
+    accounts. You can retrieve account details, including the
+
+    account''s unique ID, a link to the account holder, type, subtype,
+
+    verification status, balance details, transfer capabilities, and
+
+    user-specific information such as names, routing numbers, and partial
+
+    account numbers.
+
+
+
+    **Functionality:** Access detailed user account information, verify
+
+    account balances, view transfer capabilities, and access user-specific
+
+    details associated with each account.
+
+    '
+paths:
+  /rest/accounts/{account_id}:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    - $ref: '#/components/parameters/account_id'
+    get:
+      tags:
+      - Accounts
+      summary: Get an Account object
+      description: Returns details about an account. This object represents a person's bank accounts, debit and pay cards, and earnings balance accounts.
+      operationId: readAccount
+      security:
+      - oauth_client_credentials_token:
+        - client:lookup
+        - client:admin
+      - oauth_user_token:
+        - user:read
+      responses:
+        '200':
+          $ref: '#/components/responses/Account200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadAccountRequest req = new ReadAccountRequest() {\n    AccountId = \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n};\n\nvar res = await sdk.Accounts.ReadAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadAccountRequest;\nimport com.dailypay.sdk.models.operations.ReadAccountResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadAccountRequest req = ReadAccountRequest.builder()\n                .accountId(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                .build();\n\n        ReadAccountResponse res = sdk.accounts().read()\n                .request(req)\n                .call();\n\n        if (res.accountData().isPresent()) {\n            System.out.println(res.accountData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Accounts.Read(ctx, operations.ReadAccountRequest{\n        AccountID: \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.AccountData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.accounts.read({\n    accountId: \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: readAccount
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nReadAccountRequest req = new ReadAccountRequest() {\n    AccountId = \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n};\n\nvar res = await sdk.Accounts.ReadAsync(req);\n\n// handle response"
+      - lang: java
+        label: readAccount
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ReadAccountRequest;\nimport com.dailypay.sdk.models.operations.ReadAccountResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ReadAccountRequest req = ReadAccountRequest.builder()\n                .accountId(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                .build();\n\n        ReadAccountResponse res = sdk.accounts().read()\n                .request(req)\n                .call();\n\n        if (res.accountData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+    delete:
+      tags:
+      - Accounts
+      summary: Delete an Account
+      description: Removes a previously added DEPOSITORY or CARD account. EARNINGS_BALANCE accounts cannot be deleted.
+      operationId: deleteAccount
+      security:
+      - oauth_user_token:
+        - user:read_write
+      responses:
+        '204':
+          description: Account successfully deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nDeleteAccountRequest req = new DeleteAccountRequest() {\n    AccountId = \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n};\n\nvar res = await sdk.Accounts.DeleteAccountAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.DeleteAccountRequest;\nimport com.dailypay.sdk.models.operations.DeleteAccountResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        DeleteAccountRequest req = DeleteAccountRequest.builder()\n                .accountId(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                .build();\n\n        DeleteAccountResponse res = sdk.accounts().deleteAccount()\n                .request(req)\n                .call();\n\n        // handle response\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Accounts.DeleteAccount(ctx, operations.DeleteAccountRequest{\n        AccountID: \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.accounts.deleteAccount({\n    accountId: \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: deleteAccount
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nDeleteAccountRequest req = new DeleteAccountRequest() {\n    AccountId = \"2bc7d781-3247-46f6-b60f-4090d214936a\",\n};\n\nvar res = await sdk.Accounts.DeleteAccountAsync(req);\n\n// handle response"
+  /rest/accounts:
+    parameters:
+    - $ref: '#/components/parameters/apiversion'
+    get:
+      tags:
+      - Accounts
+      summary: Get a list of Account objects
+      description: 'Returns a list of account objects. An account object represents a person''s bank accounts, debit and pay cards, and earnings balance accounts.
+
+        '
+      security:
+      - oauth_client_credentials_token:
+        - client:lookup
+        - client:admin
+      - oauth_user_token:
+        - user:read
+      x-speakeasy-usage-example:
+        title: Look up accounts
+        description: Fetch a list of accounts, including earnings balance accounts.
+        position: 1
+      operationId: listAccounts
+      parameters:
+      - $ref: '#/components/parameters/filter.person.id'
+      - $ref: '#/components/parameters/filter.account_type'
+      - $ref: '#/components/parameters/filter.account_subtype'
+      - $ref: '#/components/parameters/filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/Accounts200'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nListAccountsRequest req = new ListAccountsRequest() {\n    FilterPersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n    FilterAccountType = FilterAccountType.EarningsBalance,\n    FilterSubtype = \"ODP\",\n};\n\nvar res = await sdk.Accounts.ListAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListAccountsRequest;\nimport com.dailypay.sdk.models.operations.ListAccountsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListAccountsRequest req = ListAccountsRequest.builder()\n                .filterPersonId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .filterAccountType(FilterAccountType.EARNINGS_BALANCE)\n                .filterSubtype(\"ODP\")\n                .build();\n\n        ListAccountsResponse res = sdk.accounts().list()\n                .request(req)\n                .call();\n\n        if (res.accountsData().isPresent()) {\n            System.out.println(res.accountsData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/operations\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Accounts.List(ctx, operations.ListAccountsRequest{\n        FilterPersonID: dailypay.Pointer(\"aa860051-c411-4709-9685-c1b716df611b\"),\n        FilterAccountType: components.FilterAccountTypeEarningsBalance.ToPointer(),\n        FilterSubtype: dailypay.Pointer(\"ODP\"),\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.AccountsData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.accounts.list({\n    filterPersonId: \"aa860051-c411-4709-9685-c1b716df611b\",\n    filterAccountType: \"EARNINGS_BALANCE\",\n    filterSubtype: \"ODP\",\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: listAccounts
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n            ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n            ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n            TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n        },\n    }\n);\n\nListAccountsRequest req = new ListAccountsRequest() {\n    FilterPersonId = \"aa860051-c411-4709-9685-c1b716df611b\",\n    FilterAccountType = FilterAccountType.EarningsBalance,\n    FilterSubtype = \"ODP\",\n};\n\nvar res = await sdk.Accounts.ListAsync(req);\n\n// handle response"
+      - lang: java
+        label: listAccounts
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListAccountsRequest;\nimport com.dailypay.sdk.models.operations.ListAccountsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListAccountsRequest req = ListAccountsRequest.builder()\n                .filterAccountType(FilterAccountType.EARNINGS_BALANCE)\n                .build();\n\n        ListAccountsResponse res = sdk.accounts().list()\n                .request(req)\n                .call();\n\n        if (res.accountsData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+    post:
+      tags:
+      - Accounts
+      summary: Create an Account object
+      description: Create an account object to store a person's bank or card information as a destination for funds.
+      operationId: createAccount
+      security:
+      - oauth_user_token:
+        - user:read_write
+      requestBody:
+        $ref: '#/components/requestBodies/AccountCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Account200'
+        '400':
+          $ref: '#/components/responses/AccountCreate400'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\nusing DailyPay.SDK.DotNet8.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nCreateAccountRequest req = new CreateAccountRequest() {\n    AccountCreateData = new AccountCreateData() {\n        Data = new AccountCreateResource() {\n            Attributes = AccountCreateAttributes.CreateAccountCreateAttributesDepository(\n                new AccountCreateAttributesDepository() {\n                    Name = \"Acme Bank Checking Account\",\n                    Subtype = AccountCreateAttributesDepositorySubtype.Checking,\n                    DepositoryAccountDetails = new AccountCreateAttributesDepositoryDepositoryAccountDetails() {\n                        FirstName = \"Edith\",\n                        LastName = \"Clarke\",\n                        RoutingNumber = \"XXXXX2021\",\n                        AccountNumber = \"XXXXXX4321\",\n                    },\n                }\n            ),\n            Relationships = new AccountRelationships() {\n                Person = new PersonRelationship() {\n                    Data = new PersonIdentifier() {\n                        Id = \"3fa8f641-5717-4562-b3fc-2c963f66afa6\",\n                    },\n                },\n            },\n        },\n    },\n};\n\nvar res = await sdk.Accounts.CreateAsync(req);\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.CreateAccountResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws AccountCreateError, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthUserToken(System.getenv().getOrDefault(\"OAUTH_USER_TOKEN\", \"\"))\n                    .build())\n            .build();\n\n        AccountCreateData req = AccountCreateData.builder()\n                .data(AccountCreateResource.builder()\n                    .attributes(AccountCreateAttributes.of(AccountCreateAttributesDepository.builder()\n                        .name(\"Acme Bank Checking Account\")\n                        .subtype(AccountCreateAttributesDepositorySubtype.CHECKING)\n                        .depositoryAccountDetails(AccountCreateAttributesDepositoryDepositoryAccountDetails.builder()\n                            .firstName(\"Edith\")\n                            .lastName(\"Clarke\")\n                            .routingNumber(\"XXXXX2021\")\n                            .accountNumber(\"XXXXXX4321\")\n                            .build())\n                        .build()))\n                    .relationships(AccountRelationships.builder()\n                        .person(PersonRelationship.builder()\n                            .data(PersonIdentifier.builder()\n                                .id(\"3fa8f641-5717-4562-b3fc-2c963f66afa6\")\n                                .build())\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        CreateAccountResponse res = sdk.accounts().create()\n                .request(req)\n                .call();\n\n        if (res.accountData().isPresent()) {\n            System.out.println(res.accountData().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithVersion(3),\n        dailypay.WithSecurity(components.Security{\n            OauthUserToken: dailypay.Pointer(\"<YOUR_OAUTH_USER_TOKEN_HERE>\"),\n        }),\n    )\n\n    res, err := s.Accounts.Create(ctx, components.AccountCreateData{\n        Data: components.AccountCreateResource{\n            Attributes: components.CreateAccountCreateAttributesAccountCreateAttributesDepository(\n                components.AccountCreateAttributesDepository{\n                    Name: \"Acme Bank Checking Account\",\n                    Subtype: components.AccountCreateAttributesDepositorySubtypeChecking,\n                    DepositoryAccountDetails: components.AccountCreateAttributesDepositoryDepositoryAccountDetails{\n                        FirstName: \"Edith\",\n                        LastName: \"Clarke\",\n                        RoutingNumber: \"XXXXX2021\",\n                        AccountNumber: \"XXXXXX4321\",\n                    },\n                },\n            ),\n            Relationships: components.AccountRelationships{\n                Person: components.PersonRelationship{\n                    Data: components.PersonIdentifier{\n                        ID: \"3fa8f641-5717-4562-b3fc-2c963f66afa6\",\n                    },\n                },\n            },\n        },\n    })\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.AccountData != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  version: 3,\n  security: {\n    oauthUserToken: \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n  },\n});\n\nasync function run() {\n  const result = await sdk.accounts.create({\n    data: {\n      type: \"accounts\",\n      attributes: {\n        name: \"Acme Bank Checking Account\",\n        accountType: \"DEPOSITORY\",\n        subtype: \"CHECKING\",\n        depositoryAccountDetails: {\n          firstName: \"Edith\",\n          lastName: \"Clarke\",\n          routingNumber: \"XXXXX2021\",\n          accountNumber: \"XXXXXX4321\",\n        },\n      },\n      relationships: {\n        person: {\n          data: {\n            type: \"people\",\n            id: \"3fa8f641-5717-4562-b3fc-2c963f66afa6\",\n          },\n        },\n      },\n    },\n  });\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: createAccount
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\nusing DailyPay.SDK.DotNet9.Models.Requests;\n\nvar sdk = new SDK(\n    version: 3,\n    security: new Security() {\n        OauthUserToken = \"<YOUR_OAUTH_USER_TOKEN_HERE>\",\n    }\n);\n\nCreateAccountRequest req = new CreateAccountRequest() {\n    AccountCreateData = new AccountCreateData() {\n        Data = new AccountCreateResource() {\n            Attributes = AccountCreateAttributes.CreateAccountCreateAttributesDepository(\n                new AccountCreateAttributesDepository() {\n                    Name = \"Acme Bank Checking Account\",\n                    Subtype = AccountCreateAttributesDepositorySubtype.Checking,\n                    DepositoryAccountDetails = new AccountCreateAttributesDepositoryDepositoryAccountDetails() {\n                        FirstName = \"Edith\",\n                        LastName = \"Clarke\",\n                        RoutingNumber = \"XXXXX2021\",\n                        AccountNumber = \"XXXXXX4321\",\n                    },\n                }\n            ),\n            Relationships = new AccountRelationships() {\n                Person = new PersonRelationship() {\n                    Data = new PersonIdentifier() {\n                        Id = \"3fa8f641-5717-4562-b3fc-2c963f66afa6\",\n                    },\n                },\n            },\n        },\n    },\n};\n\nvar res = await sdk.Accounts.CreateAsync(req);\n\n// handle response"
+      - lang: java
+        label: createAccount
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.CreateAccountResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws AccountCreateError, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        AccountDataInput req = AccountDataInput.builder()\n                .data(AccountResourceInput.builder()\n                    .attributes(AccountAttributesInput.of(DepositoryInput.builder()\n                        .name(\"Acme Bank Checking Account\")\n                        .subtype(AccountAttributesDepositorySubtype.CHECKING)\n                        .depositoryAccountDetails(DepositoryAccountDetails.builder()\n                            .firstName(\"Edith\")\n                            .lastName(\"Clarke\")\n                            .routingNumber(\"XXXXX2021\")\n                            .accountNumber(\"XXXXXX4321\")\n                            .build())\n                        .build()))\n                    .relationships(AccountRelationships.builder()\n                        .person(PersonRelationship.builder()\n                            .data(PersonIdentifier.builder()\n                                .id(\"3fa8f641-5717-4562-b3fc-2c963f66afa6\")\n                                .build())\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        CreateAccountResponse res = sdk.accounts().create()\n                .request(req)\n                .call();\n\n        if (res.accountData().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  requestBodies:
+    AccountCreate:
+      required: true
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/AccountCreateData'
+          examples:
+            Depository:
+              summary: Add a checking account
+              value:
+                data:
+                  type: accounts
+                  attributes:
+                    name: Acme Bank Checking Account
+                    account_type: DEPOSITORY
+                    subtype: CHECKING
+                    details:
+                      first_name: Edith
+                      last_name: Clarke
+                      routing_number: XXXXX2021
+                      account_number: XXXXXX4321
+                  relationships:
+                    person:
+                      data:
+                        type: people
+                        id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+            Card:
+              summary: Add a debit card account
+              value:
+                data:
+                  type: accounts
+                  attributes:
+                    name: Acme Bank Debit Card
+                    account_type: CARD
+                    subtype: DEBIT
+                    details:
+                      token: abc.efg.123
+                      first_name: Edith
+                      last_name: Clarke
+                      expiration_month: '02'
+                      expiration_year: '2027'
+                      address_line_one: 123 Kebly Street
+                      address_city: Fort Lee
+                      address_state: NJ
+                      address_zip_code: '72374'
+                      address_country: US
+                      issuer: '411600'
+                  relationships:
+                    person:
+                      data:
+                        type: people
+                        id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    AccountCreate400:
+      description: The request contained an error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/AccountCreateError'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    Accounts200:
+      description: Returns the account object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/AccountsData'
+          examples:
+            ODPAccounts:
+              summary: Earnings balance accounts
+              description: "A list of earnings balance accounts associated with the person. \nWhen using client credentials authorization, only Earnings Balance accounts are returned.\n"
+              value:
+                data:
+                - type: accounts
+                  id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+                  attributes:
+                    name: DailyPay On-Demand Pay Balance
+                    account_type: EARNINGS_BALANCE
+                    subtype: ODP
+                    verification_status: VERIFIED
+                    balances:
+                      available: 7250
+                      currency: USD
+                      current: 0
+                    capabilities:
+                      transfer_destination: []
+                    details: {}
+                  relationships:
+                    person:
+                      data:
+                        type: people
+                        id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+                  links:
+                    self: https://api.dailypay.com/accounts/3fa8f641-5717-4562-b3fc-2c963f66afa6
+            AllAccounts:
+              summary: All accounts
+              description: 'A list of all accounts associated with the person, including depository accounts and debit cards.
+
+                '
+              value:
+                data:
+                - type: accounts
+                  id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+                  attributes:
+                    name: DailyPay On-Demand Pay Balance
+                    account_type: EARNINGS_BALANCE
+                    subtype: ODP
+                    verification_status: VERIFIED
+                    balances:
+                      available: 7250
+                      currency: USD
+                      current: 0
+                    capabilities:
+                      transfer_destination: []
+                    details: {}
+                  relationships:
+                    person:
+                      data:
+                        type: people
+                        id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+                  links:
+                    self: https://api.dailypay.com/accounts/3fa8f641-5717-4562-b3fc-2c963f66afa6
+                - type: accounts
+                  id: 2bc7d781-3247-46f6-b60f-4090d214936a
+                  attributes:
+                    name: Acme Bank Checking Account
+                    account_type: DEPOSITORY
+                    subtype: CHECKING
+                    details:
+                      first_name: Edith
+                      last_name: Clarke
+                      routing_number: XXXXX2021
+                      account_number: XXXXXX4321
+                    verification_status: VERIFIED
+                    balances:
+                      available: null
+                      currency: USD
+                      current: null
+                    capabilities:
+                      transfer_destination:
+                      - schedule: NEXT_BUSINESS_DAY
+                        fee: 299
+                        currency: USD
+                  relationships:
+                    person:
+                      data:
+                        type: people
+                        id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+                  links:
+                    self: https://api.dailypay.com/accounts/3fa8f641-5717-4562-b3fc-2c963f66afa6
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Account200:
+      description: Returns the account object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/AccountData'
+  schemas:
+    AccountRelationships:
+      type: object
+      required:
+      - person
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+    AccountLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/AccountLink'
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorAccountCreateError:
+      allOf:
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+            type: string
+            x-go-type: string
+            x-enumDescriptions:
+              ACCOUNT_TYPE_INVALID: Provided account type is not one of DEPOSITORY or CARD
+              ACCOUNT_SUBTYPE_INVALID: Provided subtype is not one of CHECKING SAVINGS DEBIT
+              ACCOUNT_TYPE_SUBTYPE_MISMATCH: The provided account subtype is not supported on the provided account type
+              DEBIT_CARD_CREATION_BLOCKED: Debit card creation blocked for this bin number
+              BANK_ACCOUNT_CREATION_BLOCKED: Bank account creation blocked for accounts with this routing number and first four digits of account number
+              DUPLICATE_ACCOUNT: Provided input matches an already existing account
+              INVALID_DEBIT_CARD: Provided debit card is invalid
+              INVALID_CARD_TOKEN: Provided card token is invalid
+              INVALID_FIELDS: One or more fields have an invalid format
+              MISSING_REQUIRED_FIELD: Required field was not provided
+              INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+              INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+              INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+              INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+      - $ref: '#/components/schemas/Error'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    AccountAttributes_EarningsBalance:
+      allOf:
+      - $ref: '#/components/schemas/AccountAttributes__Common'
+      - type: object
+        title: Earnings Balance (read only)
+        description: An account with type `EARNINGS_BALANCE` and subtype `ODP`.
+        required:
+        - account_type
+        - subtype
+        - details
+        - name
+        properties:
+          name:
+            type: string
+            description: Display name for this account.
+            example: DailyPay Pay Balance
+          account_type:
+            type: string
+            description: The type of account. It differentiates between depository accounts (e.g. bank account), cards (e.g. debit) and earnings balance type of accounts (e.g. on demand pay).
+            const: EARNINGS_BALANCE
+          subtype:
+            type: string
+            description: The subtype of the account.
+            const: ODP
+          details:
+            type: object
+            description: An empty object for earnings balance accounts.
+            minProperties: 0
+            maxProperties: 0
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    AccountCreateResource:
+      type: object
+      required:
+      - type
+      - attributes
+      - relationships
+      properties:
+        type:
+          type: string
+          const: accounts
+          example: accounts
+          description: The type of the resource. Always `accounts`.
+        attributes:
+          $ref: '#/components/schemas/AccountCreateAttributes'
+        relationships:
+          $ref: '#/components/schemas/AccountRelationships'
+    AccountCreateAttributes_Depository:
+      type: object
+      title: Depository
+      description: An account with type `DEPOSITORY` and subtype `SAVINGS` or `CHECKING`.
+      required:
+      - account_type
+      - subtype
+      - details
+      - name
+      properties:
+        name:
+          type: string
+          description: Display name for this account.
+          example: Checking Account
+        account_type:
+          type: string
+          description: The type of account. It differentiates between depository accounts (e.g. bank account), cards (e.g. debit) and earnings balance type of accounts (e.g. on demand pay).
+          const: DEPOSITORY
+        subtype:
+          type: string
+          description: The subtype of the account.
+          enum:
+          - SAVINGS
+          - CHECKING
+          example: CHECKING
+        details:
+          type: object
+          x-go-type-name: DepositoryAccountDetails
+          x-speakeasy-name-override: DepositoryAccountDetails
+          description: The banking details of the account and account holder.
+          required:
+          - routing_number
+          - account_number
+          - first_name
+          - last_name
+          properties:
+            first_name:
+              description: The first name of the account holder.
+              example: Edith
+              type: string
+            last_name:
+              description: The last name of the account holder.
+              example: Clarke
+              type: string
+            routing_number:
+              description: The routing number of the bank that holds this account. Responses from this API that return this number are masked to the last four digits.
+              example: XXXXX2021
+              type: string
+            account_number:
+              description: The account number. Responses from this API that return this number are masked to the last four digits.
+              example: XXXXXX4321
+              type: string
+    AccountCreateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountCreateResource'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    AccountsData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountResource'
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    AccountAttributes__Common:
+      type: object
+      required:
+      - balances
+      - verification_status
+      - capabilities
+      properties:
+        verification_status:
+          x-go-type-name: AccountVerificationStatus
+          x-speakeasy-name-override: accountVerificationStatus
+          description: A code that indicates the status of an account that is a destination for funds.
+          example: VERIFIED
+          type: string
+          enum:
+          - VERIFICATION_PENDING
+          - VERIFICATION_FAILED
+          - VERIFIED
+        balances:
+          type: object
+          x-go-type-name: AccountBalances
+          x-speakeasy-name-override: accountBalances
+          required:
+          - available
+          - current
+          - currency
+          properties:
+            available:
+              readOnly: true
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              description: "The amount of funds available to be withdrawn from the account. \n\nFor earnings_balance-type accounts, the available balance typically\nequals the current balance less any pending outflows, plus any pending inflows,\n\n\nThis value is in units of the lowest denomination in the associated\ncurrency. For example, `{ amount: 7250, currency: 'USD' }` resolves to\n$72.50.\n"
+              example: 12000
+            current:
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              description: "The total amount of funds settled in the account. \nThis value is in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: 'USD' }` resolves to $72.50.\n**Special note for Earnings Balance accounts:**\nIf a user transfers money from an Earnings Balance account to a personal account, the `current` balance may be negative as those transfers settle. When a paycheck is processed, DailyPay will automatically attempt to zero out the balance,  transferring any remaining funds to the `direct_deposit_default_depository` account set for the associated Job.\nIf DailyPay is unable to zero out the balance during paycheck processing, the `current` balance will remain negative,  which may impact a user's ability to transfer additional funds from their earnings balance. \nIn those cases, the available balance will be 0.\n"
+              example: 50000
+            currency:
+              type: string
+              example: USD
+              description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+        capabilities:
+          type: object
+          x-go-type-name: AccountCapabilities
+          x-speakeasy-name-override: accountCapabilities
+          required:
+          - transfer_destination
+          properties:
+            transfer_destination:
+              description: "List of the timing and associate fees available when crediting this account as a\ntransfer destination.\n\nActual fees may differ at the time of transfer; please refer to \nthe transfer preview attribute for the most accurate fee information \nfor any given transfer. \n"
+              type: array
+              items:
+                $ref: '#/components/schemas/TransferDestinationCapability'
+              minItems: 0
+              example:
+              - schedule: WITHIN_THIRTY_MINUTES
+                fee: 300
+                currency: USD
+              - schedule: NEXT_BUSINESS_DAY
+                fee: 0
+                currency: USD
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
+    AccountAttributes:
+      type: object
+      description: The details of the account.
+      oneOf:
+      - $ref: '#/components/schemas/AccountAttributes_Card'
+      - $ref: '#/components/schemas/AccountAttributes_EarningsBalance'
+      - $ref: '#/components/schemas/AccountAttributes_Depository'
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    AccountCreateAttributes:
+      type: object
+      description: The details of the account.
+      oneOf:
+      - $ref: '#/components/schemas/AccountCreateAttributes_Card'
+      - $ref: '#/components/schemas/AccountCreateAttributes_Depository'
+    AccountLink:
+      type: string
+      format: uri
+      readOnly: true
+      x-go-type-skip-optional-pointer: true
+      description: The URI for the account
+      example: https://api.dailypay.com/rest/accounts/2bc7d781-3247-46f6-b60f-4090d214936a
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    AccountCreateAttributes_Card:
+      type: object
+      title: Card
+      description: An account with type `CARD` and subtype `DAILYPAY` or `DEBIT`.
+      required:
+      - account_type
+      - subtype
+      - details
+      - name
+      properties:
+        name:
+          type: string
+          description: Display name for this account.
+          example: Debit Card
+        account_type:
+          type: string
+          description: The type of account. It differentiates between depository accounts (e.g. bank account), cards (e.g. debit) and earnings balance type of accounts (e.g. on demand pay).
+          const: CARD
+        subtype:
+          type: string
+          description: The subtype of the account. Additional subtypes may be added over time
+          enum:
+          - DEBIT
+          - DAILYPAY
+          example: DEBIT
+        details:
+          description: The banking details of the account and account holder.
+          type: object
+          x-go-type-name: CreateCardAccountDetails
+          x-speakeasy-name-override: CreateCardAccountDetails
+          required:
+          - token
+          - first_name
+          - last_name
+          - expiration_month
+          - expiration_year
+          - address_line_one
+          - address_city
+          - address_state
+          - address_zip_code
+          - address_country
+          - issuer
+          properties:
+            token:
+              description: A tokenized string replacement for the card data.
+              type: string
+              example: HX46TY794RG
+            first_name:
+              description: The first name of the account holder.
+              example: Edith
+              type: string
+            last_name:
+              description: The last name of the account holder.
+              example: Clarke
+              type: string
+            expiration_month:
+              description: The month of the expiration date for the card.
+              type: string
+              example: '02'
+            expiration_year:
+              description: The year of the expiration date for the card.
+              type: string
+              example: '2025'
+            address_line_one:
+              type: string
+              description: The first line of the address for the card.
+              example: 123 Kebly Street
+            address_line_two:
+              type: string
+              description: The second line of the address for the card.
+              example: 'Apt #12'
+            address_city:
+              type: string
+              description: The city of the address for the card.
+              example: Fort Lee
+            address_state:
+              type: string
+              description: The two-letter abbreviation of the state in the address for the card.
+              pattern: ^[A-Z]{2}$
+              minLength: 2
+              maxLength: 2
+              example: NJ
+            address_zip_code:
+              type: string
+              description: The zip code of the address for the card.
+              example: '72374'
+            address_country:
+              type: string
+              description: The country code of the address for the card.
+              example: US
+            issuer:
+              type: string
+              description: The issuer of the card.
+              example: '411600'
+              minLength: 6
+              maxLength: 8
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    AccountAttributes_Card:
+      allOf:
+      - $ref: '#/components/schemas/AccountAttributes__Common'
+      - type: object
+        title: Card
+        description: An account with type `CARD` and subtype `DAILYPAY` or `DEBIT`.
+        required:
+        - account_type
+        - subtype
+        - details
+        - name
+        properties:
+          name:
+            type: string
+            description: Display name for this account.
+            example: Debit Card
+          account_type:
+            type: string
+            description: The type of account. It differentiates between depository accounts (e.g. bank account), cards (e.g. debit) and earnings balance type of accounts (e.g. on demand pay).
+            const: CARD
+          subtype:
+            type: string
+            description: The subtype of the account. Additional subtypes may be added over time
+            enum:
+            - DEBIT
+            - DAILYPAY
+            example: DEBIT
+          details:
+            description: The banking details of the account and account holder.
+            type: object
+            x-go-type-name: CardAccountDetails
+            x-speakeasy-name-override: CardAccountDetails
+            required:
+            - last_four
+            - issuer
+            - first_name
+            - last_name
+            - expiration_month
+            - expiration_year
+            properties:
+              last_four:
+                description: Last four digits of the card number.
+                example: '0003'
+                type: string
+              issuer:
+                description: The issuer of the card.
+                example: '411600'
+                type: string
+              first_name:
+                description: The first name of the account holder.
+                example: Edith
+                type: string
+              last_name:
+                description: The last name of the account holder.
+                example: Clarke
+                type: string
+              expiration_month:
+                description: The month of the expiration date for the card.
+                type: string
+                example: '02'
+              expiration_year:
+                description: The year of the expiration date for the card.
+                type: string
+                example: '2025'
+    AccountData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountResource'
+    AccountResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - relationships
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the Account.
+          example: 2bc7d781-3247-46f6-b60f-4090d214936a
+        type:
+          type: string
+          const: accounts
+          example: accounts
+          description: The type of the resource. Always `accounts`.
+        attributes:
+          $ref: '#/components/schemas/AccountAttributes'
+        links:
+          $ref: '#/components/schemas/AccountLinks'
+        relationships:
+          $ref: '#/components/schemas/AccountRelationships'
+    TransferDestinationCapability:
+      type: object
+      required:
+      - schedule
+      - fee
+      - currency
+      properties:
+        schedule:
+          type: string
+          description: The expected time for the transfer to be completed.
+          enum:
+          - WITHIN_THIRTY_MINUTES
+          - NEXT_BUSINESS_DAY
+          example: WITHIN_THIRTY_MINUTES
+        fee:
+          type: integer
+          description: 'A monetary quantity expressed in units of the lowest denomination in
+
+            the associated currency. For example, `{ amount: 299, currency: ''USD''
+
+            }` resolves to $2.99.
+
+
+            If a transfer incurs a fee, the fee will be deducted from the amount of
+
+            the transfer.
+
+            '
+          example: 0
+        currency:
+          $ref: '#/components/schemas/Currency'
+    AccountCreateError:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorAccountCreateError'
+    AccountAttributes_Depository:
+      x-go-type-name: AccountAttributesDepository
+      allOf:
+      - $ref: '#/components/schemas/AccountAttributes__Common'
+      - $ref: '#/components/schemas/AccountCreateAttributes_Depository'
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+  parameters:
+    filter.account_type:
+      name: filter[account_type]
+      in: query
+      description: Limit the results to documents matching the specified account type.
+      required: false
+      schema:
+        type: string
+        example: EARNINGS_BALANCE
+        enum:
+        - EARNINGS_BALANCE
+        - DEPOSITORY
+        - CARD
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    filter.person.id:
+      name: filter[person.id]
+      in: query
+      description: Limit the results to documents related to a specific person
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: aa860051-c411-4709-9685-c1b716df611b
+    filter.account_subtype:
+      name: filter[subtype]
+      in: query
+      description: Limit the results to documents matching the specified account subtype.
+      required: false
+      schema:
+        type: string
+        example: ODP
+        x-enumDescriptions:
+          ODP: On Demand Pay (Earnings Balance)
+          CHECKING: Checking Account (Depository)
+          SAVINGS: Savings Account (Depository)
+          DAILYPAY: DailyPay Card (Card)
+          DEBIT: Debit Card (Card)
+    account_id:
+      name: account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 2bc7d781-3247-46f6-b60f-4090d214936a
+      description: Unique UUID of the Account.
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization

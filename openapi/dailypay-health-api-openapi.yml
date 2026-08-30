@@ -1,0 +1,264 @@
+openapi: 3.2.0
+info:
+  version: 3.0.0-beta.117
+  termsOfService: https://www.dailypay.com/en-us/legal/direct/dailypay-client-api-terms-of-use/
+  title: DailyPay Rest Health API
+  x-logo:
+    url: https://developer.dailypay.com/static/svgs/dp_text.svg
+  contact:
+    name: DailyPay Developer Support
+    url: https://developer.dailypay.com
+  description: Embed DailyPay and On Demand Pay features into your application.
+servers:
+- url: https://api.{environment}.com
+  description: DailyPay REST API server
+  variables:
+    environment:
+      default: dailypay
+      enum:
+      - dailypay
+      - dailypayuat
+security:
+- oauth_client_credentials_token:
+  - client:admin
+- oauth_user_token:
+  - user:read
+tags:
+- name: Health
+  description: "The _health_ endpoint provides a simple health check for the API. \n\n**Functionality:** Check the status of the API to ensure it is functioning\ncorrectly.\n"
+paths:
+  /rest/health:
+    get:
+      tags:
+      - Health
+      summary: Verify the status of the API
+      description: 'Returns a 200 status code if the API is up and running.
+
+        '
+      security:
+      - oauth_client_credentials_token:
+        - health:read
+      operationId: getHealth
+      responses:
+        '200':
+          $ref: '#/components/responses/Health200'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/Unexpected'
+      x-codeSamples:
+      - lang: C#
+        source: "using DailyPay.SDK.DotNet8;\nusing DailyPay.SDK.DotNet8.Models.Components;\n\nvar sdk = new SDK(security: new Security() {\n    OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n        ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n        ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n        TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n    },\n});\n\nvar res = await sdk.Health.GetHealthAsync();\n\n// handle response"
+      - lang: Java
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.ErrorUnauthorized;\nimport com.dailypay.sdk.models.errors.ErrorUnexpected;\nimport com.dailypay.sdk.models.operations.GetHealthResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorUnauthorized, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://auth.dailypay.com/oauth2/token\")\n                        .build())\n                    .build())\n            .build();\n\n        GetHealthResponse res = sdk.health().getHealth()\n                .call();\n\n        if (res.health200().isPresent()) {\n            System.out.println(res.health200().get());\n        }\n    }\n}"
+      - lang: Go
+        source: "package main\n\nimport(\n\t\"context\"\n\t\"github.com/dailypay/dailypay-go-sdk/models/components\"\n\tdailypay \"github.com/dailypay/dailypay-go-sdk\"\n\t\"log\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    s := dailypay.New(\n        dailypay.WithSecurity(components.Security{\n            OauthClientCredentialsToken: &components.SchemeOauthClientCredentialsToken{\n                ClientID: \"<YOUR_CLIENT_ID_HERE>\",\n                ClientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n                TokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n            },\n        }),\n    )\n\n    res, err := s.Health.GetHealth(ctx)\n    if err != nil {\n        log.Fatal(err)\n    }\n    if res.Health200 != nil {\n        // handle response\n    }\n}"
+      - lang: JavaScript
+        source: "import { SDK } from \"@dailypay/dailypay\";\n\nconst sdk = new SDK({\n  security: {\n    oauthClientCredentialsToken: {\n      clientID: \"<YOUR_CLIENT_ID_HERE>\",\n      clientSecret: \"<YOUR_CLIENT_SECRET_HERE>\",\n      tokenURL: \"<YOUR_TOKEN_URL_HERE>\",\n    },\n  },\n});\n\nasync function run() {\n  const result = await sdk.health.getHealth();\n\n  console.log(result);\n}\n\nrun();"
+      - lang: csharp
+        label: getHealth
+        source: "using DailyPay.SDK.DotNet9;\nusing DailyPay.SDK.DotNet9.Models.Components;\n\nvar sdk = new SDK(security: new Security() {\n    OauthClientCredentialsToken = new SchemeOauthClientCredentialsToken() {\n        ClientID = \"<YOUR_CLIENT_ID_HERE>\",\n        ClientSecret = \"<YOUR_CLIENT_SECRET_HERE>\",\n        TokenURL = \"<YOUR_TOKEN_URL_HERE>\",\n    },\n});\n\nvar res = await sdk.Health.GetHealthAsync();\n\n// handle response"
+      - lang: java
+        label: getHealth
+        source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.ErrorUnauthorized;\nimport com.dailypay.sdk.models.errors.ErrorUnexpected;\nimport com.dailypay.sdk.models.operations.GetHealthResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorUnauthorized, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        GetHealthResponse res = sdk.health().getHealth()\n                .call();\n\n        if (res.health200().isPresent()) {\n            // handle response\n        }\n    }\n}"
+components:
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    Health200:
+      description: Returns a healthcheck document
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - status
+            - version
+            properties:
+              status:
+                type: string
+                description: The status of the API
+                example: UP
+              version:
+                type: string
+                description: The version of the API
+                example: 3.0.0
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+  schemas:
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+  securitySchemes:
+    oauth_client_credentials_token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            client:lookup: Read access to resources necessary to find a person by known identifiers.
+    oauth_user_token:
+      type: oauth2
+      flows:
+        authorizationCode:
+          x-usePkce: true
+          authorizationUrl: https://auth.dailypay.com/oauth2/auth
+          tokenUrl: https://auth.dailypay.com/oauth2/token
+          scopes:
+            user:read: Read access to all relevant objects for a non-application user,  including accounts, jobs, people, transfers, and paychecks.
+            user:read_write: Read and write access to all relevant objects for a non-application user, including accounts, jobs, people, transfers, and paychecks.
+x-speakeasy-name-override:
+- operationId: ^read*
+  methodNameOverride: read
+- operationId: ^list*
+  methodNameOverride: list
+- operationId: ^create*
+  methodNameOverride: create
+- operationId: ^update*
+  methodNameOverride: update
+x-speakeasy-globals:
+  parameters:
+  - $ref: '#/components/parameters/apiversion'
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxElapsedTime: 30000
+    exponent: 1.25
+  statusCodes:
+  - 408
+  - 409
+  - 5XX
+  retryConnectionErrors: true
+x-tagGroups:
+- name: Documentation
+  tags:
+  - API Status
+  - Environments
+  - Filtering
+  - Idempotency
+  - Versioning
+- name: Core Resources
+  tags:
+  - Accounts
+  - Health
+  - Jobs
+  - Organizations
+  - Paychecks
+  - People
+  - Transfers
+- name: Payments API
+  tags:
+  - Card Tokenization
