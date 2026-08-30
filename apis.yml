@@ -83,6 +83,8 @@ apis:
   humanURL: https://developer.dailypay.com/products/rest/reference
   baseURL: https://api.dailypay.com/rest
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -129,6 +131,8 @@ apis:
   humanURL: https://developer.dailypay.com/products/rest/reference
   baseURL: https://api.dailypay.com/rest
   tags:
+  - Job
+  tags_raw:
   - Jobs
   properties:
   - type: OpenAPI
@@ -145,6 +149,8 @@ apis:
   humanURL: https://developer.dailypay.com/products/rest/reference
   baseURL: https://api.dailypay.com/rest
   tags:
+  - Organization
+  tags_raw:
   - Organizations
   properties:
   - type: OpenAPI
