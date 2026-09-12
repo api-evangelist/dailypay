@@ -2,20 +2,20 @@
   "repo": "dailypay",
   "feeds": [
     {
-      "source": "https://www.dailypay.com/help/",
-      "feed_url": "https://www.dailypay.com/help/",
+      "source": "https://www.dailypay.com/resource-center/blog/",
+      "feed_url": "https://www.dailypay.com/resource-center/blog/",
       "title": "",
       "saved": 0,
       "method": "none"
     },
     {
-      "source": "https://www.dailypay.com/resource-center/blog/",
-      "feed_url": "https://www.dailypay.com/resource-center/blog/",
+      "source": "https://www.dailypay.com/help/",
+      "feed_url": "https://www.dailypay.com/help/",
       "title": "",
       "saved": 0,
       "method": "none"
     }
   ],
   "post_count": 0,
-  "fetched": "2026-08-30T22:33:40Z"
+  "fetched": "2026-09-06T19:17:18Z"
 }
