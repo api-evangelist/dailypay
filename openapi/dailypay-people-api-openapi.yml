@@ -25,7 +25,14 @@ security:
   - user:read
 tags:
 - name: People
-  description: "The _people_ endpoint allows you to see information related to who owns \nresources such as jobs and accounts.\n\n**Functionality:** Retrieve limited details about a person, including\ntheir name, global status, and state of residence.\n"
+  description: 'The _people_ endpoint allows you to see information related to who owns
+
+    resources such as jobs and accounts.
+
+
+    **Functionality:** Retrieve limited details about a person, including
+
+    their name, global status, and state of residence.'
 paths:
   /rest/people/{person_id}:
     parameters:
@@ -111,12 +118,24 @@ paths:
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.UpdatePersonRequest;\nimport com.dailypay.sdk.models.operations.UpdatePersonResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorNotFound, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        UpdatePersonRequest req = UpdatePersonRequest.builder()\n                .personId(\"aa860051-c411-4709-9685-c1b716df611b\")\n                .personData(PersonDataInput.builder()\n                    .data(PersonResourceInput.builder()\n                        .id(\"aa860051-c411-4709-9685-c1b716df611b\")\n                        .attributes(PersonAttributesInput.builder()\n                            .stateOfResidence(\"NY\")\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        UpdatePersonResponse res = sdk.people().update()\n                .request(req)\n                .call();\n\n        if (res.personData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
   responses:
+    Person200:
+      description: Returns the person object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/PersonData'
     Unexpected:
       description: Unexpected error occured
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorUnexpected'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
     NotFound:
       description: Resource was not found
       content:
@@ -129,45 +148,28 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorUnauthorized'
-    Forbidden:
-      description: Not authorized to perform this operation
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorForbidden'
     BadRequest:
       description: Bad Request
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorBadRequest'
-    Person200:
-      description: Returns the person object.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/PersonData'
   schemas:
-    ErrorUnauthorized:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
-    ErrorNotFound:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
     PersonAttributes:
       type: object
       required:
@@ -236,16 +238,30 @@ components:
 
                     '
                   example: false
-    ErrorBadRequest:
+    BadRequestCodes:
       type: object
       required:
-      - errors
+      - code
       properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorBadRequestError'
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
     PersonUpdateData:
       type: object
       required:
@@ -282,6 +298,31 @@ components:
                     '
                   maxLength: 2
                   example: NY
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
     ErrorUnauthorizedError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -299,42 +340,25 @@ components:
             x-enumDescriptions:
               INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
               UNAUTHORIZED: Authentication has not been provided or is invalid.
-    ErrorNotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: RECORD_NOT_FOUND
-            type: string
-            enum:
-            - RECORD_NOT_FOUND
-            - NOT_FOUND
-            x-enumDescriptions:
-              RECORD_NOT_FOUND: Could not find a record with the provided ID
-              NOT_FOUND: Could not find resources matching the query parameters
-    ErrorUnexpected:
+    PersonResource:
       type: object
       required:
-      - errors
+      - type
+      - id
+      - attributes
+      - links
       properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
-    PersonLink:
-      type: string
-      format: uri
-      description: The URI for the user
-      example: https://api.dailypay.com/rest/people/aa860051-c411-4709-9685-c1b716df611b
-    ErrorBadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
-      - $ref: '#/components/schemas/Error'
+        type:
+          type: string
+          const: people
+        id:
+          type: string
+          format: uuid
+          example: aa860051-c411-4709-9685-c1b716df611b
+        attributes:
+          $ref: '#/components/schemas/PersonAttributes'
+        links:
+          $ref: '#/components/schemas/PersonLinks'
     PersonLinks:
       type: object
       required:
@@ -342,41 +366,6 @@ components:
       properties:
         self:
           $ref: '#/components/schemas/PersonLink'
-    ErrorForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: FORBIDDEN
-            type: string
-            enum:
-            - FORBIDDEN
-            x-enumDescriptions:
-              FORBIDDEN: Requester is not allowed to access this resource or endpoint
-    BadRequestCodes:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
-          example: INVALID_PARAMETERS
-          type: string
-          x-go-type: string
-          x-enumDescriptions:
-            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
-            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
-            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
-            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
-            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
-            INVALID_FILTER_QUERY: The filter query is malformed.
-            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
-            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
-            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
     ErrorForbidden:
       type: object
       required:
@@ -442,25 +431,16 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
-    PersonResource:
+    ErrorNotFound:
       type: object
       required:
-      - type
-      - id
-      - attributes
-      - links
+      - errors
       properties:
-        type:
-          type: string
-          const: people
-        id:
-          type: string
-          format: uuid
-          example: aa860051-c411-4709-9685-c1b716df611b
-        attributes:
-          $ref: '#/components/schemas/PersonAttributes'
-        links:
-          $ref: '#/components/schemas/PersonLinks'
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
     PersonData:
       type: object
       required:
@@ -468,7 +448,22 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/PersonResource'
-    ErrorUnexpectedError:
+    PersonLink:
+      type: string
+      format: uri
+      description: The URI for the user
+      example: https://api.dailypay.com/rest/people/aa860051-c411-4709-9685-c1b716df611b
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    ErrorNotFoundError:
       allOf:
       - $ref: '#/components/schemas/Error'
       - type: object
@@ -477,12 +472,24 @@ components:
         properties:
           code:
             description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
+            example: RECORD_NOT_FOUND
             type: string
             enum:
-            - UNEXPECTED_ERROR
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
             x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
   parameters:
     person_id:
       name: person_id

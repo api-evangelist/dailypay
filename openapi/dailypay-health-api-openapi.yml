@@ -25,16 +25,19 @@ security:
   - user:read
 tags:
 - name: Health
-  description: "The _health_ endpoint provides a simple health check for the API. \n\n**Functionality:** Check the status of the API to ensure it is functioning\ncorrectly.\n"
+  description: 'The _health_ endpoint provides a simple health check for the API.
+
+
+    **Functionality:** Check the status of the API to ensure it is functioning
+
+    correctly.'
 paths:
   /rest/health:
     get:
       tags:
       - Health
       summary: Verify the status of the API
-      description: 'Returns a 200 status code if the API is up and running.
-
-        '
+      description: Returns a 200 status code if the API is up and running.
       security:
       - oauth_client_credentials_token:
         - health:read
@@ -62,90 +65,7 @@ paths:
         label: getHealth
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.ErrorUnauthorized;\nimport com.dailypay.sdk.models.errors.ErrorUnexpected;\nimport com.dailypay.sdk.models.operations.GetHealthResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorUnauthorized, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        GetHealthResponse res = sdk.health().getHealth()\n                .call();\n\n        if (res.health200().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
-  responses:
-    Unexpected:
-      description: Unexpected error occured
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
-    Health200:
-      description: Returns a healthcheck document
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-            - status
-            - version
-            properties:
-              status:
-                type: string
-                description: The status of the API
-                example: UP
-              version:
-                type: string
-                description: The version of the API
-                example: 3.0.0
-    Unauthorized:
-      description: Invalid authentication credentials
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnauthorized'
   schemas:
-    ErrorUnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: INVALID_TOKEN
-            type: string
-            enum:
-            - INVALID_TOKEN
-            - UNAUTHORIZED
-            x-enumDescriptions:
-              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
-              UNAUTHORIZED: Authentication has not been provided or is invalid.
-    ErrorUnauthorized:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
-    ErrorUnexpected:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
-    ErrorUnexpectedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
-            type: string
-            enum:
-            - UNEXPECTED_ERROR
-            x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
     Error:
       type: object
       required:
@@ -201,6 +121,89 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+  responses:
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    Health200:
+      description: Returns a healthcheck document
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - status
+            - version
+            properties:
+              status:
+                type: string
+                description: The status of the API
+                example: UP
+              version:
+                type: string
+                description: The version of the API
+                example: 3.0.0
   securitySchemes:
     oauth_client_credentials_token:
       type: oauth2

@@ -25,7 +25,16 @@ security:
   - user:read
 tags:
 - name: Organizations
-  description: "The _organizations_ endpoint provides details about a business entity, \nsuch as an employer, or a group of people, such as a division.\n\nThe response includes the organization name and ID which can be used to\nmake subsequent endpoint calls related to the organization and its\nemployees.\n"
+  description: 'The _organizations_ endpoint provides details about a business entity,
+
+    such as an employer, or a group of people, such as a division.
+
+
+    The response includes the organization name and ID which can be used to
+
+    make subsequent endpoint calls related to the organization and its
+
+    employees.'
 paths:
   /rest/organizations/{organization_id}:
     parameters:
@@ -108,196 +117,7 @@ paths:
         label: listOrganizations
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListOrganizationsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListOrganizationsResponse res = sdk.organizations().list()\n                .call();\n\n        if (res.organizationsData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
-  responses:
-    Unexpected:
-      description: Unexpected error occured
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
-    NotFound:
-      description: Resource was not found
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorNotFound'
-    Unauthorized:
-      description: Invalid authentication credentials
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnauthorized'
-    Organization200:
-      description: Returns details about an organization.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/OrganizationData'
-    Forbidden:
-      description: Not authorized to perform this operation
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorForbidden'
-    BadRequest:
-      description: Bad Request
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorBadRequest'
-    Organizations200:
-      description: Returns a list of organization objects that match the filter. If no organizations match the filter, the resulting collection will be empty. If no filter is provider, the resulting collection will include all accessible organizations.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/OrganizationsData'
   schemas:
-    OrganizationsData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationResource'
-    ErrorUnauthorized:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
-    ErrorNotFound:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
-    ErrorBadRequest:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorBadRequestError'
-    OrganizationResource:
-      type: object
-      required:
-      - type
-      - id
-      - attributes
-      - links
-      properties:
-        type:
-          type: string
-          readOnly: true
-          const: organizations
-        id:
-          $ref: '#/components/schemas/OrganizationID'
-        attributes:
-          $ref: '#/components/schemas/OrganizationAttributes'
-        links:
-          $ref: '#/components/schemas/OrganizationLinks'
-    OrganizationAttributes:
-      type: object
-      properties:
-        name:
-          description: Organization's name
-          example: DailyPay
-          readOnly: true
-          type: string
-        products:
-          readOnly: true
-          description: List of the names of products available for this organization.
-          example:
-          - ODP
-          - DAILYPAY_CARD
-          type: array
-          items:
-            type: string
-            x-enumDescriptions:
-              ODP: On-Demand Pay (ODP) is a DailyPay product that allows employees to access their earned wages before payday. An organization with this product enabled will have on-demand pay available to its members; an account with type `EARNINGS_BALANCE` will automatically be created for each job associated with this organization.
-              DAILYPAY_CARD: An organization with this product enabled will have the DailyPay Visa®️ Prepaid Card program available to its members.
-              FRIDAY: _deprecated_. An organization with this product enabled will have the DailyPay Visa®️ Prepaid Card program available to its members.
-    OrganizationID:
-      description: String identifier that is unique to this organization. You can safely assume the identifier to never exceed 64 characters.
-      example: f0b30634-108c-439c-a8c1-c6a91197f022
-      readOnly: true
-      type: string
-      format: uuid
-    ErrorUnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: INVALID_TOKEN
-            type: string
-            enum:
-            - INVALID_TOKEN
-            - UNAUTHORIZED
-            x-enumDescriptions:
-              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
-              UNAUTHORIZED: Authentication has not been provided or is invalid.
-    ErrorNotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: RECORD_NOT_FOUND
-            type: string
-            enum:
-            - RECORD_NOT_FOUND
-            - NOT_FOUND
-            x-enumDescriptions:
-              RECORD_NOT_FOUND: Could not find a record with the provided ID
-              NOT_FOUND: Could not find resources matching the query parameters
-    OrganizationLinks:
-      type: object
-      required:
-      - self
-      properties:
-        self:
-          $ref: '#/components/schemas/OrganizationLink'
-    ErrorUnexpected:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
-    OrganizationData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/OrganizationResource'
-    ErrorBadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
-      - $ref: '#/components/schemas/Error'
     ErrorForbiddenError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -333,6 +153,91 @@ components:
             INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
             INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
             INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    OrganizationLink:
+      type: string
+      format: uri
+      readOnly: true
+      example: https://api.dailypay.com/rest/organizations/f0b30634-108c-439c-a8c1-c6a91197f022
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    OrganizationLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/OrganizationLink'
+    OrganizationAttributes:
+      type: object
+      properties:
+        name:
+          description: Organization's name
+          example: DailyPay
+          readOnly: true
+          type: string
+        products:
+          readOnly: true
+          description: List of the names of products available for this organization.
+          example:
+          - ODP
+          - DAILYPAY_CARD
+          type: array
+          items:
+            type: string
+            x-enumDescriptions:
+              ODP: On-Demand Pay (ODP) is a DailyPay product that allows employees to access their earned wages before payday. An organization with this product enabled will have on-demand pay available to its members; an account with type `EARNINGS_BALANCE` will automatically be created for each job associated with this organization.
+              DAILYPAY_CARD: An organization with this product enabled will have the DailyPay Visa®️ Prepaid Card program available to its members.
+              FRIDAY: _deprecated_. An organization with this product enabled will have the DailyPay Visa®️ Prepaid Card program available to its members.
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    OrganizationID:
+      description: String identifier that is unique to this organization. You can safely assume the identifier to never exceed 64 characters.
+      example: f0b30634-108c-439c-a8c1-c6a91197f022
+      readOnly: true
+      type: string
+      format: uuid
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
     ErrorForbidden:
       type: object
       required:
@@ -343,6 +248,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorForbiddenError'
+    OrganizationData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/OrganizationResource'
+    OrganizationResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: organizations
+        id:
+          $ref: '#/components/schemas/OrganizationID'
+        attributes:
+          $ref: '#/components/schemas/OrganizationAttributes'
+        links:
+          $ref: '#/components/schemas/OrganizationLinks'
     Error:
       type: object
       required:
@@ -398,12 +328,36 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
-    OrganizationLink:
-      type: string
-      format: uri
-      readOnly: true
-      example: https://api.dailypay.com/rest/organizations/f0b30634-108c-439c-a8c1-c6a91197f022
-    ErrorUnexpectedError:
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    OrganizationsData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationResource'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    ErrorNotFoundError:
       allOf:
       - $ref: '#/components/schemas/Error'
       - type: object
@@ -412,12 +366,67 @@ components:
         properties:
           code:
             description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
+            example: RECORD_NOT_FOUND
             type: string
             enum:
-            - UNEXPECTED_ERROR
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
             x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+  responses:
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    Organization200:
+      description: Returns details about an organization.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/OrganizationData'
+    Organizations200:
+      description: Returns a list of organization objects that match the filter. If no organizations match the filter, the resulting collection will be empty. If no filter is provider, the resulting collection will include all accessible organizations.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/OrganizationsData'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
   parameters:
     filter:
       name: filter

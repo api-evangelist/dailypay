@@ -1,0 +1,34 @@
+{
+  "provider": "dailypay",
+  "sources": [
+    "_original/dailypay-rest-openapi-original.yml"
+  ],
+  "outputs": [
+    "dailypay-accounts-api-openapi.yml",
+    "dailypay-card-tokenization-api-openapi.yml",
+    "dailypay-health-api-openapi.yml",
+    "dailypay-jobs-api-openapi.yml",
+    "dailypay-organizations-api-openapi.yml",
+    "dailypay-paychecks-api-openapi.yml",
+    "dailypay-people-api-openapi.yml",
+    "dailypay-transfers-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "dailypay-rest-openapi-original.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "dailypay-accounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-card-tokenization-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-health-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-jobs-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-organizations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-paychecks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-people-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "dailypay-transfers-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

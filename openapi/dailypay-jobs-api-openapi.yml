@@ -25,7 +25,15 @@ security:
   - user:read
 tags:
 - name: Jobs
-  description: "The _jobs_ endpoint provides access to comprehensive information \nabout a person's employment. It enables you to retrieve details about\nindividual jobs, including information about the organization\nthey work for, status, wage rate, job title, location,\npaycheck settings, and related links to associated accounts.\n"
+  description: 'The _jobs_ endpoint provides access to comprehensive information
+
+    about a person''s employment. It enables you to retrieve details about
+
+    individual jobs, including information about the organization
+
+    they work for, status, wage rate, job title, location,
+
+    paycheck settings, and related links to associated accounts.'
 paths:
   /rest/jobs/{job_id}:
     parameters:
@@ -76,7 +84,9 @@ paths:
       tags:
       - Jobs
       summary: Update paycheck settings or deactivate a job
-      description: "Update this job to set where pay should be deposited for paychecks related to this job,  or deactivate on-demand pay for this job. \nReturns the job object if the update succeeded. Returns an error if update parameters are invalid.\n"
+      description: 'Update this job to set where pay should be deposited for paychecks related to this job, or deactivate on-demand pay for this job.
+
+        Returns the job object if the update succeeded. Returns an error if update parameters are invalid.'
       operationId: updateJob
       security:
       - oauth_user_token:
@@ -134,9 +144,7 @@ paths:
       tags:
       - Jobs
       summary: Get a list of job objects
-      description: 'Returns a collection of job objects. This object represents a person''s employment details.
-
-        '
+      description: Returns a collection of job objects. This object represents a person's employment details.
       operationId: listJobs
       security:
       - oauth_client_credentials_token:
@@ -172,202 +180,6 @@ paths:
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListJobsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListJobsResponse res = sdk.jobs().list()\n                .call();\n\n        if (res.jobsData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
   schemas:
-    OrganizationRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/OrganizationIdentifier'
-    ErrorUnauthorized:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
-    ErrorNotFound:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
-    ErrorBadRequest:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorBadRequestError'
-    Amount:
-      type: integer
-      minimum: 0
-      example: 2500
-      description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.'
-    AccountRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/AccountIdentifier'
-    ErrorUnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: INVALID_TOKEN
-            type: string
-            enum:
-            - INVALID_TOKEN
-            - UNAUTHORIZED
-            x-enumDescriptions:
-              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
-              UNAUTHORIZED: Authentication has not been provided or is invalid.
-    ErrorNotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: RECORD_NOT_FOUND
-            type: string
-            enum:
-            - RECORD_NOT_FOUND
-            - NOT_FOUND
-            x-enumDescriptions:
-              RECORD_NOT_FOUND: Could not find a record with the provided ID
-              NOT_FOUND: Could not find resources matching the query parameters
-    JobLink:
-      type: string
-      format: uri
-      example: https://api.dailypay.com/rest/jobs/e9d84b0d-92ba-43c9-93bf-7c993313fa6f
-    ErrorUnexpected:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
-    PersonRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/PersonIdentifier'
-    ErrorBadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
-      - $ref: '#/components/schemas/Error'
-    JobUpdateData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          type: object
-          x-go-type-name: JobUpdateResource
-          x-speakeasy-name-override: JobUpdateResource
-          description: A job describes the financial relationship between a person and an organization.
-          required:
-          - type
-          - id
-          properties:
-            type:
-              type: string
-              const: jobs
-            id:
-              type: string
-              format: uuid
-              example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
-            relationships:
-              type: object
-              x-go-type-name: JobUpdateRelationships
-              x-speakeasy-name-override: JobUpdateRelationships
-              description: The relationships between the job and other resources, including the accounts to which paychecks from this job are deposited.
-              properties:
-                direct_deposit_default_depository:
-                  description: The `DEPOSITORY` account to which paychecks from this job will attempt to be deposited.
-                  allOf:
-                  - $ref: '#/components/schemas/AccountRelationship'
-                direct_deposit_default_card:
-                  description: The `CARD` account to which paychecks from this job will attempt to be deposited, if the `DEPOSITORY` account fails.
-                  allOf:
-                  - $ref: '#/components/schemas/AccountRelationship'
-            attributes:
-              type: object
-              x-go-type-name: JobUpdateAttributes
-              x-speakeasy-name-override: JobUpdateAttributes
-              properties:
-                activation_status:
-                  type: string
-                  enum:
-                  - DEACTIVATED
-                  - DEACTIVATION_PENDING
-                  - ACTIVATION_REQUIRED
-                  - ACTIVATION_UNDER_REVIEW
-                  - ACTIVATED
-                  examples:
-                  - DEACTIVATED
-                  - ACTIVATED
-                  x-enumDescriptions:
-                    DEACTIVATED: Job is no longer activated for DailyPay.
-                    DEACTIVATION_PENDING: Job is no longer activated for DailyPay, and deactivation is pending.
-                    ACTIVATION_REQUIRED: Job data is available but a person has not activated this Job for a DailyPay account.
-                    ACTIVATION_UNDER_REVIEW: Job data is available but a manual review step is underway.
-                    ACTIVATED: Job data is available and ready for use with DailyPay. A remainder pay account may still need to be configured by setting `default_paycheck_destinations`.
-                  description: 'Activation is the process of verifying that data is available for a Job,  and that a person has verified their identity as the Person associated with the Job. Only paychecks from Jobs with `activated` status will contribute to an earnings balance account.
-
-
-                    To deactivate a job, update activation_status to `DEACTIVATED`.
-
-                    '
-    JobData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/JobResource'
-    ErrorJobUpdateError:
-      allOf:
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
-            example: INVALID_PARAMETERS
-            type: string
-            x-go-type: string
-            x-enumDescriptions:
-              ACTIVE_JOB_REQUIRED: This job must have status ACTIVATED before setting a default bank or debit
-              INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
-              INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
-              INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
-              INVALID_VERSION_HEADER: Request contained an API version header that is not supported
-      - $ref: '#/components/schemas/Error'
     ErrorForbiddenError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -383,15 +195,18 @@ components:
             - FORBIDDEN
             x-enumDescriptions:
               FORBIDDEN: Requester is not allowed to access this resource or endpoint
-    JobsData:
+    JobLinks:
       type: object
       required:
-      - data
+      - self
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/JobResource'
+        self:
+          $ref: '#/components/schemas/JobLink'
+    Amount:
+      type: integer
+      minimum: 0
+      example: 2500
+      description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.'
     BadRequestCodes:
       type: object
       required:
@@ -412,71 +227,49 @@ components:
             INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
             INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
             INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
-    ErrorForbidden:
+    OrganizationRelationship:
       type: object
       required:
-      - errors
+      - data
       properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorForbiddenError'
-    Error:
+        data:
+          $ref: '#/components/schemas/OrganizationIdentifier'
+    JobData:
       type: object
       required:
-      - status
-      - detail
-      - meta
-      - links
+      - data
       properties:
-        status:
-          description: The HTTP status code for the error.
-          example: '400'
-          type: string
-        detail:
-          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
-          example: The request failed because it was not in the correct format or did not contain valid data.
-          type: string
-        links:
-          description: A list of links to resources that may be helpful in resolving the error.
-          type: object
-          x-go-type-name: ErrorLinks
-          properties:
-            about:
-              type: string
-              format: uri
-              example: https://developer.dailypay.com/tag/Errors
-        source:
-          description: Location in the request that may have caused the error.
-          type: object
-          x-go-type-name: ErrorSource
-          properties:
-            parameter:
-              description: The name of the parameter that caused the error.
-              example: filter[first_name]
-              type: string
-            pointer:
-              description: A JSON Pointer to the location in the request that caused the error.
-              example: /data/attributes/first_name
-              type: string
-            header:
-              description: The name of the header that caused the error.
-              example: Accept
-              type: string
-        meta:
-          x-go-type-name: ErrorMeta
-          description: Additional information about the error.
-          type: object
-          properties:
-            request_id:
-              description: A UUID for the originating request.
-              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
-              type: string
-            trace_id:
-              description: An ID used for tracing purposes.
-              example: '4016616108459136584'
-              type: string
+        data:
+          $ref: '#/components/schemas/JobResource'
+    AccountRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountIdentifier'
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    ErrorJobUpdateError:
+      allOf:
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+            example: INVALID_PARAMETERS
+            type: string
+            x-go-type: string
+            x-enumDescriptions:
+              ACTIVE_JOB_REQUIRED: This job must have status ACTIVATED before setting a default bank or debit
+              INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+              INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+              INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+              INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+      - $ref: '#/components/schemas/Error'
     PersonIdentifier:
       type: object
       required:
@@ -491,30 +284,34 @@ components:
           type: string
           format: uuid
           example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
-    JobResource:
+    OrganizationIdentifier:
       type: object
-      description: A job describes the financial relationship between a person and an organization.
       required:
       - type
       - id
-      - attributes
-      - links
-      - attributes
-      - relationships
       properties:
         type:
           type: string
-          const: jobs
+          const: organizations
         id:
           type: string
           format: uuid
-          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
-        attributes:
-          $ref: '#/components/schemas/JobAttributes'
-        links:
-          $ref: '#/components/schemas/JobLinks'
-        relationships:
-          $ref: '#/components/schemas/JobRelationships'
+          example: f0b30634-108c-439c-a8c1-c6a91197f022
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
     JobAttributes:
       type: object
       required:
@@ -609,6 +406,74 @@ components:
             - `SETUP_COMPLETE` Direct deposit is set up for this Job.
 
             '
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    JobResource:
+      type: object
+      description: A job describes the financial relationship between a person and an organization.
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - attributes
+      - relationships
+      properties:
+        type:
+          type: string
+          const: jobs
+        id:
+          type: string
+          format: uuid
+          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+        attributes:
+          $ref: '#/components/schemas/JobAttributes'
+        links:
+          $ref: '#/components/schemas/JobLinks'
+        relationships:
+          $ref: '#/components/schemas/JobRelationships'
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
     JobRelationships:
       type: object
       description: The relationships between the job and other resources, including the accounts to which paychecks from this job are deposited.
@@ -628,7 +493,125 @@ components:
           description: The `CARD` account to which paychecks from this job will attempt to be deposited, if the `DEPOSITORY` account fails.
           allOf:
           - $ref: '#/components/schemas/AccountRelationship'
-    JobUpdateError:
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
+          type: string
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    JobUpdateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: object
+          x-go-type-name: JobUpdateResource
+          x-speakeasy-name-override: JobUpdateResource
+          description: A job describes the financial relationship between a person and an organization.
+          required:
+          - type
+          - id
+          properties:
+            type:
+              type: string
+              const: jobs
+            id:
+              type: string
+              format: uuid
+              example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+            relationships:
+              type: object
+              x-go-type-name: JobUpdateRelationships
+              x-speakeasy-name-override: JobUpdateRelationships
+              description: The relationships between the job and other resources, including the accounts to which paychecks from this job are deposited.
+              properties:
+                direct_deposit_default_depository:
+                  description: The `DEPOSITORY` account to which paychecks from this job will attempt to be deposited.
+                  allOf:
+                  - $ref: '#/components/schemas/AccountRelationship'
+                direct_deposit_default_card:
+                  description: The `CARD` account to which paychecks from this job will attempt to be deposited, if the `DEPOSITORY` account fails.
+                  allOf:
+                  - $ref: '#/components/schemas/AccountRelationship'
+            attributes:
+              type: object
+              x-go-type-name: JobUpdateAttributes
+              x-speakeasy-name-override: JobUpdateAttributes
+              properties:
+                activation_status:
+                  type: string
+                  enum:
+                  - DEACTIVATED
+                  - DEACTIVATION_PENDING
+                  - ACTIVATION_REQUIRED
+                  - ACTIVATION_UNDER_REVIEW
+                  - ACTIVATED
+                  examples:
+                  - DEACTIVATED
+                  - ACTIVATED
+                  x-enumDescriptions:
+                    DEACTIVATED: Job is no longer activated for DailyPay.
+                    DEACTIVATION_PENDING: Job is no longer activated for DailyPay, and deactivation is pending.
+                    ACTIVATION_REQUIRED: Job data is available but a person has not activated this Job for a DailyPay account.
+                    ACTIVATION_UNDER_REVIEW: Job data is available but a manual review step is underway.
+                    ACTIVATED: Job data is available and ready for use with DailyPay. A remainder pay account may still need to be configured by setting `default_paycheck_destinations`.
+                  description: 'Activation is the process of verifying that data is available for a Job,  and that a person has verified their identity as the Person associated with the Job. Only paychecks from Jobs with `activated` status will contribute to an earnings balance account.
+
+
+                    To deactivate a job, update activation_status to `DEACTIVATED`.
+
+                    '
+    ErrorNotFound:
       type: object
       required:
       - errors
@@ -637,46 +620,21 @@ components:
           description: A list of errors that occurred.
           type: array
           items:
-            $ref: '#/components/schemas/ErrorJobUpdateError'
-    ErrorUnexpectedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
-            type: string
-            enum:
-            - UNEXPECTED_ERROR
-            x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
-    OrganizationIdentifier:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorBadRequest:
       type: object
       required:
-      - type
-      - id
+      - errors
       properties:
-        type:
-          type: string
-          const: organizations
-        id:
-          type: string
-          format: uuid
-          example: f0b30634-108c-439c-a8c1-c6a91197f022
-    JobLinks:
-      type: object
-      required:
-      - self
-      properties:
-        self:
-          $ref: '#/components/schemas/JobLink'
-    Currency:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    JobLink:
       type: string
-      example: USD
-      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+      format: uri
+      example: https://api.dailypay.com/rest/jobs/e9d84b0d-92ba-43c9-93bf-7c993313fa6f
     AccountIdentifier:
       type: object
       required:
@@ -692,7 +650,63 @@ components:
           examples:
           - 2bc7d781-3247-46f6-b60f-4090d214936a
           - 410ae962-51e1-4f44-b0a0-a0fd230a4dc5
+    JobsData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobResource'
+    JobUpdateError:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorJobUpdateError'
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
   responses:
+    Job200:
+      description: Returns the job object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/JobData'
     Unexpected:
       description: Unexpected error occured
       content:
@@ -705,18 +719,6 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorNotFound'
-    Job200:
-      description: Returns the job object.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/JobData'
-    Unauthorized:
-      description: Invalid authentication credentials
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnauthorized'
     Forbidden:
       description: Not authorized to perform this operation
       content:
@@ -729,45 +731,25 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/JobUpdateError'
-    BadRequest:
-      description: Bad Request
+    Unauthorized:
+      description: Invalid authentication credentials
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/ErrorBadRequest'
+            $ref: '#/components/schemas/ErrorUnauthorized'
     Jobs200:
       description: Returns a list of job objects.
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/JobsData'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
   parameters:
-    filter:
-      name: filter
-      x-speakeasy-name-override: filter-by
-      in: query
-      required: false
-      deprecated: true
-      schema:
-        type: string
-        example: ''
-    filter.external_identifiers.primary_identifier:
-      name: filter[external_identifiers.primary_identifier]
-      in: query
-      description: Limit the results to documents with an external identifier matching exactly at the specified key.
-      required: false
-      schema:
-        type: string
-        example: PRIMARY_ID_98765
-    filter.person.id:
-      name: filter[person.id]
-      in: query
-      description: Limit the results to documents related to a specific person
-      required: false
-      schema:
-        type: string
-        format: uuid
-        example: aa860051-c411-4709-9685-c1b716df611b
     filter.organization.id:
       name: filter[organization.id]
       in: query
@@ -777,6 +759,31 @@ components:
         type: string
         format: uuid
         example: f0b30634-108c-439c-a8c1-c6a91197f022
+    filter.external_identifiers.group:
+      name: filter[external_identifiers.group]
+      in: query
+      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      required: false
+      schema:
+        type: string
+        example: '12345'
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    filter.external_identifiers.employee_id:
+      name: filter[external_identifiers.employee_id]
+      in: query
+      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      required: false
+      schema:
+        type: string
+        example: EMP123456
     job_id:
       name: job_id
       description: Unique ID of the job
@@ -786,22 +793,15 @@ components:
         type: string
         format: uuid
         example: aa860051-c411-4709-9685-c1b716df611b
-    filter.external_identifiers.employee_id:
-      name: filter[external_identifiers.employee_id]
+    filter.person.id:
+      name: filter[person.id]
       in: query
-      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      description: Limit the results to documents related to a specific person
       required: false
       schema:
         type: string
-        example: EMP123456
-    filter.external_identifiers.group:
-      name: filter[external_identifiers.group]
-      in: query
-      description: Limit the results to documents with an external identifier matching exactly at the specified key.
-      required: false
-      schema:
-        type: string
-        example: '12345'
+        format: uuid
+        example: aa860051-c411-4709-9685-c1b716df611b
     apiversion:
       name: DailyPay-API-Version
       in: header
@@ -814,6 +814,14 @@ components:
       description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
 
         '
+    filter.external_identifiers.primary_identifier:
+      name: filter[external_identifiers.primary_identifier]
+      in: query
+      description: Limit the results to documents with an external identifier matching exactly at the specified key.
+      required: false
+      schema:
+        type: string
+        example: PRIMARY_ID_98765
   requestBodies:
     JobUpdate:
       required: true

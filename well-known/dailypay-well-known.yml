@@ -1,12 +1,11 @@
-generated: '2026-08-01'
+generated: '2026-09-19'
 method: searched
 source: live probes of every DailyPay host on 2026-08-01
-notes: >-
-  Probed /.well-known/security.txt, /openid-configuration, /oauth-authorization-server,
-  /api-catalog, /ai-plugin.json, /agent-card.json and /agent.json against every host in
-  apis.yml and every OpenAPI servers[] host. account.dailypay.com is a single-page app whose
-  catch-all answers HTTP 200 with an HTML shell for EVERY /.well-known/* path — all of those
-  responses were rejected as false positives and are recorded below as html-catchall.
+notes: Probed /.well-known/security.txt, /openid-configuration, /oauth-authorization-server, /api-catalog,
+  /ai-plugin.json, /agent-card.json and /agent.json against every host in apis.yml and every OpenAPI servers[]
+  host. account.dailypay.com is a single-page app whose catch-all answers HTTP 200 with an HTML shell
+  for EVERY /.well-known/* path — all of those responses were rejected as false positives and are recorded
+  below as html-catchall.
 hosts:
 - host: https://auth.dailypay.com
   role: OAuth 2.0 / OpenID Connect authorization server
@@ -34,10 +33,8 @@ hosts:
     status: 200
     content_type: application/json
     file: dailypay-oauth-authorization-server.json
-    note: >-
-      Advertises a single scope, "mcp", and points at the WordPress MCP OAuth endpoints
-      (/oauth/authorize, /oauth/token, /oauth/revoke). Separate from the API's auth.dailypay.com
-      authorization server.
+    note: Advertises a single scope, "mcp", and points at the WordPress MCP OAuth endpoints (/oauth/authorize,
+      /oauth/token, /oauth/revoke). Separate from the API's auth.dailypay.com authorization server.
   - path: /.well-known/oauth-protected-resource
     status: 200
     content_type: application/json
@@ -61,10 +58,9 @@ hosts:
     status: 200
     content_type: application/json
     file: dailypay-developer-oauth-authorization-server.json
-    note: >-
-      Issuer is https://auth.cloud.redocly.com; the authorization/token/registration endpoints are
-      proxied under /_mcp on the DailyPay docs host. This is the docs-portal MCP auth server, not
-      the DailyPay API auth server.
+    note: Issuer is https://auth.cloud.redocly.com; the authorization/token/registration endpoints are
+      proxied under /_mcp on the DailyPay docs host. This is the docs-portal MCP auth server, not the
+      DailyPay API auth server.
   - path: /.well-known/oauth-protected-resource
     status: 404
   - path: /.well-known/security.txt
@@ -79,6 +75,11 @@ hosts:
     status: 404
   - path: /.well-known/agent.json
     status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: dailypay-developer-oauth-protected-resource.json
+    bytes: 383
+  path_echo_control: passed
 - host: https://api.dailypay.com
   role: production REST API host
   documents:
@@ -120,8 +121,7 @@ hosts:
     status: 200
     content_type: text/html
     result: html-catchall
-    note: >-
-      Every probed /.well-known/* path returned the same 8,856-byte SPA HTML shell. None of these
+    note: Every probed /.well-known/* path returned the same 8,856-byte SPA HTML shell. None of these
       are real discovery documents; all were rejected. No agent card exists on this host.
 findings:
   security_txt: false
@@ -130,3 +130,16 @@ findings:
   api_catalog: false
   ai_plugin: false
   agent_card: false
+x-mcp-probe:
+  probed: '2026-09-19'
+  issue: roadmap#321, roadmap#337
+  documents:
+  - host: https://developer.dailypay.com
+    path: /.well-known/oauth-protected-resource
+    file: dailypay-developer-oauth-protected-resource.json
+  validated_on: resource (RFC 9728) / issuer (RFC 8414, OIDC)
+  negative_control: one per host; a 2xx JSON object at an impossible path discards the host
+note: 'MCP-host OAuth discovery added 2026-09-19 (roadmap#321/#337): the harvest visits a provider''s
+  primary hosts, and RFC 9728 protected-resource metadata lives on the MCP host, so these documents existed
+  and were invisible to the scorer. Fetched live and validated on `resource`/`issuer`; one negative control
+  per host.'
