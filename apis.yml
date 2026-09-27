@@ -45,6 +45,9 @@ x-tier-reason: enrichment-pipeline
 specificationVersion: '0.23'
 created: '2026-08-01'
 modified: '2026-08-01'
+x-docs-platform: redocly
+x-docs-platform-confidence: high
+x-docs-platform-checked: 2026-09-25
 x-enrichment:
   date: '2026-08-01'
   status: enriched
@@ -57,7 +60,7 @@ tags:
 - Human Resources
 - Earned Wage Access
 - On-Demand Pay
-- Financial-Services
+- Financial Services
 - Fintech
 - Money Transfer
 - Benefits
@@ -72,6 +75,7 @@ tags_raw:
 - Fintech
 - Money Transfer
 - Benefits
+- Financial-Services
 apis:
 - aid: dailypay:dailypay-accounts-api
   name: DailyPay Accounts API

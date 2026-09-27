@@ -132,114 +132,48 @@ paths:
         label: listPaychecks
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListPaychecksRequest;\nimport com.dailypay.sdk.models.operations.ListPaychecksResponse;\nimport java.lang.Exception;\nimport java.time.OffsetDateTime;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListPaychecksRequest req = ListPaychecksRequest.builder()\n                .filterDepositExpectedAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterDepositExpectedAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodEndsAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodEndsAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodStartsAtGte(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .filterPayPeriodStartsAtLt(OffsetDateTime.parse(\"2023-03-15T04:00:00Z\"))\n                .build();\n\n        ListPaychecksResponse res = sdk.paychecks().list()\n                .request(req)\n                .call();\n\n        if (res.paychecksData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
-  parameters:
-    paycheck_id:
-      name: paycheck_id
-      description: Unique ID of the paycheck
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-    filter:
-      name: filter
-      x-speakeasy-name-override: filter-by
-      in: query
-      required: false
-      deprecated: true
-      schema:
-        type: string
-        example: ''
-    filter.pay_period_ends_at__lt:
-      name: filter[pay_period_ends_at__lt]
-      in: query
-      description: Limit the results to paychecks with pay_period_ends_at less than the specified date
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
-    filter.paycheck_status:
-      name: filter[status]
-      in: query
-      description: Limit the results to paychecks with the specified status
-      required: false
-      schema:
-        type: string
-        enum:
-        - ESTIMATED
-        - PROCESSING
-        - IN_TRANSIT
-        - DEPOSITED
-        example: DEPOSITED
-    filter.pay_period_starts_at__gte:
-      name: filter[pay_period_starts_at__gte]
-      in: query
-      description: Limit the results to paychecks with pay_period_starts_at greater than or equal to the specified date
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
-    apiversion:
-      name: DailyPay-API-Version
-      in: header
-      schema:
-        type: integer
-        default: 3
-      required: false
-      x-speakeasy-globals-hidden: true
-      x-speakeasy-name-override: version
-      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
-
-        '
-    filter.pay_period_starts_at__lt:
-      name: filter[pay_period_starts_at__lt]
-      in: query
-      description: Limit the results to paychecks with pay_period_starts_at less than the specified date
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
-    filter.job.id:
-      name: filter[job.id]
-      in: query
-      description: Limit the results to documents related to a specific job
-      required: false
-      schema:
-        type: string
-        format: uuid
-        example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
-    filter.deposit_expected_at__gte:
-      name: filter[deposit_expected_at__gte]
-      in: query
-      description: Limit the results to paychecks with deposit_expected_at greater than or equal to the specified date
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
-    filter.pay_period_ends_at__gte:
-      name: filter[pay_period_ends_at__gte]
-      in: query
-      description: Limit the results to paychecks with pay_period_ends_at greater than or equal to the specified date
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
-    filter.deposit_expected_at__lt:
-      name: filter[deposit_expected_at__lt]
-      in: query
-      description: Limit the results to paychecks with deposit_expected_at less than the specified date
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
   schemas:
+    PaycheckRelationships:
+      type: object
+      required:
+      - person
+      - job
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+        job:
+          $ref: '#/components/schemas/JobRelationship'
+    PaycheckLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/PaycheckLink'
+    JobIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: jobs
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+    PaychecksData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaycheckResource'
     PaycheckData:
       type: object
       required:
@@ -247,6 +181,47 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/PaycheckResource'
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
     ErrorForbiddenError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -262,58 +237,21 @@ components:
             - FORBIDDEN
             x-enumDescriptions:
               FORBIDDEN: Requester is not allowed to access this resource or endpoint
-    PaycheckLinks:
-      type: object
-      required:
-      - self
-      properties:
-        self:
-          $ref: '#/components/schemas/PaycheckLink'
-    BadRequestCodes:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
-          example: INVALID_PARAMETERS
-          type: string
-          x-go-type: string
-          x-enumDescriptions:
-            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
-            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
-            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
-            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
-            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
-            INVALID_FILTER_QUERY: The filter query is malformed.
-            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
-            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
-            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
-    JobRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/JobIdentifier'
-    ErrorBadRequestError:
+    ErrorUnexpectedError:
       allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
       - $ref: '#/components/schemas/Error'
-    PersonIdentifier:
-      type: object
-      required:
-      - type
-      - id
-      properties:
-        type:
-          type: string
-          const: people
-          example: people
-        id:
-          type: string
-          format: uuid
-          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
     PaycheckAttributes:
       type: object
       required:
@@ -380,22 +318,11 @@ components:
       format: uri
       readOnly: true
       example: https://api.dailypay.com/rest/paychecks/f4e2fd6c-b567-447c-a003-b7315b8d22d2
-    ErrorUnexpectedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
-            type: string
-            enum:
-            - UNEXPECTED_ERROR
-            x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
-    ErrorUnexpected:
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+    ErrorNotFound:
       type: object
       required:
       - errors
@@ -404,72 +331,7 @@ components:
           description: A list of errors that occurred.
           type: array
           items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
-    PersonRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/PersonIdentifier'
-    ErrorUnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: INVALID_TOKEN
-            type: string
-            enum:
-            - INVALID_TOKEN
-            - UNAUTHORIZED
-            x-enumDescriptions:
-              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
-              UNAUTHORIZED: Authentication has not been provided or is invalid.
-    PaychecksData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/PaycheckResource'
-    ErrorForbidden:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorForbiddenError'
-    PaycheckResource:
-      type: object
-      required:
-      - type
-      - id
-      - attributes
-      - links
-      - relationships
-      properties:
-        type:
-          type: string
-          const: paychecks
-        id:
-          type: string
-          format: uuid
-          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-        attributes:
-          $ref: '#/components/schemas/PaycheckAttributes'
-        links:
-          $ref: '#/components/schemas/PaycheckLinks'
-        relationships:
-          $ref: '#/components/schemas/PaycheckRelationships'
+            $ref: '#/components/schemas/ErrorNotFoundError'
     Error:
       type: object
       required:
@@ -525,22 +387,7 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
-    JobIdentifier:
-      type: object
-      required:
-      - type
-      - id
-      properties:
-        type:
-          type: string
-          readOnly: true
-          const: jobs
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-          example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
-    ErrorNotFound:
+    ErrorUnexpected:
       type: object
       required:
       - errors
@@ -549,48 +396,55 @@ components:
           description: A list of errors that occurred.
           type: array
           items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
-    PaycheckRelationships:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    BadRequestCodes:
       type: object
       required:
-      - person
-      - job
+      - code
       properties:
-        person:
-          $ref: '#/components/schemas/PersonRelationship'
-        job:
-          $ref: '#/components/schemas/JobRelationship'
-    ErrorBadRequest:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorBadRequestError'
-    Currency:
-      type: string
-      example: USD
-      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
-    ErrorNotFoundError:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    ErrorBadRequestError:
       allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
       - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: RECORD_NOT_FOUND
-            type: string
-            enum:
-            - RECORD_NOT_FOUND
-            - NOT_FOUND
-            x-enumDescriptions:
-              RECORD_NOT_FOUND: Could not find a record with the provided ID
-              NOT_FOUND: Could not find resources matching the query parameters
+    JobRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/JobIdentifier'
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
     ErrorUnauthorized:
       type: object
       required:
@@ -601,31 +455,159 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    PaycheckResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - relationships
+      properties:
+        type:
+          type: string
+          const: paychecks
+        id:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        attributes:
+          $ref: '#/components/schemas/PaycheckAttributes'
+        links:
+          $ref: '#/components/schemas/PaycheckLinks'
+        relationships:
+          $ref: '#/components/schemas/PaycheckRelationships'
+  parameters:
+    filter.paycheck_status:
+      name: filter[status]
+      in: query
+      description: Limit the results to paychecks with the specified status
+      required: false
+      schema:
+        type: string
+        enum:
+        - ESTIMATED
+        - PROCESSING
+        - IN_TRANSIT
+        - DEPOSITED
+        example: DEPOSITED
+    filter.pay_period_ends_at__gte:
+      name: filter[pay_period_ends_at__gte]
+      in: query
+      description: Limit the results to paychecks with pay_period_ends_at greater than or equal to the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    filter.job.id:
+      name: filter[job.id]
+      in: query
+      description: Limit the results to documents related to a specific job
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: e9d84b0d-92ba-43c9-93bf-7c993313fa6f
+    filter.pay_period_starts_at__lt:
+      name: filter[pay_period_starts_at__lt]
+      in: query
+      description: Limit the results to paychecks with pay_period_starts_at less than the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+    paycheck_id:
+      name: paycheck_id
+      description: Unique ID of the paycheck
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    filter.pay_period_starts_at__gte:
+      name: filter[pay_period_starts_at__gte]
+      in: query
+      description: Limit the results to paychecks with pay_period_starts_at greater than or equal to the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.pay_period_ends_at__lt:
+      name: filter[pay_period_ends_at__lt]
+      in: query
+      description: Limit the results to paychecks with pay_period_ends_at less than the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.deposit_expected_at__gte:
+      name: filter[deposit_expected_at__gte]
+      in: query
+      description: Limit the results to paychecks with deposit_expected_at greater than or equal to the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    filter.deposit_expected_at__lt:
+      name: filter[deposit_expected_at__lt]
+      in: query
+      description: Limit the results to paychecks with deposit_expected_at less than the specified date
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
   responses:
-    Unexpected:
-      description: Unexpected error occured
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
-    NotFound:
-      description: Resource was not found
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorNotFound'
     Forbidden:
       description: Not authorized to perform this operation
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorForbidden'
-    Unauthorized:
-      description: Invalid authentication credentials
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnauthorized'
     Paycheck200:
       description: Returns the paycheck object.
       content:
@@ -644,6 +626,24 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorBadRequest'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
   securitySchemes:
     oauth_client_credentials_token:
       type: oauth2
