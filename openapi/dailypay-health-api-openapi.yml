@@ -66,12 +66,12 @@ paths:
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.ErrorUnauthorized;\nimport com.dailypay.sdk.models.errors.ErrorUnexpected;\nimport com.dailypay.sdk.models.operations.GetHealthResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorUnauthorized, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        GetHealthResponse res = sdk.health().getHealth()\n                .call();\n\n        if (res.health200().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
   responses:
-    Unauthorized:
-      description: Invalid authentication credentials
+    Unexpected:
+      description: Unexpected error occured
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/ErrorUnauthorized'
+            $ref: '#/components/schemas/ErrorUnexpected'
     Health200:
       description: Returns a healthcheck document
       content:
@@ -90,13 +90,23 @@ components:
                 type: string
                 description: The version of the API
                 example: 3.0.0
-    Unexpected:
-      description: Unexpected error occured
+    Unauthorized:
+      description: Invalid authentication credentials
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
+            $ref: '#/components/schemas/ErrorUnauthorized'
   schemas:
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnexpectedError'
     ErrorUnauthorized:
       type: object
       required:
@@ -107,6 +117,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorUnauthorizedError'
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
     Error:
       type: object
       required:
@@ -162,16 +189,6 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
-    ErrorUnexpected:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
     ErrorUnexpectedError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -187,23 +204,6 @@ components:
             - UNEXPECTED_ERROR
             x-enumDescriptions:
               UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
-    ErrorUnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: INVALID_TOKEN
-            type: string
-            enum:
-            - INVALID_TOKEN
-            - UNAUTHORIZED
-            x-enumDescriptions:
-              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
-              UNAUTHORIZED: Authentication has not been provided or is invalid.
   securitySchemes:
     oauth_client_credentials_token:
       type: oauth2
