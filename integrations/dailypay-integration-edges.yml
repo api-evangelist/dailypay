@@ -1,16 +1,76 @@
 generated: '2026-10-12'
-method: none
+method: searched
 source:
 - https://zapier.com/apps/dailypay/integrations
 - https://n8n.io/integrations/dailypay/
 - https://composio.dev/toolkits/dailypay
 - https://monid.ai/tools/dailypay
 checked:
+- adp/integrations/adp-integration-edges.yml
 - https://composio.dev/toolkits/dailypay
 - https://monid.ai/tools/dailypay
 - https://n8n.io/integrations/dailypay/
 - https://zapier.com/apps/dailypay/integrations
+- okta/integrations/okta-integration-edges.yml
+- ukg/integrations/ukg-integration-edges.yml
 summary: null
 marketplace_apps: []
-edges: []
+edges:
+- partner_name: ADP (own)
+  partner: adp
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://apps.adp.com/apps/224060/dailypay-connector-for-adp
+  mirror_of: adp/integrations/adp-integration-edges.yml
+  apps:
+  - DailyPay Connector for ADP®
+  - DailyPay Connector for ADP Workforce Now® Next Generation
+  - DailyPay Connector for ADP Lyric
+  listing_count: 3
+  detected: '2026-10-14'
+  detected_by: mirror-platform-listings.py
+  category: EeT
+- partner_name: Okta (own)
+  partner: okta
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://www.okta.com/integrations/dailypay/
+  mirror_of: okta/integrations/okta-integration-edges.yml
+  apps:
+  - DailyPay
+  listing_count: 1
+  detected: '2026-10-14'
+  detected_by: mirror-platform-listings.py
+  category: Single Sign-On
+  badges:
+  - OKTA_VERIFIED
+  features:
+  - SAML
+- partner_name: UKG (own)
+  partner: ukg
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://marketplace.ukg.com/apps/292145/dailypay
+  mirror_of: ukg/integrations/ukg-integration-edges.yml
+  apps:
+  - DailyPay
+  listing_count: 1
+  detected: '2026-10-14'
+  detected_by: mirror-platform-listings.py
+  category: Payroll
 templates: []
