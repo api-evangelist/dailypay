@@ -163,97 +163,22 @@ paths:
         label: createTransfer
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.CreateTransferRequest;\nimport com.dailypay.sdk.models.operations.CreateTransferResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws TransferCreateError, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        CreateTransferRequest req = CreateTransferRequest.builder()\n                .idempotencyKey(\"ea9f2225-403b-4e2c-93b0-0eda090ffa65\")\n                .transferCreateData(TransferCreateData.builder()\n                    .data(TransferCreateResource.builder()\n                        .attributes(TransferAttributesInput.builder()\n                            .amount(2500L)\n                            .currency(\"USD\")\n                            .schedule(TransferAttributesSchedule.WITHIN_THIRTY_MINUTES)\n                            .preview(true)\n                            .build())\n                        .relationships(TransferCreateRelationships.builder()\n                            .origin(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                                    .build())\n                                .build())\n                            .destination(AccountRelationship.builder()\n                                .data(AccountIdentifier.builder()\n                                    .id(\"2bc7d781-3247-46f6-b60f-4090d214936a\")\n                                    .build())\n                                .build())\n                            .person(PersonRelationship.builder()\n                                .data(PersonIdentifier.builder()\n                                    .id(\"3fa8f641-5717-4562-b3fc-2c963f66afa6\")\n                                    .build())\n                                .build())\n                            .build())\n                        .id(\"aba332a2-24a2-46de-8257-5040e71ab210\")\n                        .build())\n                    .build())\n                .build();\n\n        CreateTransferResponse res = sdk.transfers().create()\n                .request(req)\n                .call();\n\n        if (res.transferData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
-  parameters:
-    idempotency_key:
-      name: Idempotency-Key
-      in: header
-      schema:
-        type: string
-        format: uuid
-        example: e2736aa1-78c4-4cc6-b0a6-848e733f232a
-      required: true
-      description: 'An idempotency key is a unique string that you provide to ensure a request is only processed once.
-
-        Any number of requests with the same idempotency key and payload will return an identical response.
-
-        '
-    filter:
-      name: filter
-      x-speakeasy-name-override: filter-by
-      in: query
-      required: false
-      deprecated: true
-      schema:
-        type: string
-        example: ''
-    filter.submitted_at__gt:
-      name: filter[submitted_at__gt]
-      in: query
-      description: Limit the results to documents submitted after this date.
-      required: false
-      schema:
-        type: string
-        example: '2023-03-15T04:00:00Z'
-        format: date-time
-    transferIncludes:
-      name: include
-      in: query
-      description: "Add related resources to the response. \n\nThe value of the include parameter must be a comma-separated (U+002C COMMA, “,”) list of relationship paths.\n"
-      required: false
-      schema:
-        type: string
-        example: estimated_funding_sources,final_funding_sources
-    apiversion:
-      name: DailyPay-API-Version
-      in: header
-      schema:
-        type: integer
-        default: 3
-      required: false
-      x-speakeasy-globals-hidden: true
-      x-speakeasy-name-override: version
-      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
-
-        '
-    transfer_id:
-      name: transfer_id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-        example: aba332a2-24a2-46de-8257-5040e71ab210
-      description: Unique ID of the transfer
   schemas:
-    TransferCreateError:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorTransferCreateError'
-    TransferCreateResource:
-      type: object
-      required:
-      - type
-      - attributes
-      - relationships
-      properties:
-        type:
-          type: string
-          const: transfers
-        id:
-          type: string
-          format: uuid
-          description: The unique identifier of the transfer. Any UUID version is valid, lower-cased.
-          example: aba332a2-24a2-46de-8257-5040e71ab210
-        attributes:
-          $ref: '#/components/schemas/TransferCreateAttributes'
-        relationships:
-          $ref: '#/components/schemas/TransferCreateRelationships'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
     ErrorUnauthorizedError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -271,151 +196,12 @@ components:
             x-enumDescriptions:
               INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
               UNAUTHORIZED: Authentication has not been provided or is invalid.
-    TransferAttributes:
-      allOf:
-      - $ref: '#/components/schemas/TransferCreateAttributes'
-      - type: object
-        required:
-        - fee
-        - resolved_at
-        - status
-        - submitted_at
-        - preview
-        description: "An object representing a transfer of money from one account to another. \nCreated when a person takes an advance against a future paycheck, or on a daily basis \nwhen we update estimated earnings based on current employment.\n"
-        properties:
-          status:
-            type: string
-            enum:
-            - PENDING
-            - SETTLED
-            - FAILED
-            description: The status of the transfer.
-            x-enumDescriptions:
-              PENDING: The transfer is in process, or funds have been scheduled but a final status is not yet known.
-              SETTLED: Funds have been successfully transferred.
-              FAILED: The transfer has failed.
-          submitted_at:
-            description: An ISO 8601 timestamp denoting the receipt for the request.
-            type: string
-            example: '2021-04-21T21:30:58.051Z'
-            format: date-time
-          resolved_at:
-            type:
-            - string
-            - 'null'
-            description: An ISO 8601 date denoting a successful or unsuccessful resolution for the request.
-            example: '2021-04-21T21:30:58.051Z'
-            format: date-time
-          fee:
-            description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
-
-              If a transfer incurs a fee, the fee will be deducted from the amount of the transfer.'
-            type: integer
-            minimum: 0
-            example: 0
-    ErrorUnexpected:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnexpectedError'
-    ErrorForbidden:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorForbiddenError'
-    TransferData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/TransferResource'
-        included:
-          readOnly: true
-          type: array
-          items:
-            $ref: '#/components/schemas/FundingSourceResource'
-    ErrorUnauthorized:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
     Amount:
       type: integer
       minimum: 0
       example: 2500
       description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.'
-    FundingSourceRelationships:
-      type: object
-      readOnly: true
-      required:
-      - source
-      - transfer
-      properties:
-        source:
-          $ref: '#/components/schemas/PaycheckRelationship'
-        transfer:
-          $ref: '#/components/schemas/TransferRelationship'
-    FundingSourceResource:
-      type: object
-      readOnly: true
-      required:
-      - id
-      - type
-      - attributes
-      - relationships
-      description: A source describes how transfers with an origin of EARNINGS_BALANCE account are funded.
-      properties:
-        id:
-          type: string
-          example: b5393c00b7c113fc2e5ae3e80c785bb2
-        type:
-          type: string
-          const: funding_sources
-        attributes:
-          $ref: '#/components/schemas/FundingSourceAttributes'
-        relationships:
-          $ref: '#/components/schemas/FundingSourceRelationships'
-    AccountRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/AccountIdentifier'
-    TransferCreateRelationships:
-      type: object
-      required:
-      - origin
-      properties:
-        origin:
-          description: 'User-created transfers must originate from an Account with `account_type` `EARNINGS_BALANCE`.
-
-            '
-          allOf:
-          - $ref: '#/components/schemas/AccountRelationship'
-        destination:
-          description: "The account to which funds are transferred. \n\nUser-created transfers should have a destination Account with `account_type` `DEPOSITORY` or `CARD`.\n"
-          allOf:
-          - $ref: '#/components/schemas/AccountRelationship'
-        person:
-          $ref: '#/components/schemas/PersonRelationship'
-    FundingSourceIdentifier:
+    PaycheckIdentifier:
       type: object
       readOnly: true
       required:
@@ -424,26 +210,33 @@ components:
       properties:
         type:
           type: string
+          const: paychecks
           readOnly: true
-          const: funding_sources
         id:
           type: string
+          format: uuid
           readOnly: true
-          example: b5393c00b7c113fc2e5ae3e80c785bb2
-    ErrorConflictError:
-      allOf:
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: IDEMPOTENCY_KEY_LOCKED
-            type: string
-            x-go-type: string
-            x-enumDescriptions:
-              IDEMPOTENCY_KEY_LOCKED: The provided idempotency key is currently being used by another request.  This can happen if there are multiple simultaneous requests with the same idempotency key. It is safe to retry the request.
-      - $ref: '#/components/schemas/Error'
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
     PersonRelationship:
       type: object
       required:
@@ -451,24 +244,6 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/PersonIdentifier'
-    TransferRelationship:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/TransferIdentifier'
-    TransferCreateData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/TransferCreateResource'
-    Currency:
-      type: string
-      example: USD
-      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
     TransferIdentifier:
       type: object
       readOnly: true
@@ -485,17 +260,110 @@ components:
           format: uuid
           readOnly: true
           example: aba332a2-24a2-46de-8257-5040e71ab210
-    FundingSourcesRelationship:
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    ErrorConflictError:
+      allOf:
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: IDEMPOTENCY_KEY_LOCKED
+            type: string
+            x-go-type: string
+            x-enumDescriptions:
+              IDEMPOTENCY_KEY_LOCKED: The provided idempotency key is currently being used by another request.  This can happen if there are multiple simultaneous requests with the same idempotency key. It is safe to retry the request.
+      - $ref: '#/components/schemas/Error'
+    TransferLinks:
       type: object
       readOnly: true
       required:
-      - data
+      - self
       properties:
-        data:
+        self:
+          $ref: '#/components/schemas/TransferLink'
+    ErrorUnexpected:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
           type: array
           items:
-            $ref: '#/components/schemas/FundingSourceIdentifier'
-          minItems: 0
+            $ref: '#/components/schemas/ErrorUnexpectedError'
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    TransferRelationships:
+      type: object
+      required:
+      - origin
+      - destination
+      - person
+      - estimated_funding_sources
+      - final_funding_sources
+      properties:
+        origin:
+          description: "Origin may be a reference to either a Paycheck or an Account.\n\nUser-created transfers always originate from an Account with `account_type` `EARNINGS_BALANCE`.\n\nA transfer that originates from a Paycheck is a  \nsystem-created record that describes a credit of earnings to an account with `account_type` `EARNINGS_BALANCE`.\n"
+          oneOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+          - $ref: '#/components/schemas/PaycheckRelationship'
+        destination:
+          description: "The account to which funds are transferred. \n\nUser-created transfers should have a destination Account with `account_type` `DEPOSITORY` or `CARD`.\n"
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+        estimated_funding_sources:
+          description: "On user-created transfers, details the paychecks that are likely to be used to reimburse this transfer. \n\nThe paychecks impacted, and final amount allocated from each paycheck is subject to change. \nSee `final_funding_sources` for the final allocations.\n"
+          allOf:
+          - $ref: '#/components/schemas/FundingSourcesRelationship'
+        final_funding_sources:
+          description: 'On user-created transfers, details the paychecks that were used to reimburse this transfer and the amount allocated from each paycheck.
+
+
+            If this relationship has members, its members and their values are immutable.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/FundingSourcesRelationship'
+    FundingSourceRelationships:
+      type: object
+      readOnly: true
+      required:
+      - source
+      - transfer
+      properties:
+        source:
+          $ref: '#/components/schemas/PaycheckRelationship'
+        transfer:
+          $ref: '#/components/schemas/TransferRelationship'
     Error:
       type: object
       required:
@@ -551,51 +419,81 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
-    TransferLinks:
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    TransferAttributes:
+      allOf:
+      - $ref: '#/components/schemas/TransferCreateAttributes'
+      - type: object
+        required:
+        - fee
+        - resolved_at
+        - status
+        - submitted_at
+        - preview
+        description: "An object representing a transfer of money from one account to another. \nCreated when a person takes an advance against a future paycheck, or on a daily basis \nwhen we update estimated earnings based on current employment.\n"
+        properties:
+          status:
+            type: string
+            enum:
+            - PENDING
+            - SETTLED
+            - FAILED
+            description: The status of the transfer.
+            x-enumDescriptions:
+              PENDING: The transfer is in process, or funds have been scheduled but a final status is not yet known.
+              SETTLED: Funds have been successfully transferred.
+              FAILED: The transfer has failed.
+          submitted_at:
+            description: An ISO 8601 timestamp denoting the receipt for the request.
+            type: string
+            example: '2021-04-21T21:30:58.051Z'
+            format: date-time
+          resolved_at:
+            type:
+            - string
+            - 'null'
+            description: An ISO 8601 date denoting a successful or unsuccessful resolution for the request.
+            example: '2021-04-21T21:30:58.051Z'
+            format: date-time
+          fee:
+            description: 'A monetary quantity expressed in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
+
+              If a transfer incurs a fee, the fee will be deducted from the amount of the transfer.'
+            type: integer
+            minimum: 0
+            example: 0
+    FundingSourceIdentifier:
       type: object
       readOnly: true
       required:
-      - self
+      - type
+      - id
       properties:
-        self:
-          $ref: '#/components/schemas/TransferLink'
-    ErrorBadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
-      - $ref: '#/components/schemas/Error'
-    TransferRelationships:
+        type:
+          type: string
+          readOnly: true
+          const: funding_sources
+        id:
+          type: string
+          readOnly: true
+          example: b5393c00b7c113fc2e5ae3e80c785bb2
+    PaycheckRelationship:
       type: object
+      readOnly: true
       required:
-      - origin
-      - destination
-      - person
-      - estimated_funding_sources
-      - final_funding_sources
+      - data
       properties:
-        origin:
-          description: "Origin may be a reference to either a Paycheck or an Account.\n\nUser-created transfers always originate from an Account with `account_type` `EARNINGS_BALANCE`.\n\nA transfer that originates from a Paycheck is a  \nsystem-created record that describes a credit of earnings to an account with `account_type` `EARNINGS_BALANCE`.\n"
-          oneOf:
-          - $ref: '#/components/schemas/AccountRelationship'
-          - $ref: '#/components/schemas/PaycheckRelationship'
-        destination:
-          description: "The account to which funds are transferred. \n\nUser-created transfers should have a destination Account with `account_type` `DEPOSITORY` or `CARD`.\n"
-          allOf:
-          - $ref: '#/components/schemas/AccountRelationship'
-        person:
-          $ref: '#/components/schemas/PersonRelationship'
-        estimated_funding_sources:
-          description: "On user-created transfers, details the paychecks that are likely to be used to reimburse this transfer. \n\nThe paychecks impacted, and final amount allocated from each paycheck is subject to change. \nSee `final_funding_sources` for the final allocations.\n"
-          allOf:
-          - $ref: '#/components/schemas/FundingSourcesRelationship'
-        final_funding_sources:
-          description: 'On user-created transfers, details the paychecks that were used to reimburse this transfer and the amount allocated from each paycheck.
-
-
-            If this relationship has members, its members and their values are immutable.
-
-            '
-          allOf:
-          - $ref: '#/components/schemas/FundingSourcesRelationship'
+        data:
+          $ref: '#/components/schemas/PaycheckIdentifier'
     ErrorBadRequest:
       type: object
       required:
@@ -606,26 +504,178 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorBadRequestError'
-    BadRequestCodes:
+    FundingSourcesRelationship:
+      type: object
+      readOnly: true
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FundingSourceIdentifier'
+          minItems: 0
+    ErrorConflict:
       type: object
       required:
-      - code
+      - errors
       properties:
-        code:
-          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
-          example: INVALID_PARAMETERS
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorConflictError'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+    AccountIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
           type: string
-          x-go-type: string
-          x-enumDescriptions:
-            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
-            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
-            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
-            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
-            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
-            INVALID_FILTER_QUERY: The filter query is malformed.
-            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
-            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
-            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+          const: accounts
+        id:
+          type: string
+          format: uuid
+          examples:
+          - 2bc7d781-3247-46f6-b60f-4090d214936a
+          - 410ae962-51e1-4f44-b0a0-a0fd230a4dc5
+    Currency:
+      type: string
+      example: USD
+      description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+    TransferLink:
+      type: string
+      format: uri
+      readOnly: true
+      example: https://api.dailypay.com/rest/transfers/aba332a2-24a2-46de-8257-5040e71ab210
+    FundingSourceAttributes:
+      type: object
+      readOnly: true
+      required:
+      - amount
+      - currency
+      properties:
+        amount:
+          description: 'The amount of money from the related paycheck allocated towards funding the related transfer.
+
+
+            A monetary quantity expressed in units of the lowest denomination in the
+
+            associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+        currency:
+          $ref: '#/components/schemas/Currency'
+    TransferRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TransferIdentifier'
+    AccountRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountIdentifier'
+    ErrorNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: RECORD_NOT_FOUND
+            type: string
+            enum:
+            - RECORD_NOT_FOUND
+            - NOT_FOUND
+            x-enumDescriptions:
+              RECORD_NOT_FOUND: Could not find a record with the provided ID
+              NOT_FOUND: Could not find resources matching the query parameters
+    FundingSourceResource:
+      type: object
+      readOnly: true
+      required:
+      - id
+      - type
+      - attributes
+      - relationships
+      description: A source describes how transfers with an origin of EARNINGS_BALANCE account are funded.
+      properties:
+        id:
+          type: string
+          example: b5393c00b7c113fc2e5ae3e80c785bb2
+        type:
+          type: string
+          const: funding_sources
+        attributes:
+          $ref: '#/components/schemas/FundingSourceAttributes'
+        relationships:
+          $ref: '#/components/schemas/FundingSourceRelationships'
+    TransferResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      - relationships
+      properties:
+        type:
+          type: string
+          const: transfers
+        id:
+          type: string
+          format: uuid
+          example: aba332a2-24a2-46de-8257-5040e71ab210
+        attributes:
+          $ref: '#/components/schemas/TransferAttributes'
+        links:
+          $ref: '#/components/schemas/TransferLinks'
+        relationships:
+          $ref: '#/components/schemas/TransferRelationships'
+    TransferCreateResource:
+      type: object
+      required:
+      - type
+      - attributes
+      - relationships
+      properties:
+        type:
+          type: string
+          const: transfers
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the transfer. Any UUID version is valid, lower-cased.
+          example: aba332a2-24a2-46de-8257-5040e71ab210
+        attributes:
+          $ref: '#/components/schemas/TransferCreateAttributes'
+        relationships:
+          $ref: '#/components/schemas/TransferCreateRelationships'
     ErrorTransferCreateError:
       allOf:
       - type: object
@@ -660,39 +710,6 @@ components:
               TRANSFER_LIMIT_EXCEEDED: The number of transfers requested within the last 24 hours exceeded the daily transfer limit for associated person.
               TRANSFERS_DISABLED: Transfers are disabled from the selected origin account.
       - $ref: '#/components/schemas/Error'
-    TransfersData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/TransferResource'
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/FundingSourceResource'
-    FundingSourceAttributes:
-      type: object
-      readOnly: true
-      required:
-      - amount
-      - currency
-      properties:
-        amount:
-          description: 'The amount of money from the related paycheck allocated towards funding the related transfer.
-
-
-            A monetary quantity expressed in units of the lowest denomination in the
-
-            associated currency. For example, `{ amount: 7250, currency: ''USD'' }` resolves to $72.50.
-
-            '
-          allOf:
-          - $ref: '#/components/schemas/Amount'
-        currency:
-          $ref: '#/components/schemas/Currency'
     TransferCreateAttributes:
       type: object
       required:
@@ -728,160 +745,155 @@ components:
           - NEXT_BUSINESS_DAY
           example: WITHIN_THIRTY_MINUTES
           description: "Set the schedule for the transfer. If not set, the transfer will be processed immediately. \nA preview transfer will never send.\n"
-    AccountIdentifier:
+    TransferCreateRelationships:
       type: object
       required:
-      - type
-      - id
+      - origin
       properties:
-        type:
-          type: string
-          const: accounts
-        id:
-          type: string
-          format: uuid
-          examples:
-          - 2bc7d781-3247-46f6-b60f-4090d214936a
-          - 410ae962-51e1-4f44-b0a0-a0fd230a4dc5
-    ErrorNotFound:
+        origin:
+          description: 'User-created transfers must originate from an Account with `account_type` `EARNINGS_BALANCE`.
+
+            '
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        destination:
+          description: "The account to which funds are transferred. \n\nUser-created transfers should have a destination Account with `account_type` `DEPOSITORY` or `CARD`.\n"
+          allOf:
+          - $ref: '#/components/schemas/AccountRelationship'
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+    TransferData:
       type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
-    TransferLink:
-      type: string
-      format: uri
-      readOnly: true
-      example: https://api.dailypay.com/rest/transfers/aba332a2-24a2-46de-8257-5040e71ab210
-    TransferResource:
-      type: object
-      required:
-      - type
-      - id
-      - attributes
-      - links
-      - relationships
-      properties:
-        type:
-          type: string
-          const: transfers
-        id:
-          type: string
-          format: uuid
-          example: aba332a2-24a2-46de-8257-5040e71ab210
-        attributes:
-          $ref: '#/components/schemas/TransferAttributes'
-        links:
-          $ref: '#/components/schemas/TransferLinks'
-        relationships:
-          $ref: '#/components/schemas/TransferRelationships'
-    PaycheckIdentifier:
-      type: object
-      readOnly: true
-      required:
-      - type
-      - id
-      properties:
-        type:
-          type: string
-          const: paychecks
-          readOnly: true
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
-    PersonIdentifier:
-      type: object
-      required:
-      - type
-      - id
-      properties:
-        type:
-          type: string
-          const: people
-          example: people
-        id:
-          type: string
-          format: uuid
-          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
-    ErrorNotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: RECORD_NOT_FOUND
-            type: string
-            enum:
-            - RECORD_NOT_FOUND
-            - NOT_FOUND
-            x-enumDescriptions:
-              RECORD_NOT_FOUND: Could not find a record with the provided ID
-              NOT_FOUND: Could not find resources matching the query parameters
-    ErrorConflict:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorConflictError'
-    PaycheckRelationship:
-      type: object
-      readOnly: true
       required:
       - data
       properties:
         data:
-          $ref: '#/components/schemas/PaycheckIdentifier'
-    ErrorForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: FORBIDDEN
-            type: string
-            enum:
-            - FORBIDDEN
-            x-enumDescriptions:
-              FORBIDDEN: Requester is not allowed to access this resource or endpoint
-    ErrorUnexpectedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
-            type: string
-            enum:
-            - UNEXPECTED_ERROR
-            x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+          $ref: '#/components/schemas/TransferResource'
+        included:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/FundingSourceResource'
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
+    TransferCreateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TransferCreateResource'
+    TransfersData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransferResource'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/FundingSourceResource'
+    TransferCreateError:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorTransferCreateError'
+  parameters:
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+    filter.submitted_at__gt:
+      name: filter[submitted_at__gt]
+      in: query
+      description: Limit the results to documents submitted after this date.
+      required: false
+      schema:
+        type: string
+        example: '2023-03-15T04:00:00Z'
+        format: date-time
+    transferIncludes:
+      name: include
+      in: query
+      description: "Add related resources to the response. \n\nThe value of the include parameter must be a comma-separated (U+002C COMMA, “,”) list of relationship paths.\n"
+      required: false
+      schema:
+        type: string
+        example: estimated_funding_sources,final_funding_sources
+    transfer_id:
+      name: transfer_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: aba332a2-24a2-46de-8257-5040e71ab210
+      description: Unique ID of the transfer
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    idempotency_key:
+      name: Idempotency-Key
+      in: header
+      schema:
+        type: string
+        format: uuid
+        example: e2736aa1-78c4-4cc6-b0a6-848e733f232a
+      required: true
+      description: 'An idempotency key is a unique string that you provide to ensure a request is only processed once.
+
+        Any number of requests with the same idempotency key and payload will return an identical response.
+
+        '
   responses:
-    BadRequest:
-      description: Bad Request
+    Forbidden:
+      description: Not authorized to perform this operation
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/ErrorBadRequest'
+            $ref: '#/components/schemas/ErrorForbidden'
+    Conflict:
+      description: A conflict occurred with the current state of the resource
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorConflict'
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
     Transfers200:
       description: A list of transfer objects.
       content:
@@ -894,42 +906,30 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorNotFound'
-    Unexpected:
-      description: Unexpected error occured
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
-    TransferCreate400:
-      description: The request contained an error
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/TransferCreateError'
-    Forbidden:
-      description: Not authorized to perform this operation
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorForbidden'
-    Transfer200:
-      description: Returns the newly created transfer object.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/TransferData'
-    Conflict:
-      description: A conflict occurred with the current state of the resource
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorConflict'
     Unauthorized:
       description: Invalid authentication credentials
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorUnauthorized'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    TransferCreate400:
+      description: The request contained an error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/TransferCreateError'
+    Transfer200:
+      description: Returns the newly created transfer object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/TransferData'
   requestBodies:
     TransferCreate:
       required: true

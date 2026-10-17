@@ -195,84 +195,8 @@ paths:
         label: createAccount
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.*;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.CreateAccountResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws AccountCreateError, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        AccountDataInput req = AccountDataInput.builder()\n                .data(AccountResourceInput.builder()\n                    .attributes(AccountAttributesInput.of(DepositoryInput.builder()\n                        .name(\"Acme Bank Checking Account\")\n                        .subtype(AccountAttributesDepositorySubtype.CHECKING)\n                        .depositoryAccountDetails(DepositoryAccountDetails.builder()\n                            .firstName(\"Edith\")\n                            .lastName(\"Clarke\")\n                            .routingNumber(\"XXXXX2021\")\n                            .accountNumber(\"XXXXXX4321\")\n                            .build())\n                        .build()))\n                    .relationships(AccountRelationships.builder()\n                        .person(PersonRelationship.builder()\n                            .data(PersonIdentifier.builder()\n                                .id(\"3fa8f641-5717-4562-b3fc-2c963f66afa6\")\n                                .build())\n                            .build())\n                        .build())\n                    .build())\n                .build();\n\n        CreateAccountResponse res = sdk.accounts().create()\n                .request(req)\n                .call();\n\n        if (res.accountData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
-  parameters:
-    filter:
-      name: filter
-      x-speakeasy-name-override: filter-by
-      in: query
-      required: false
-      deprecated: true
-      schema:
-        type: string
-        example: ''
-    filter.account_type:
-      name: filter[account_type]
-      in: query
-      description: Limit the results to documents matching the specified account type.
-      required: false
-      schema:
-        type: string
-        example: EARNINGS_BALANCE
-        enum:
-        - EARNINGS_BALANCE
-        - DEPOSITORY
-        - CARD
-    apiversion:
-      name: DailyPay-API-Version
-      in: header
-      schema:
-        type: integer
-        default: 3
-      required: false
-      x-speakeasy-globals-hidden: true
-      x-speakeasy-name-override: version
-      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
-
-        '
-    filter.person.id:
-      name: filter[person.id]
-      in: query
-      description: Limit the results to documents related to a specific person
-      required: false
-      schema:
-        type: string
-        format: uuid
-        example: aa860051-c411-4709-9685-c1b716df611b
-    account_id:
-      name: account_id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-        example: 2bc7d781-3247-46f6-b60f-4090d214936a
-      description: Unique UUID of the Account.
-    filter.account_subtype:
-      name: filter[subtype]
-      in: query
-      description: Limit the results to documents matching the specified account subtype.
-      required: false
-      schema:
-        type: string
-        example: ODP
-        x-enumDescriptions:
-          ODP: On Demand Pay (Earnings Balance)
-          CHECKING: Checking Account (Depository)
-          SAVINGS: Savings Account (Depository)
-          DAILYPAY: DailyPay Card (Card)
-          DEBIT: Debit Card (Card)
   schemas:
-    ErrorForbidden:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorForbiddenError'
-    ErrorUnauthorizedError:
+    ErrorForbiddenError:
       allOf:
       - $ref: '#/components/schemas/Error'
       - type: object
@@ -281,38 +205,12 @@ components:
         properties:
           code:
             description: A code that indicates what went wrong.
-            example: INVALID_TOKEN
+            example: FORBIDDEN
             type: string
             enum:
-            - INVALID_TOKEN
-            - UNAUTHORIZED
+            - FORBIDDEN
             x-enumDescriptions:
-              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
-              UNAUTHORIZED: Authentication has not been provided or is invalid.
-    AccountCreateError:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorAccountCreateError'
-    AccountData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/AccountResource'
-    AccountAttributes:
-      type: object
-      description: The details of the account.
-      oneOf:
-      - $ref: '#/components/schemas/AccountAttributes_Card'
-      - $ref: '#/components/schemas/AccountAttributes_EarningsBalance'
-      - $ref: '#/components/schemas/AccountAttributes_Depository'
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
     ErrorAccountCreateError:
       allOf:
       - type: object
@@ -339,14 +237,90 @@ components:
               INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
               INVALID_VERSION_HEADER: Request contained an API version header that is not supported
       - $ref: '#/components/schemas/Error'
-    AccountRelationships:
+    ErrorUnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: INVALID_TOKEN
+            type: string
+            enum:
+            - INVALID_TOKEN
+            - UNAUTHORIZED
+            x-enumDescriptions:
+              INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
+              UNAUTHORIZED: Authentication has not been provided or is invalid.
+    AccountLink:
+      type: string
+      format: uri
+      readOnly: true
+      x-go-type-skip-optional-pointer: true
+      description: The URI for the account
+      example: https://api.dailypay.com/rest/accounts/2bc7d781-3247-46f6-b60f-4090d214936a
+    AccountResource:
       type: object
       required:
-      - person
+      - type
+      - id
+      - attributes
+      - links
+      - relationships
       properties:
-        person:
-          $ref: '#/components/schemas/PersonRelationship'
-    ErrorUnauthorized:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the Account.
+          example: 2bc7d781-3247-46f6-b60f-4090d214936a
+        type:
+          type: string
+          const: accounts
+          example: accounts
+          description: The type of the resource. Always `accounts`.
+        attributes:
+          $ref: '#/components/schemas/AccountAttributes'
+        links:
+          $ref: '#/components/schemas/AccountLinks'
+        relationships:
+          $ref: '#/components/schemas/AccountRelationships'
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    AccountAttributes:
+      type: object
+      description: The details of the account.
+      oneOf:
+      - $ref: '#/components/schemas/AccountAttributes_Card'
+      - $ref: '#/components/schemas/AccountAttributes_EarningsBalance'
+      - $ref: '#/components/schemas/AccountAttributes_Depository'
+    PersonRelationship:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PersonIdentifier'
+    AccountCreateError:
       type: object
       required:
       - errors
@@ -355,7 +329,54 @@ components:
           description: A list of errors that occurred.
           type: array
           items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
+            $ref: '#/components/schemas/ErrorAccountCreateError'
+    AccountAttributes_EarningsBalance:
+      allOf:
+      - $ref: '#/components/schemas/AccountAttributes__Common'
+      - type: object
+        title: Earnings Balance (read only)
+        description: An account with type `EARNINGS_BALANCE` and subtype `ODP`.
+        required:
+        - account_type
+        - subtype
+        - details
+        - name
+        properties:
+          name:
+            type: string
+            description: Display name for this account.
+            example: DailyPay Pay Balance
+          account_type:
+            type: string
+            description: The type of account. It differentiates between depository accounts (e.g. bank account), cards (e.g. debit) and earnings balance type of accounts (e.g. on demand pay).
+            const: EARNINGS_BALANCE
+          subtype:
+            type: string
+            description: The subtype of the account.
+            const: ODP
+          details:
+            type: object
+            description: An empty object for earnings balance accounts.
+            minProperties: 0
+            maxProperties: 0
+    PersonIdentifier:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          const: people
+          example: people
+        id:
+          type: string
+          format: uuid
+          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
     ErrorUnexpected:
       type: object
       required:
@@ -366,51 +387,187 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorUnexpectedError'
-    AccountCreateData:
+    ErrorNotFound:
       type: object
       required:
-      - data
+      - errors
       properties:
-        data:
-          $ref: '#/components/schemas/AccountCreateResource'
-    TransferDestinationCapability:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
+    AccountRelationships:
       type: object
       required:
-      - schedule
-      - fee
-      - currency
+      - person
       properties:
-        schedule:
+        person:
+          $ref: '#/components/schemas/PersonRelationship'
+    Error:
+      type: object
+      required:
+      - status
+      - detail
+      - meta
+      - links
+      properties:
+        status:
+          description: The HTTP status code for the error.
+          example: '400'
           type: string
-          description: The expected time for the transfer to be completed.
+        detail:
+          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
+          example: The request failed because it was not in the correct format or did not contain valid data.
+          type: string
+        links:
+          description: A list of links to resources that may be helpful in resolving the error.
+          type: object
+          x-go-type-name: ErrorLinks
+          properties:
+            about:
+              type: string
+              format: uri
+              example: https://developer.dailypay.com/tag/Errors
+        source:
+          description: Location in the request that may have caused the error.
+          type: object
+          x-go-type-name: ErrorSource
+          properties:
+            parameter:
+              description: The name of the parameter that caused the error.
+              example: filter[first_name]
+              type: string
+            pointer:
+              description: A JSON Pointer to the location in the request that caused the error.
+              example: /data/attributes/first_name
+              type: string
+            header:
+              description: The name of the header that caused the error.
+              example: Accept
+              type: string
+        meta:
+          x-go-type-name: ErrorMeta
+          description: Additional information about the error.
+          type: object
+          properties:
+            request_id:
+              description: A UUID for the originating request.
+              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
+              type: string
+            trace_id:
+              description: An ID used for tracing purposes.
+              example: '4016616108459136584'
+              type: string
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    AccountAttributes__Common:
+      type: object
+      required:
+      - balances
+      - verification_status
+      - capabilities
+      properties:
+        verification_status:
+          x-go-type-name: AccountVerificationStatus
+          x-speakeasy-name-override: accountVerificationStatus
+          description: A code that indicates the status of an account that is a destination for funds.
+          example: VERIFIED
+          type: string
           enum:
-          - WITHIN_THIRTY_MINUTES
-          - NEXT_BUSINESS_DAY
-          example: WITHIN_THIRTY_MINUTES
-        fee:
-          type: integer
-          description: 'A monetary quantity expressed in units of the lowest denomination in
-
-            the associated currency. For example, `{ amount: 299, currency: ''USD''
-
-            }` resolves to $2.99.
-
-
-            If a transfer incurs a fee, the fee will be deducted from the amount of
-
-            the transfer.
-
-            '
-          example: 0
-        currency:
-          $ref: '#/components/schemas/Currency'
-    PersonRelationship:
+          - VERIFICATION_PENDING
+          - VERIFICATION_FAILED
+          - VERIFIED
+        balances:
+          type: object
+          x-go-type-name: AccountBalances
+          x-speakeasy-name-override: accountBalances
+          required:
+          - available
+          - current
+          - currency
+          properties:
+            available:
+              readOnly: true
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              description: "The amount of funds available to be withdrawn from the account. \n\nFor earnings_balance-type accounts, the available balance typically\nequals the current balance less any pending outflows, plus any pending inflows,\n\n\nThis value is in units of the lowest denomination in the associated\ncurrency. For example, `{ amount: 7250, currency: 'USD' }` resolves to\n$72.50.\n"
+              example: 12000
+            current:
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              description: "The total amount of funds settled in the account. \nThis value is in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: 'USD' }` resolves to $72.50.\n**Special note for Earnings Balance accounts:**\nIf a user transfers money from an Earnings Balance account to a personal account, the `current` balance may be negative as those transfers settle. When a paycheck is processed, DailyPay will automatically attempt to zero out the balance,  transferring any remaining funds to the `direct_deposit_default_depository` account set for the associated Job.\nIf DailyPay is unable to zero out the balance during paycheck processing, the `current` balance will remain negative,  which may impact a user's ability to transfer additional funds from their earnings balance. \nIn those cases, the available balance will be 0.\n"
+              example: 50000
+            currency:
+              type: string
+              example: USD
+              description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
+        capabilities:
+          type: object
+          x-go-type-name: AccountCapabilities
+          x-speakeasy-name-override: accountCapabilities
+          required:
+          - transfer_destination
+          properties:
+            transfer_destination:
+              description: "List of the timing and associate fees available when crediting this account as a\ntransfer destination.\n\nActual fees may differ at the time of transfer; please refer to \nthe transfer preview attribute for the most accurate fee information \nfor any given transfer. \n"
+              type: array
+              items:
+                $ref: '#/components/schemas/TransferDestinationCapability'
+              minItems: 0
+              example:
+              - schedule: WITHIN_THIRTY_MINUTES
+                fee: 300
+                currency: USD
+              - schedule: NEXT_BUSINESS_DAY
+                fee: 0
+                currency: USD
+    AccountsData:
       type: object
       required:
       - data
       properties:
         data:
-          $ref: '#/components/schemas/PersonIdentifier'
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountResource'
+    ErrorBadRequest:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorBadRequestError'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
     Currency:
       type: string
       example: USD
@@ -479,102 +636,6 @@ components:
                 description: The year of the expiration date for the card.
                 type: string
                 example: '2025'
-    AccountLinks:
-      type: object
-      required:
-      - self
-      properties:
-        self:
-          $ref: '#/components/schemas/AccountLink'
-    Error:
-      type: object
-      required:
-      - status
-      - detail
-      - meta
-      - links
-      properties:
-        status:
-          description: The HTTP status code for the error.
-          example: '400'
-          type: string
-        detail:
-          description: A message that explains the meaning of the error code. Developers are advised not to make programmatic use of this value, as it may change
-          example: The request failed because it was not in the correct format or did not contain valid data.
-          type: string
-        links:
-          description: A list of links to resources that may be helpful in resolving the error.
-          type: object
-          x-go-type-name: ErrorLinks
-          properties:
-            about:
-              type: string
-              format: uri
-              example: https://developer.dailypay.com/tag/Errors
-        source:
-          description: Location in the request that may have caused the error.
-          type: object
-          x-go-type-name: ErrorSource
-          properties:
-            parameter:
-              description: The name of the parameter that caused the error.
-              example: filter[first_name]
-              type: string
-            pointer:
-              description: A JSON Pointer to the location in the request that caused the error.
-              example: /data/attributes/first_name
-              type: string
-            header:
-              description: The name of the header that caused the error.
-              example: Accept
-              type: string
-        meta:
-          x-go-type-name: ErrorMeta
-          description: Additional information about the error.
-          type: object
-          properties:
-            request_id:
-              description: A UUID for the originating request.
-              example: 3c526bf4-f3c0-4c4a-a4cb-95f7db8b3bbe
-              type: string
-            trace_id:
-              description: An ID used for tracing purposes.
-              example: '4016616108459136584'
-              type: string
-    ErrorBadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
-      - $ref: '#/components/schemas/Error'
-    ErrorBadRequest:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorBadRequestError'
-    BadRequestCodes:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
-          example: INVALID_PARAMETERS
-          type: string
-          x-go-type: string
-          x-enumDescriptions:
-            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
-            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
-            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
-            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
-            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
-            INVALID_FILTER_QUERY: The filter query is malformed.
-            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
-            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
-            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
     AccountCreateAttributes_Depository:
       type: object
       title: Depository
@@ -627,6 +688,64 @@ components:
               description: The account number. Responses from this API that return this number are masked to the last four digits.
               example: XXXXXX4321
               type: string
+    AccountCreateAttributes:
+      type: object
+      description: The details of the account.
+      oneOf:
+      - $ref: '#/components/schemas/AccountCreateAttributes_Card'
+      - $ref: '#/components/schemas/AccountCreateAttributes_Depository'
+    TransferDestinationCapability:
+      type: object
+      required:
+      - schedule
+      - fee
+      - currency
+      properties:
+        schedule:
+          type: string
+          description: The expected time for the transfer to be completed.
+          enum:
+          - WITHIN_THIRTY_MINUTES
+          - NEXT_BUSINESS_DAY
+          example: WITHIN_THIRTY_MINUTES
+        fee:
+          type: integer
+          description: 'A monetary quantity expressed in units of the lowest denomination in
+
+            the associated currency. For example, `{ amount: 299, currency: ''USD''
+
+            }` resolves to $2.99.
+
+
+            If a transfer incurs a fee, the fee will be deducted from the amount of
+
+            the transfer.
+
+            '
+          example: 0
+        currency:
+          $ref: '#/components/schemas/Currency'
+    AccountLinks:
+      type: object
+      required:
+      - self
+      properties:
+        self:
+          $ref: '#/components/schemas/AccountLink'
+    AccountData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountResource'
+    AccountCreateData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/AccountCreateResource'
     AccountCreateResource:
       type: object
       required:
@@ -643,133 +762,6 @@ components:
           $ref: '#/components/schemas/AccountCreateAttributes'
         relationships:
           $ref: '#/components/schemas/AccountRelationships'
-    AccountLink:
-      type: string
-      format: uri
-      readOnly: true
-      x-go-type-skip-optional-pointer: true
-      description: The URI for the account
-      example: https://api.dailypay.com/rest/accounts/2bc7d781-3247-46f6-b60f-4090d214936a
-    ErrorNotFound:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
-    AccountAttributes__Common:
-      type: object
-      required:
-      - balances
-      - verification_status
-      - capabilities
-      properties:
-        verification_status:
-          x-go-type-name: AccountVerificationStatus
-          x-speakeasy-name-override: accountVerificationStatus
-          description: A code that indicates the status of an account that is a destination for funds.
-          example: VERIFIED
-          type: string
-          enum:
-          - VERIFICATION_PENDING
-          - VERIFICATION_FAILED
-          - VERIFIED
-        balances:
-          type: object
-          x-go-type-name: AccountBalances
-          x-speakeasy-name-override: accountBalances
-          required:
-          - available
-          - current
-          - currency
-          properties:
-            available:
-              readOnly: true
-              type:
-              - integer
-              - 'null'
-              minimum: 0
-              description: "The amount of funds available to be withdrawn from the account. \n\nFor earnings_balance-type accounts, the available balance typically\nequals the current balance less any pending outflows, plus any pending inflows,\n\n\nThis value is in units of the lowest denomination in the associated\ncurrency. For example, `{ amount: 7250, currency: 'USD' }` resolves to\n$72.50.\n"
-              example: 12000
-            current:
-              type:
-              - integer
-              - 'null'
-              minimum: 0
-              description: "The total amount of funds settled in the account. \nThis value is in units of the lowest denomination in the associated currency. For example, `{ amount: 7250, currency: 'USD' }` resolves to $72.50.\n**Special note for Earnings Balance accounts:**\nIf a user transfers money from an Earnings Balance account to a personal account, the `current` balance may be negative as those transfers settle. When a paycheck is processed, DailyPay will automatically attempt to zero out the balance,  transferring any remaining funds to the `direct_deposit_default_depository` account set for the associated Job.\nIf DailyPay is unable to zero out the balance during paycheck processing, the `current` balance will remain negative,  which may impact a user's ability to transfer additional funds from their earnings balance. \nIn those cases, the available balance will be 0.\n"
-              example: 50000
-            currency:
-              type: string
-              example: USD
-              description: A three-letter ISO 4217 currency code. For example, `USD` for US Dollars, `EUR` for Euros, or `JPY` for Japanese Yen.
-        capabilities:
-          type: object
-          x-go-type-name: AccountCapabilities
-          x-speakeasy-name-override: accountCapabilities
-          required:
-          - transfer_destination
-          properties:
-            transfer_destination:
-              description: "List of the timing and associate fees available when crediting this account as a\ntransfer destination.\n\nActual fees may differ at the time of transfer; please refer to \nthe transfer preview attribute for the most accurate fee information \nfor any given transfer. \n"
-              type: array
-              items:
-                $ref: '#/components/schemas/TransferDestinationCapability'
-              minItems: 0
-              example:
-              - schedule: WITHIN_THIRTY_MINUTES
-                fee: 300
-                currency: USD
-              - schedule: NEXT_BUSINESS_DAY
-                fee: 0
-                currency: USD
-    AccountResource:
-      type: object
-      required:
-      - type
-      - id
-      - attributes
-      - links
-      - relationships
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: The unique identifier of the Account.
-          example: 2bc7d781-3247-46f6-b60f-4090d214936a
-        type:
-          type: string
-          const: accounts
-          example: accounts
-          description: The type of the resource. Always `accounts`.
-        attributes:
-          $ref: '#/components/schemas/AccountAttributes'
-        links:
-          $ref: '#/components/schemas/AccountLinks'
-        relationships:
-          $ref: '#/components/schemas/AccountRelationships'
-    PersonIdentifier:
-      type: object
-      required:
-      - type
-      - id
-      properties:
-        type:
-          type: string
-          const: people
-          example: people
-        id:
-          type: string
-          format: uuid
-          example: 3fa8f641-5717-4562-b3fc-2c963f66afa6
-    AccountCreateAttributes:
-      type: object
-      description: The details of the account.
-      oneOf:
-      - $ref: '#/components/schemas/AccountCreateAttributes_Card'
-      - $ref: '#/components/schemas/AccountCreateAttributes_Depository'
     ErrorNotFoundError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -792,6 +784,16 @@ components:
       allOf:
       - $ref: '#/components/schemas/AccountAttributes__Common'
       - $ref: '#/components/schemas/AccountCreateAttributes_Depository'
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
     AccountCreateAttributes_Card:
       type: object
       title: Card
@@ -888,81 +890,97 @@ components:
               example: '411600'
               minLength: 6
               maxLength: 8
-    ErrorForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: FORBIDDEN
-            type: string
-            enum:
-            - FORBIDDEN
-            x-enumDescriptions:
-              FORBIDDEN: Requester is not allowed to access this resource or endpoint
-    AccountsData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountResource'
-    AccountAttributes_EarningsBalance:
-      allOf:
-      - $ref: '#/components/schemas/AccountAttributes__Common'
-      - type: object
-        title: Earnings Balance (read only)
-        description: An account with type `EARNINGS_BALANCE` and subtype `ODP`.
-        required:
-        - account_type
-        - subtype
-        - details
-        - name
-        properties:
-          name:
-            type: string
-            description: Display name for this account.
-            example: DailyPay Pay Balance
-          account_type:
-            type: string
-            description: The type of account. It differentiates between depository accounts (e.g. bank account), cards (e.g. debit) and earnings balance type of accounts (e.g. on demand pay).
-            const: EARNINGS_BALANCE
-          subtype:
-            type: string
-            description: The subtype of the account.
-            const: ODP
-          details:
-            type: object
-            description: An empty object for earnings balance accounts.
-            minProperties: 0
-            maxProperties: 0
-    ErrorUnexpectedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
-            type: string
-            enum:
-            - UNEXPECTED_ERROR
-            x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
+  parameters:
+    apiversion:
+      name: DailyPay-API-Version
+      in: header
+      schema:
+        type: integer
+        default: 3
+      required: false
+      x-speakeasy-globals-hidden: true
+      x-speakeasy-name-override: version
+      description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
+
+        '
+    filter.account_subtype:
+      name: filter[subtype]
+      in: query
+      description: Limit the results to documents matching the specified account subtype.
+      required: false
+      schema:
+        type: string
+        example: ODP
+        x-enumDescriptions:
+          ODP: On Demand Pay (Earnings Balance)
+          CHECKING: Checking Account (Depository)
+          SAVINGS: Savings Account (Depository)
+          DAILYPAY: DailyPay Card (Card)
+          DEBIT: Debit Card (Card)
+    filter.account_type:
+      name: filter[account_type]
+      in: query
+      description: Limit the results to documents matching the specified account type.
+      required: false
+      schema:
+        type: string
+        example: EARNINGS_BALANCE
+        enum:
+        - EARNINGS_BALANCE
+        - DEPOSITORY
+        - CARD
+    filter.person.id:
+      name: filter[person.id]
+      in: query
+      description: Limit the results to documents related to a specific person
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: aa860051-c411-4709-9685-c1b716df611b
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
+    account_id:
+      name: account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 2bc7d781-3247-46f6-b60f-4090d214936a
+      description: Unique UUID of the Account.
   responses:
-    BadRequest:
-      description: Bad Request
+    Forbidden:
+      description: Not authorized to perform this operation
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/ErrorBadRequest'
+            $ref: '#/components/schemas/ErrorForbidden'
+    AccountCreate400:
+      description: The request contained an error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/AccountCreateError'
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
     Accounts200:
       description: Returns the account object.
       content:
@@ -1052,42 +1070,24 @@ components:
                         id: 3fa8f641-5717-4562-b3fc-2c963f66afa6
                   links:
                     self: https://api.dailypay.com/accounts/3fa8f641-5717-4562-b3fc-2c963f66afa6
-    NotFound:
-      description: Resource was not found
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorNotFound'
-    Unexpected:
-      description: Unexpected error occured
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
-    Forbidden:
-      description: Not authorized to perform this operation
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorForbidden'
-    AccountCreate400:
-      description: The request contained an error
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/AccountCreateError'
-    Account200:
-      description: Returns the account object.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/AccountData'
     Unauthorized:
       description: Invalid authentication credentials
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/ErrorUnauthorized'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    Account200:
+      description: Returns the account object.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/AccountData'
   requestBodies:
     AccountCreate:
       required: true

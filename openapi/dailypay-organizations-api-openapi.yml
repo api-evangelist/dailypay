@@ -118,28 +118,21 @@ paths:
         source: "package hello.world;\n\nimport com.dailypay.sdk.DailyPay;\nimport com.dailypay.sdk.models.components.SchemeOauthClientCredentialsToken;\nimport com.dailypay.sdk.models.components.Security;\nimport com.dailypay.sdk.models.errors.*;\nimport com.dailypay.sdk.models.operations.ListOrganizationsResponse;\nimport java.lang.Exception;\n\npublic class Application {\n\n    public static void main(String[] args) throws ErrorBadRequest, ErrorUnauthorized, ErrorForbidden, ErrorUnexpected, Exception {\n\n        DailyPay sdk = DailyPay.builder()\n                .version(3L)\n                .security(Security.builder()\n                    .oauthClientCredentialsToken(SchemeOauthClientCredentialsToken.builder()\n                        .clientID(\"<id>\")\n                        .clientSecret(\"<value>\")\n                        .tokenURL(\"https://api.dailypay.com/oauth/token\")\n                        .build())\n                    .build())\n            .build();\n\n        ListOrganizationsResponse res = sdk.organizations().list()\n                .call();\n\n        if (res.organizationsData().isPresent()) {\n            // handle response\n        }\n    }\n}"
 components:
   schemas:
-    OrganizationLink:
-      type: string
-      format: uri
-      readOnly: true
-      example: https://api.dailypay.com/rest/organizations/f0b30634-108c-439c-a8c1-c6a91197f022
-    OrganizationData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          $ref: '#/components/schemas/OrganizationResource'
-    ErrorForbidden:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorForbiddenError'
+    ErrorForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: FORBIDDEN
+            type: string
+            enum:
+            - FORBIDDEN
+            x-enumDescriptions:
+              FORBIDDEN: Requester is not allowed to access this resource or endpoint
     ErrorUnauthorizedError:
       allOf:
       - $ref: '#/components/schemas/Error'
@@ -157,6 +150,47 @@ components:
             x-enumDescriptions:
               INVALID_TOKEN: Provided token is missing, expired, revoked, or otherwise invalid.
               UNAUTHORIZED: Authentication has not been provided or is invalid.
+    OrganizationData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/OrganizationResource'
+    BadRequestCodes:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
+          example: INVALID_PARAMETERS
+          type: string
+          x-go-type: string
+          x-enumDescriptions:
+            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
+            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
+            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
+            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
+            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
+            INVALID_FILTER_QUERY: The filter query is malformed.
+            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
+            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
+            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
+    ErrorBadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/BadRequestCodes'
+      - $ref: '#/components/schemas/Error'
+    ErrorNotFound:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorNotFoundError'
     ErrorUnexpected:
       type: object
       required:
@@ -167,34 +201,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorUnexpectedError'
-    ErrorUnauthorized:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorUnauthorizedError'
-    OrganizationResource:
-      type: object
-      required:
-      - type
-      - id
-      - attributes
-      - links
-      properties:
-        type:
-          type: string
-          readOnly: true
-          const: organizations
-        id:
-          $ref: '#/components/schemas/OrganizationID'
-        attributes:
-          $ref: '#/components/schemas/OrganizationAttributes'
-        links:
-          $ref: '#/components/schemas/OrganizationLinks'
     OrganizationID:
       description: String identifier that is unique to this organization. You can safely assume the identifier to never exceed 64 characters.
       example: f0b30634-108c-439c-a8c1-c6a91197f022
@@ -256,10 +262,34 @@ components:
               description: An ID used for tracing purposes.
               example: '4016616108459136584'
               type: string
-    ErrorBadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/BadRequestCodes'
-      - $ref: '#/components/schemas/Error'
+    ErrorUnauthorized:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorUnauthorizedError'
+    OrganizationResource:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      - links
+      properties:
+        type:
+          type: string
+          readOnly: true
+          const: organizations
+        id:
+          $ref: '#/components/schemas/OrganizationID'
+        attributes:
+          $ref: '#/components/schemas/OrganizationAttributes'
+        links:
+          $ref: '#/components/schemas/OrganizationLinks'
     ErrorBadRequest:
       type: object
       required:
@@ -270,45 +300,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ErrorBadRequestError'
-    BadRequestCodes:
-      type: object
-      required:
-      - code
-      properties:
-        code:
-          description: A code that indicates what went wrong. Please consider this an open enum, where new codes may be added over time.
-          example: INVALID_PARAMETERS
-          type: string
-          x-go-type: string
-          x-enumDescriptions:
-            INVALID_USER_INPUT: The server was unable to understand the request. Check for syntax or structural errors.
-            INVALID_PARAMETERS: Missing or invalid request parameters provided. See the `details` field for specifics.
-            INVALID_IDEMPOTENCY_KEY: Idempotency key was used for a dissimilar request.  Request payloads must be identical when reusing an idempotency key.
-            INVALID_RESOURCE_LINK: The target resource URI is missing or invalid.
-            INVALID_VERSION_HEADER: Request contained an API version header that is not supported
-            INVALID_FILTER_QUERY: The filter query is malformed.
-            INVALID_FILTER_FIELD: Filter query is valid, but contains a field that is unsupported for this resource
-            INVALID_FILTER_VALUE: Filter query is valid, but contains a value in a format that is unsupported for the associated field
-            INVALID_FIELD_OPERATION: Indicates an filter operation that is not supported for the field
-    OrganizationsData:
-      type: object
-      required:
-      - data
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationResource'
-    ErrorNotFound:
-      type: object
-      required:
-      - errors
-      properties:
-        errors:
-          description: A list of errors that occurred.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorNotFoundError'
+    ErrorUnexpectedError:
+      allOf:
+      - $ref: '#/components/schemas/Error'
+      - type: object
+        required:
+        - code
+        properties:
+          code:
+            description: A code that indicates what went wrong.
+            example: UNEXPECTED_ERROR
+            type: string
+            enum:
+            - UNEXPECTED_ERROR
+            x-enumDescriptions:
+              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
     OrganizationAttributes:
       type: object
       properties:
@@ -354,89 +360,31 @@ components:
             x-enumDescriptions:
               RECORD_NOT_FOUND: Could not find a record with the provided ID
               NOT_FOUND: Could not find resources matching the query parameters
-    ErrorForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: FORBIDDEN
-            type: string
-            enum:
-            - FORBIDDEN
-            x-enumDescriptions:
-              FORBIDDEN: Requester is not allowed to access this resource or endpoint
-    ErrorUnexpectedError:
-      allOf:
-      - $ref: '#/components/schemas/Error'
-      - type: object
-        required:
-        - code
-        properties:
-          code:
-            description: A code that indicates what went wrong.
-            example: UNEXPECTED_ERROR
-            type: string
-            enum:
-            - UNEXPECTED_ERROR
-            x-enumDescriptions:
-              UNEXPECTED_ERROR: This one is on us. Something unexpected went wrong
-  responses:
-    Organizations200:
-      description: Returns a list of organization objects that match the filter. If no organizations match the filter, the resulting collection will be empty. If no filter is provider, the resulting collection will include all accessible organizations.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/OrganizationsData'
-    BadRequest:
-      description: Bad Request
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorBadRequest'
-    NotFound:
-      description: Resource was not found
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorNotFound'
-    Unexpected:
-      description: Unexpected error occured
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnexpected'
-    Forbidden:
-      description: Not authorized to perform this operation
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorForbidden'
-    Organization200:
-      description: Returns details about an organization.
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/OrganizationData'
-    Unauthorized:
-      description: Invalid authentication credentials
-      content:
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/ErrorUnauthorized'
+    OrganizationLink:
+      type: string
+      format: uri
+      readOnly: true
+      example: https://api.dailypay.com/rest/organizations/f0b30634-108c-439c-a8c1-c6a91197f022
+    OrganizationsData:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationResource'
+    ErrorForbidden:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          description: A list of errors that occurred.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorForbiddenError'
   parameters:
-    filter:
-      name: filter
-      x-speakeasy-name-override: filter-by
-      in: query
-      required: false
-      deprecated: true
-      schema:
-        type: string
-        example: ''
     apiversion:
       name: DailyPay-API-Version
       in: header
@@ -449,6 +397,15 @@ components:
       description: 'The version of the DailyPay API to use for this request. If not provided, the latest version of the API will be used.
 
         '
+    filter:
+      name: filter
+      x-speakeasy-name-override: filter-by
+      in: query
+      required: false
+      deprecated: true
+      schema:
+        type: string
+        example: ''
     organization_id:
       name: organization_id
       in: path
@@ -459,6 +416,49 @@ components:
         example: 123e4567-e89b-12d3-a456-426614174000
         readOnly: true
         type: string
+  responses:
+    Organizations200:
+      description: Returns a list of organization objects that match the filter. If no organizations match the filter, the resulting collection will be empty. If no filter is provider, the resulting collection will include all accessible organizations.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/OrganizationsData'
+    Forbidden:
+      description: Not authorized to perform this operation
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorForbidden'
+    Organization200:
+      description: Returns details about an organization.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/OrganizationData'
+    Unexpected:
+      description: Unexpected error occured
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnexpected'
+    NotFound:
+      description: Resource was not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorNotFound'
+    Unauthorized:
+      description: Invalid authentication credentials
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorUnauthorized'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
   securitySchemes:
     oauth_client_credentials_token:
       type: oauth2
