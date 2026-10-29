@@ -64,59 +64,131 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-DailyPay is an on-demand pay (earned wage access) platform that lets employees access wages they
-have already earned before the scheduled payday. It sells to employers across healthcare, retail,
-restaurants, manufacturing, hospitality and the public sector, and integrates with 180+ HCM,
-payroll and time-management systems.
+DailyPay is an on-demand pay (earned wage access) platform that lets employees access wages they have already earned before the scheduled payday. The company sells to employers across healthcare, retail, restaurants, manufacturing, hospitality and the public sector, and integrates with 180+ HCM, payroll and time-management systems. Its developer surface — the DailyPay REST API — is a json:api-shaped OAuth 2.0 / OpenID Connect API covering people, jobs, organizations, paychecks, accounts (including the EARNINGS_BALANCE account that carries available earnings), transfers and PCI-scoped debit-card tokenization, complemented by DailyPay Elements, a set of hosted drop-in iframe components for embedding on-demand pay into partner applications.
 
-- Website — https://www.dailypay.com/
-- Developer portal — https://developer.dailypay.com/
-- API reference — https://developer.dailypay.com/products/rest/reference
-- Status — https://status.dailypay.com/
-- GitHub — https://github.com/dailypay
+**Areas:** Company · Payments · Payroll · Human Resources · Earned Wage Access · On-Demand Pay · Financial Services · Fintech · Money Transfer · Benefits
 
-## API
+## DailyPay on APIs.io
 
-The **DailyPay Rest API** is a json:api implementation covering people, jobs, organizations,
-paychecks, accounts (including the `EARNINGS_BALANCE` account carrying available earnings),
-transfers, and PCI-scoped debit-card tokenization. It is secured with OAuth 2.0 client-credentials
-and authorization-code (PKCE) flows against `auth.dailypay.com`, versioned by the
-`DailyPay-API-Version` header, and requires an `Idempotency-Key` on transfer creation.
+Everything profiled for DailyPay is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/dailypay/](https://apis.io/providers/dailypay/)** — or go straight to one of the APIs or properties below.
 
-- Production: `https://api.dailypay.com/rest`
-- UAT: `https://api.dailypayuat.com/rest`
-- OpenAPI 3.1.0 (18 operations, 95 schemas) — `openapi/dailypay-rest-openapi-original.yml`,
-  harvested from https://developer.dailypay.com/_bundle/products/rest/reference/index.yaml
+### APIs (8)
 
-**DailyPay Elements** are hosted iframe components (available earnings, call to action, debit-card
-tokenization) that embed on-demand pay with no API integration — see `components/`.
+- [DailyPay Accounts API](https://apis.io/apis/dailypay/dailypay-accounts-api/) — The _accounts_ endpoint provides comprehensive information about money accounts. You can retrieve account details, including the account's unique ID, a link…
+- [DailyPay Card Tokenization API](https://apis.io/apis/dailypay/dailypay-card-tokenization-api/) — Securely tokenize personal cards for use in the accounts API.
+- [DailyPay Health API](https://apis.io/apis/dailypay/dailypay-health-api/) — The _health_ endpoint provides a simple health check for the API. **Functionality:** Check the status of the API to ensure it is functioning correctly.
+- [DailyPay Jobs API](https://apis.io/apis/dailypay/dailypay-jobs-api/) — The _jobs_ endpoint provides access to comprehensive information about a person's employment. It enables you to retrieve details about individual jobs,…
+- [DailyPay Organizations API](https://apis.io/apis/dailypay/dailypay-organizations-api/) — The _organizations_ endpoint provides details about a business entity, such as an employer, or a group of people, such as a division. The response includes…
+- [DailyPay Paychecks API](https://apis.io/apis/dailypay/dailypay-paychecks-api/) — The _paychecks_ endpoint provides detailed information about paychecks. You can retrieve individual paycheck details, including the person and job…
+- [DailyPay People API](https://apis.io/apis/dailypay/dailypay-people-api/) — The _people_ endpoint allows you to see information related to who owns resources such as jobs and accounts. **Functionality:** Retrieve limited details…
+- [DailyPay Transfers API](https://apis.io/apis/dailypay/dailypay-transfers-api/) — The _transfers_ endpoint allows you to initiate and track money movement. You can access transfer details, including the transfer's unique ID, amount,…
 
-## Artifacts
+### Published properties
 
-| Directory | What it holds |
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [dailypay-mcp.yml](https://apis.io/servers/dailypay/dailypay-mcp-yml/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Dailypay Agentic Access](https://apis.io/agentic-access/dailypay/dailypay-agentic-access/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Dailypay Rest Overlay](https://apis.io/overlays/dailypay/dailypay-rest-overlay/)
+
+#### Security (4)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Dailypay Authentication](https://apis.io/security/dailypay/dailypay-authentication/)
+- [Dailypay Domain Security](https://apis.io/security/dailypay/dailypay-domain-security/)
+- [Dailypay Trust Center](https://apis.io/security/dailypay/dailypay-trust-center/)
+- [Dailypay Vulnerability Disclosure](https://apis.io/security/dailypay/dailypay-vulnerability-disclosure/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Dailypay Scopes](https://apis.io/scopes/dailypay/dailypay-scopes/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.dailypay.com/)
+- [Documentation](https://developer.dailypay.com/products/rest)
+- [Getting started](https://developer.dailypay.com/products/rest/guides/auth)
+- [API reference](https://developer.dailypay.com/products/rest/reference)
+- [Sign up](https://dailypay.app.link/vYyj0iSlyTb)
+- [Support](https://www.dailypay.com/contact/)
+- [Blog](https://www.dailypay.com/resource-center/blog/)
+- [Security](https://www.dailypay.com/security/vulnerability-disclosure-program/)
+- [Compliance](https://www.dailypay.com/en-us/legal/compliance/)
+- [Terms of service](https://www.dailypay.com/en-us/legal/terms-of-service/)
+- [Privacy policy](https://www.dailypay.com/en-us/legal/privacy/)
+- [GitHub](https://github.com/dailypay)
+- [Status](https://status.dailypay.com/)
+
+## API Evangelist rating
+
+**Kin Score 53.1** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
 |---|---|
-| `openapi/` | The published OpenAPI 3.1.0 bundle, verbatim |
-| `overlays/` | OpenAPI Overlay 1.0.0 of our enhancements |
-| `authentication/`, `scopes/` | OAuth 2.0 / OIDC profile and the five API scopes |
-| `conventions/` | json:api semantics, idempotency, filtering, versioning, tracing |
-| `errors/` | 41 problem codes from the json:api `errors[]` envelope, plus 35 transfer/account rejection codes |
-| `data-model/` | Entity graph derived from the json:api relationships |
-| `lifecycle/` | Header versioning, Statuspage components, health endpoint |
-| `sandbox/` | UAT environment and the (absent) test-value surface |
-| `conformance/` | json:api, OAuth 2.0, OIDC, PKCE, PCI DSS L1, SOC 2 Type 2, ISO 27001 |
-| `security/` | Domain security probe, vulnerability disclosure program, trust center |
-| `well-known/` | OIDC discovery + two OAuth authorization-server documents |
-| `mcp/` | Two auth-gated MCP endpoints (docs + marketing site) and the REST tool crosswalk |
-| `packages/` | Four official Speakeasy-generated SDKs (TypeScript, Go, .NET 8, .NET 9) |
-| `components/` | DailyPay Elements |
-| `skills/` | Four packaged Agent Skills grounded in real operationIds |
-| `agentic-access/` | Recommended `x-agentic-access` contracts for all 18 operations |
-| `llms/` | The provider's own `llms.txt`, verbatim |
+| Discoverability | 75.0 |
+| Contract quality | 50.0 |
+| Contract governance | 18.2 |
+| Operational transparency | 28.9 |
+| Developer ergonomics | 73.2 |
+| Access clarity | 50.0 |
 
-## Notes
+**Agent readiness 47.8** — agent-ready (gated down from agent-native)
 
-- No webhooks, event surface or AsyncAPI is published.
-- No dated changelog or release-notes page is published.
-- No first-party CLI.
-- No `/.well-known/security.txt` on any host, and no A2A agent card.
-- No published rate-limit policy.
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | verified |
+| Auth Clarity | served (partial credit) |
+| Idempotency | verified |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 41.1** — Payments
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/dailypay/](https://apis.io/providers/dailypay/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for DailyPay: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/dailypay/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
